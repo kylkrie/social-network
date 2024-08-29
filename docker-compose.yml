@@ -1,0 +1,72 @@
+version: "3.8"
+
+services:
+  svelte-app:
+    build:
+      context: ./svelte-app
+      dockerfile: Dockerfile
+      target: local
+    environment:
+      - VITE_API_URL=http://localhost:4000
+      - VITE_CLIENT_ID=social-client
+      - VITE_BASE_URL=http://localhost:3000
+      - VITE_OAUTH_BASE_URL=http://localhost:8080/realms/social/protocol/openid-connect
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./svelte-app:/app
+    depends_on:
+      - api-service
+
+  api-service:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+      target: local
+    environment:
+      - OAUTH_CLIENT_ID=social-client
+      - OAUTH_CLIENT_SECRET=social_secret
+      - OAUTH_REDIRECT_URI=http://localhost:3000/callback
+      - OAUTH_AUTH_URL=http://keycloak:8080/realms/social/protocol/openid-connect/auth
+      - OAUTH_TOKEN_URL=http://keycloak:8080/realms/social/protocol/openid-connect/token
+      - ALLOWED_ORIGIN=http://localhost:3000
+      - PORT=4000
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./api-service:/app
+    depends_on:
+      - keycloak
+    networks:
+      - app-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+      - keycloak_data:/opt/keycloak/data
+    command:
+      - start-dev
+      - --import-realm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  keycloak_data:
