@@ -51,7 +51,7 @@ services:
       - "8080:8080"
       - "9000:9000"
     volumes:
-      - ./keycloak:/opt/keycloak/data/import
+      - ./keycloak/local:/opt/keycloak/data/import
       - keycloak_data:/opt/keycloak/data
     command:
       - start-dev

@@ -43,7 +43,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./keycloak:/opt/keycloak/data/import
+      - ./keycloak/prod:/opt/keycloak/data/import
       - keycloak_data:/opt/keycloak/data
     command:
       - start-dev
