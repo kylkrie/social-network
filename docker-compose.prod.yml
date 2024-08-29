@@ -1,0 +1,64 @@
+version: "3.8"
+services:
+  svelte-app:
+    build:
+      context: ./svelte-app
+      dockerfile: Dockerfile
+      target: local
+    environment:
+      - VITE_API_URL=https://api.yabro.io
+      - VITE_CLIENT_ID=social-client
+      - VITE_BASE_URL=https://yabro.io
+      - VITE_OAUTH_BASE_URL=https://auth.yabro.io/realms/social/protocol/openid-connect
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+  api-service:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+      target: local
+    environment:
+      - OAUTH_CLIENT_ID=social-client
+      - OAUTH_CLIENT_SECRET=social_secret
+      - OAUTH_REDIRECT_URI=https://yabro.io/callback
+      - OAUTH_AUTH_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/auth
+      - OAUTH_TOKEN_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/token
+      - ALLOWED_ORIGIN=https://yabro.io
+      - PORT=4000
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME=auth.yabro.io
+      - KC_HOSTNAME_STRICT_HTTPS=true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+      - keycloak_data:/opt/keycloak/data
+    command:
+      - start-dev
+      - --import-realm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  keycloak_data:
