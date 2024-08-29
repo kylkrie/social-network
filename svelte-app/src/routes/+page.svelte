@@ -3,21 +3,24 @@
   import { ArrowRight, Users, MessageCircle, Share2 } from "lucide-svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import Card from "$lib/components/ui/Card.svelte";
-  import { startOAuth, getAuthState } from "$lib/auth";
+  import { getAuthState, startAuthLogin, startAuthRegister } from "$lib/auth";
+  import { goto } from "$app/navigation";
 
   let isAuthenticated = false;
 
   function handleLogin() {
-    startOAuth();
+    startAuthLogin();
   }
 
   function handleSignUp() {
-    // Redirect to sign up page or start sign up process
-    console.log("Sign up clicked");
+    startAuthRegister();
   }
 
   onMount(() => {
     isAuthenticated = getAuthState().isAuthenticated;
+    if (isAuthenticated) {
+      goto("/dashboard");
+    }
   });
 </script>
 
