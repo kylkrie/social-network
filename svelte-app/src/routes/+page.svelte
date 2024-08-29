@@ -1,87 +1,82 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { startOAuth, getAuthState, clearToken } from "$lib/auth";
+  import { ArrowRight, Users, MessageCircle, Share2 } from "lucide-svelte";
+  import Button from "$lib/components/ui/Button.svelte";
+  import Card from "$lib/components/ui/Card.svelte";
+  import { startOAuth, getAuthState } from "$lib/auth";
 
   let isAuthenticated = false;
-  let userInfo: any = null;
-
-  async function fetchUserInfo() {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${getAuthState().token}`,
-      },
-    });
-    if (response.ok) {
-      userInfo = await response.json();
-    } else {
-      console.error("Failed to fetch user info");
-    }
-  }
 
   function handleLogin() {
     startOAuth();
   }
 
-  function handleLogout() {
-    clearToken();
-    isAuthenticated = false;
-    userInfo = null;
+  function handleSignUp() {
+    // Redirect to sign up page or start sign up process
+    console.log("Sign up clicked");
   }
 
   onMount(() => {
     isAuthenticated = getAuthState().isAuthenticated;
-    if (isAuthenticated) {
-      fetchUserInfo();
-    }
   });
-
-  $: if (isAuthenticated) {
-    fetchUserInfo();
-  }
 </script>
 
-<main>
-  <h1>Welcome to Our App</h1>
+<div class="min-h-screen bg-gradient-to-b from-indigo-100 to-white">
+  <header class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center text-indigo-800">Yabro Social</h1>
+    <p class="text-xl text-center mt-4 text-gray-600">
+      Connect, Share, and Engage with Your Community
+    </p>
+  </header>
 
-  {#if isAuthenticated}
-    <div>
-      <h2>User Information</h2>
-      {#if userInfo}
-        <p>Username: {userInfo.preferred_username}</p>
-        <p>Email: {userInfo.email}</p>
-        <p>Full Name: {userInfo.name}</p>
+  <main class="container mx-auto px-4 py-12">
+    <div class="flex justify-center space-x-4 mb-12">
+      {#if isAuthenticated}
+        <Button
+          variant="default"
+          size="lg"
+          on:click={() => (window.location.href = "/dashboard")}
+        >
+          Go to Dashboard <ArrowRight class="ml-2 h-4 w-4" />
+        </Button>
       {:else}
-        <p>Loading user information...</p>
+        <Button variant="default" size="lg" on:click={handleLogin}>
+          Log In <ArrowRight class="ml-2 h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="lg" on:click={handleSignUp}>
+          Sign Up
+        </Button>
       {/if}
-      <button on:click={handleLogout}>Logout</button>
     </div>
-  {:else}
-    <button on:click={handleLogin}>Login</button>
-  {/if}
-</main>
 
-<style>
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      {#each [{ icon: Users, title: "Build Connections", description: "Connect with friends, family, and like-minded individuals in your community." }, { icon: MessageCircle, title: "Engaging Discussions", description: "Participate in meaningful conversations on topics that matter to you." }, { icon: Share2, title: "Share Your World", description: "Share your experiences, thoughts, and moments with your network." }] as feature}
+        <Card title={feature.title}>
+          <div class="flex flex-col items-center">
+            <svelte:component
+              this={feature.icon}
+              class="w-12 h-12 text-indigo-500 mb-4"
+            />
+            <p class="text-gray-600 text-center">{feature.description}</p>
+          </div>
+        </Card>
+      {/each}
+    </section>
 
-  h1 {
-    color: #333;
-    text-align: center;
-  }
+    <section class="text-center">
+      <h2 class="text-3xl font-semibold mb-4">Join Yabro Social Today</h2>
+      <p class="text-xl text-gray-600 mb-8">
+        Experience a new way of social networking that puts community first.
+      </p>
+      <Button variant="default" size="lg" on:click={handleSignUp}>
+        Get Started
+      </Button>
+    </section>
+  </main>
 
-  button {
-    background-color: #4caf50;
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-  }
-</style>
+  <footer class="bg-indigo-800 text-white py-8 mt-12">
+    <div class="container mx-auto px-4 text-center">
+      <p>&copy; 2024 Yabro Social. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

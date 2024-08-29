@@ -24,7 +24,7 @@ export function getAuthState(): AuthState {
   return getStoredAuthState();
 }
 
-export function setToken(token: string): void {
+function setToken(token: string): void {
   const newState = { isAuthenticated: true, token };
   setStoredAuthState(newState);
 }
@@ -34,7 +34,7 @@ export function clearToken(): void {
   setStoredAuthState(newState);
 }
 
-export function generateState(): string {
+function generateState(): string {
   return (
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
@@ -66,16 +66,13 @@ export async function handleCallback(
   }
 
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/exchange-code`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code }),
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ code }),
+    });
 
     if (response.ok) {
       const data = await response.json();

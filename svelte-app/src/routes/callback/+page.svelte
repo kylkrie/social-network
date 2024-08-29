@@ -4,7 +4,7 @@
   import { browser } from "$app/environment";
   import { handleCallback } from "$lib/auth";
 
-  let message = "Processing OAuth callback...";
+  let message = "";
 
   onMount(async () => {
     if (browser) {
@@ -15,8 +15,7 @@
       if (code && state) {
         const success = await handleCallback(code, state);
         if (success) {
-          message = "Authentication successful!";
-          setTimeout(() => goto("/"), 2000);
+          goto("/");
         } else {
           message = "Authentication failed. Please try again.";
         }
