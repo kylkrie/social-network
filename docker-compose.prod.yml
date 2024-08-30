@@ -12,8 +12,10 @@ services:
       - VITE_OAUTH_BASE_URL=https://auth.yabro.io/realms/social/protocol/openid-connect
     ports:
       - "3000:3000"
-    networks:
-      - app-network
+    volumes:
+      - ./svelte-app:/app
+    depends_on:
+      - api-service
 
   api-service:
     build:
@@ -30,6 +32,10 @@ services:
       - PORT=4000
     ports:
       - "4000:4000"
+    volumes:
+      - ./api-service:/app
+    depends_on:
+      - keycloak
     networks:
       - app-network
 

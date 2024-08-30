@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   svelte-app:
     build:
@@ -49,7 +48,6 @@ services:
 
     ports:
       - "8080:8080"
-      - "9000:9000"
     volumes:
       - ./keycloak/local:/opt/keycloak/data/import
       - keycloak_data:/opt/keycloak/data
