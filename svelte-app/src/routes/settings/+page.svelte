@@ -4,7 +4,6 @@
   import { Bell, Eye, Moon, Globe } from "lucide-svelte";
   import Card from "$lib/components/ui/Card.svelte";
   import Button from "$lib/components/ui/Button.svelte";
-  import Alert from "$lib/components/ui/Alert.svelte";
 
   let user = {
     notifications: {
@@ -47,13 +46,7 @@
 </script>
 
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Settings</h1>
-
-  {#if showSuccessMessage}
-    <Alert title="Success" variant="default" class="mb-4">
-      Your settings have been updated successfully.
-    </Alert>
-  {/if}
+  <h1 class="text-3xl font-bold mb-6 text-primary">Settings</h1>
 
   <div class="space-y-6">
     <Card title="Notification Settings">

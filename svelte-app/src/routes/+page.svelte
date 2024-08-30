@@ -124,7 +124,7 @@
     </footer>
   </div>
 {:else}
-  <h1 class="text-2xl font-semibold text-gray-900 mb-6">Home</h1>
+  <h1 class="text-2xl font-semibold text-gray-900 mb-6 text-primary">Home</h1>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- User Profile -->

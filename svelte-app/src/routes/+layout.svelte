@@ -36,7 +36,7 @@
 {:else}
   <div class="flex flex-col h-screen">
     <TopBar onToggleSidebar={toggleSidebar} />
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden bg-background">
       <SideBar
         bind:isSidebarOpen
         {sidebarItems}
