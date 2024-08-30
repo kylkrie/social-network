@@ -19,7 +19,7 @@
   onMount(() => {
     isAuthenticated = getAuthState().isAuthenticated;
     if (isAuthenticated) {
-      goto("/dashboard");
+      goto("/home");
     }
   });
 </script>
@@ -38,7 +38,7 @@
         <Button
           variant="default"
           size="lg"
-          on:click={() => (window.location.href = "/dashboard")}
+          on:click={() => (window.location.href = "/home")}
         >
           Go to Dashboard <ArrowRight class="ml-2 h-4 w-4" />
         </Button>

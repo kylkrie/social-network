@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import { handleCallback } from "$lib/auth";
 
@@ -14,9 +13,7 @@
 
       if (code && state) {
         const success = await handleCallback(code, state);
-        if (success) {
-          goto("/");
-        } else {
+        if (!success) {
           message = "Authentication failed. Please try again.";
         }
       } else {

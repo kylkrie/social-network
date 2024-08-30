@@ -41,7 +41,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	r.POST("/exchange-code", exchangeCode)
+	r.POST("/token", exchangeCode)
 	r.GET("/userinfo", getUserInfo)
 
 	port := os.Getenv("PORT")

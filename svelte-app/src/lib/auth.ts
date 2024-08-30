@@ -1,9 +1,13 @@
 import { goto } from "$app/navigation";
 
+import { writable } from "svelte/store";
+
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const REDIRECT_URI = `${BASE_URL}/callback`;
 const OAUTH_BASE_URL = import.meta.env.VITE_OAUTH_BASE_URL;
+
+export const isAuthenticated = writable(false);
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -26,14 +30,16 @@ export function getAuthState(): AuthState {
   return getStoredAuthState();
 }
 
-function setToken(token: string): void {
+export function setToken(token: string): void {
   const newState = { isAuthenticated: true, token };
   setStoredAuthState(newState);
+  isAuthenticated.set(true);
 }
 
-function clearToken(): void {
+export function clearToken(): void {
   const newState = { isAuthenticated: false, token: null };
   setStoredAuthState(newState);
+  isAuthenticated.set(false);
 }
 
 function generateState(): string {
@@ -97,6 +103,7 @@ export async function handleCallback(
     if (response.ok) {
       const data = await response.json();
       setToken(data.access_token);
+      goto("/home");
       return true;
     }
   } catch (error) {
