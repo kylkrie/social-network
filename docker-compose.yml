@@ -5,16 +5,12 @@ services:
       context: ./svelte-app
       dockerfile: Dockerfile
       target: local
-    environment:
-      - VITE_API_URL=http://localhost:4000
-      - VITE_CLIENT_ID=social-client
-      - VITE_BASE_URL=http://localhost:3000
-      - VITE_OAUTH_BASE_URL=http://localhost:8080/realms/social/protocol/openid-connect
     ports:
       - "3000:3000"
     volumes:
       - ./svelte-app:/app
       - /app/node_modules
+      - /app/.svelte-kit
     depends_on:
       - api-service
 

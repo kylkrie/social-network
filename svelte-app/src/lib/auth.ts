@@ -58,6 +58,8 @@ export function startAuthLogin(): void {
   const state = generateState();
   sessionStorage.setItem("oauth_state", state);
 
+  console.log(OAUTH_BASE_URL, BASE_URL, REDIRECT_URI, OAUTH_BASE_URL);
+
   const authUrl = new URL(`${OAUTH_BASE_URL}/auth`);
   authUrl.searchParams.append("client_id", CLIENT_ID);
   authUrl.searchParams.append("redirect_uri", REDIRECT_URI);

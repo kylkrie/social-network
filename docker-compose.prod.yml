@@ -4,17 +4,13 @@ services:
     build:
       context: ./svelte-app
       dockerfile: Dockerfile
-      target: local
-    environment:
-      - VITE_API_URL=https://api.yabro.io
-      - VITE_CLIENT_ID=social-client
-      - VITE_BASE_URL=https://yabro.io
-      - VITE_OAUTH_BASE_URL=https://auth.yabro.io/realms/social/protocol/openid-connect
+      target: prod
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - ./svelte-app:/app
       - /app/node_modules
+      - /app/.svelte-kit
     depends_on:
       - api-service
 
