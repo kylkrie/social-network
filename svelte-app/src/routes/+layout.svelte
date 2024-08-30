@@ -1,19 +1,14 @@
 <script lang="ts">
-  import { onMount, afterUpdate } from "svelte";
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import "../app.css";
   import TopBar from "$lib/components/layout/TopBar.svelte";
-  import SideBar from "$lib/components/layout/SideBar.svelte";
-  import { getAuthState } from "$lib/auth";
-  import { writable } from "svelte/store";
-
-  const isAuthenticated = writable(false);
+  import SideBar, {
+    type SidebarItem,
+  } from "$lib/components/layout/SideBar.svelte";
+  import { Bell, Home, MessageSquare, Settings, Users } from "lucide-svelte";
+  import { auth } from "$lib/auth";
+  import { onMount } from "svelte";
 
   let isSidebarOpen = false;
-
-  $: publicRoutes = ["/"];
-  $: isPublicRoute = publicRoutes.includes($page.url.pathname);
 
   function toggleSidebar() {
     isSidebarOpen = !isSidebarOpen;
@@ -23,33 +18,30 @@
     isSidebarOpen = false;
   }
 
-  function checkAuth() {
-    const authState = getAuthState();
-    isAuthenticated.set(authState.isAuthenticated);
+  onMount(() => auth.init());
 
-    if ($isAuthenticated && isPublicRoute) {
-      goto("/home");
-    } else if (!$isAuthenticated && !isPublicRoute) {
-      goto("/");
-    }
-  }
+  const sidebarItems: SidebarItem[] = [
+    { icon: Home, label: "Home", href: "/" },
+    { icon: Users, label: "Friends", href: "/friends" },
+    { icon: MessageSquare, label: "Messages", href: "/messages" },
+    { icon: Bell, label: "Notifications", href: "/notifications" },
+    { icon: Settings, label: "Settings", href: "/settings" },
+  ];
 
-  onMount(checkAuth);
-
-  afterUpdate(checkAuth);
-
-  $: if ($page.url.pathname === "/home") {
-    checkAuth();
-  }
+  $: isAuthenticated = $auth;
 </script>
 
-{#if !$isAuthenticated || isPublicRoute}
+{#if !isAuthenticated}
   <slot />
 {:else}
   <div class="flex flex-col h-screen">
     <TopBar onToggleSidebar={toggleSidebar} />
     <div class="flex flex-1 overflow-hidden">
-      <SideBar bind:isSidebarOpen onCloseSidebar={closeSidebar} />
+      <SideBar
+        bind:isSidebarOpen
+        {sidebarItems}
+        onCloseSidebar={closeSidebar}
+      />
       <!-- Main Content -->
       <main class="flex-1 relative overflow-y-auto focus:outline-none">
         <div class="py-6">

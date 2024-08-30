@@ -6,14 +6,15 @@
 
 <button
   {type}
-  class="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
-  class:bg-blue-500={variant === "default"}
+  class="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+  class:bg-primary={variant === "default"}
   class:text-white={variant === "default"}
-  class:hover:bg-blue-600={variant === "default"}
+  class:hover:bg-primary-dark={variant === "default"}
   class:border={variant === "outline"}
-  class:border-gray-300={variant === "outline"}
-  class:text-gray-700={variant === "outline"}
-  class:hover:bg-gray-100={variant === "outline"}
+  class:border-primary={variant === "outline"}
+  class:text-primary={variant === "outline"}
+  class:hover:bg-primary-light={variant === "outline"}
+  class:hover:text-primary-dark={variant === "outline"}
   class:text-sm={size === "sm"}
   class:px-3={size === "sm"}
   class:py-1={size === "sm"}

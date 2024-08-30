@@ -1,4 +1,5 @@
-import { getAuthState } from "./auth";
+import { get } from "svelte/store";
+import { auth } from "./auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -12,7 +13,7 @@ async function request(
   endpoint: string,
   options: RequestOptions,
 ): Promise<any> {
-  const { token } = getAuthState();
+  const token = get(auth);
   const url = `${API_BASE_URL}${endpoint}`;
 
   const headers: Record<string, string> = {

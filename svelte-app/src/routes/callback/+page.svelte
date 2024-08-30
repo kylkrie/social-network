@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
   import { handleCallback } from "$lib/auth";
+  import { goto } from "$app/navigation";
 
   let message = "";
 
@@ -13,7 +14,9 @@
 
       if (code && state) {
         const success = await handleCallback(code, state);
-        if (!success) {
+        if (success) {
+          goto("/");
+        } else {
           message = "Authentication failed. Please try again.";
         }
       } else {

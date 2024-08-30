@@ -7,51 +7,35 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const REDIRECT_URI = `${BASE_URL}/callback`;
 const OAUTH_BASE_URL = import.meta.env.VITE_OAUTH_BASE_URL;
 
-export const isAuthenticated = writable(false);
+export type AuthToken = string | null;
 
-interface AuthState {
-  isAuthenticated: boolean;
-  token: string | null;
+function createAuthStore() {
+  const { subscribe, set } = writable<AuthToken>(null);
+
+  return {
+    subscribe,
+    login: (token: string) => {
+      localStorage.setItem("authToken", token);
+      set(token);
+    },
+    logout: () => {
+      localStorage.removeItem("authToken");
+      set(null);
+    },
+    init: () => {
+      const token = localStorage.getItem("authToken");
+      set(token);
+    },
+  };
 }
 
-function getStoredAuthState(): AuthState {
-  const storedState = localStorage.getItem("authState");
-  if (storedState) {
-    return JSON.parse(storedState);
-  }
-  return { isAuthenticated: false, token: null };
-}
-
-function setStoredAuthState(state: AuthState): void {
-  localStorage.setItem("authState", JSON.stringify(state));
-}
-
-export function getAuthState(): AuthState {
-  return getStoredAuthState();
-}
-
-export function setToken(token: string): void {
-  const newState = { isAuthenticated: true, token };
-  setStoredAuthState(newState);
-  isAuthenticated.set(true);
-}
-
-export function clearToken(): void {
-  const newState = { isAuthenticated: false, token: null };
-  setStoredAuthState(newState);
-  isAuthenticated.set(false);
-}
+export const auth = createAuthStore();
 
 function generateState(): string {
   return (
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
   );
-}
-
-export function logout(): void {
-  clearToken();
-  goto("/");
 }
 
 export function startAuthLogin(): void {
@@ -104,8 +88,7 @@ export async function handleCallback(
 
     if (response.ok) {
       const data = await response.json();
-      setToken(data.access_token);
-      goto("/home");
+      auth.login(data.access_token);
       return true;
     }
   } catch (error) {

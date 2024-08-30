@@ -1,17 +1,20 @@
+<script lang="ts" module>
+  import { type ComponentType } from 'svelte';
+  import { type Icon } from 'lucide-svelte';
+
+  export interface SidebarItem {
+    icon: ComponentType<Icon>;
+    label: string;
+    href: string;
+  };
+</script>
+
 <script lang="ts">
-  import { Home, Users, MessageSquare, Bell, Settings } from "lucide-svelte";
   import { page } from "$app/stores";
 
+  export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;
   export let onCloseSidebar: () => void;
-
-  let sidebarItems = [
-    { icon: Home, label: "Home", href: "/home" },
-    { icon: Users, label: "Friends", href: "/friends" },
-    { icon: MessageSquare, label: "Messages", href: "/messages" },
-    { icon: Bell, label: "Notifications", href: "/notifications" },
-    { icon: Settings, label: "Settings", href: "/settings" },
-  ];
 </script>
 
 <nav
@@ -30,7 +33,7 @@
             class:bg-gray-900={$page.url.pathname === item.href}
           >
             <svelte:component
-              this={item.icon}
+              this={item.icon as any}
               class="mr-3 flex-shrink-0 h-6 w-6"
             />
             {item.label}

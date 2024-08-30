@@ -8,7 +8,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./svelte-app:/app
+      - ./svelte-app/src:/app/src
+      - ./svelte-app/static:/app/static
     depends_on:
       - api-service
 

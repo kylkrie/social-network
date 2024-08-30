@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Menu } from "lucide-svelte";
   import UserProfileMenu from "./UserProfileMenu.svelte";
+  import ThemeToggle from "./ThemeToggle.svelte";
 
   export let onToggleSidebar: () => void;
 </script>
@@ -19,7 +20,10 @@
         </button>
         <span class="font-bold text-2xl ml-2 md:ml-0">Yabro Social</span>
       </div>
-      <UserProfileMenu />
+      <div class="flex items-center space-x-4">
+        <ThemeToggle />
+        <UserProfileMenu />
+      </div>
     </div>
   </div>
 </header>

@@ -1,7 +1,7 @@
 <!-- src/lib/components/layout/UserProfileMenu.svelte -->
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { logout } from "$lib/auth";
+  import { auth } from "$lib/auth";
   import { User, LogOut, Users } from "lucide-svelte";
   import { onMount } from "svelte";
 
@@ -15,7 +15,7 @@
 
   function handleLogout() {
     isOpen = false;
-    logout();
+    auth.logout();
     goto("/");
   }
 

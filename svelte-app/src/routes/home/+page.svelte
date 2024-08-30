@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { getAuthState } from "$lib/auth";
   import { api } from "$lib/api";
   import Card from "$lib/components/ui/Card.svelte";
   import { Users, MessageSquare, Bell } from "lucide-svelte";
+  import { auth } from "$lib/auth";
 
   let userInfo: any = null;
   let posts: any[] = [];
@@ -50,7 +50,7 @@
   }
 
   onMount(() => {
-    if (getAuthState().isAuthenticated) {
+    if ($auth) {
       fetchUserInfo();
       fetchPosts();
       fetchNotifications();
