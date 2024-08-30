@@ -43,6 +43,7 @@ FROM nginx:alpine as prod
 
 # Copy the build output to the nginx html folder
 COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
