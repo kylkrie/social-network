@@ -14,6 +14,7 @@ services:
       - "3000:3000"
     volumes:
       - ./svelte-app:/app
+      - /app/node_modules
     depends_on:
       - api-service
 
