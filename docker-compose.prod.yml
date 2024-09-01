@@ -21,8 +21,10 @@ services:
       - OAUTH_REDIRECT_URI=https://yabro.io/callback
       - OAUTH_AUTH_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/auth
       - OAUTH_TOKEN_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/token
+      - JWKS_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/certs
       - ALLOWED_ORIGIN=https://yabro.io
       - PORT=4000
+      - DATABASE_URL=postgresql://user:password@postgres:5432/social
     ports:
       - "4000:4000"
     volumes:
@@ -47,11 +49,28 @@ services:
     command:
       - start-dev
       - --import-realm
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: social
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - app-network
 
@@ -61,3 +80,5 @@ networks:
 
 volumes:
   keycloak_data:
+  postgres_data:
+  redis_data:

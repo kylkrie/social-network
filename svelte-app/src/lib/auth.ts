@@ -78,7 +78,7 @@ export async function handleCallback(
   }
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/token`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/v1/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

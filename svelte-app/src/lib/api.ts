@@ -57,5 +57,5 @@ export const api = {
 };
 
 export async function getUserInfo() {
-  return api.get("/userinfo");
+  return api.get("/auth/v1/userinfo");
 }

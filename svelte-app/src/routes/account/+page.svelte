@@ -6,7 +6,6 @@
   import Card from "$lib/components/ui/Card.svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import Input from "$lib/components/ui/Input.svelte";
-  import Alert from "$lib/components/ui/Alert.svelte";
 
   let user = {
     name: "John Doe",
@@ -48,12 +47,6 @@
 
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">My Account</h1>
-
-  {#if showSuccessMessage}
-    <Alert title="Success" variant="default" class="mb-4">
-      Your account information has been updated successfully.
-    </Alert>
-  {/if}
 
   <div class="space-y-6">
     <Card title="Profile Information">

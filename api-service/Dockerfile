@@ -1,7 +1,6 @@
 # Start from the official Golang image for a specific version
 FROM golang:1.22 as local
 
-
 WORKDIR /app
 
 # Install air for hot reloading
@@ -16,9 +15,8 @@ COPY go.sum .
 RUN go mod download
 
 # Copy the source code into the container
-COPY main.go .
+COPY . .
 
 # Run air for hot reloading
 CMD ["air"]
-
 
