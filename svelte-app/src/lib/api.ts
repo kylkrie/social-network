@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 import { auth } from "./auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+const REFRESH_THRESHOLD = 10000; // 10 seconds
 
 interface RequestOptions {
   method: "GET" | "POST" | "PUT" | "DELETE";
@@ -9,20 +10,55 @@ interface RequestOptions {
   body?: any;
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshToken(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = auth.refresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+async function getValidToken(): Promise<string | null> {
+  if (refreshPromise) {
+    await refreshPromise;
+  }
+  let token = get(auth);
+  if (token) {
+    const now = Date.now();
+    const timeUntilExpiry = token.expiresAt - now;
+    if (timeUntilExpiry <= REFRESH_THRESHOLD) {
+      const refreshSuccess = await refreshToken();
+      if (refreshSuccess) {
+        token = get(auth);
+        if (!token) {
+          throw new Error("Token not found after refresh");
+        }
+      } else {
+        auth.logout();
+        throw new Error("Session expired. Please log in again.");
+      }
+    }
+    return token.accessToken;
+  }
+  return null;
+}
+
 async function request(
   endpoint: string,
   options: RequestOptions,
 ): Promise<any> {
-  const token = get(auth);
   const url = `${API_BASE_URL}${endpoint}`;
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...options.headers,
   };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  const accessToken = await getValidToken();
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   const config: RequestInit = {
@@ -35,14 +71,28 @@ async function request(
   }
 
   try {
-    const response = await fetch(url, config);
+    let response = await fetch(url, config);
+    if (response.status === 401 && accessToken) {
+      // Token might be expired, try to refresh
+      const refreshSuccess = await refreshToken();
+      if (refreshSuccess) {
+        // Retry the request with the new token
+        const newToken = get(auth);
+        headers["Authorization"] = `Bearer ${newToken?.accessToken}`;
+        config.headers = headers;
+        response = await fetch(url, config);
+      } else {
+        // Refresh failed, logout the user
+        auth.logout();
+        throw new Error("Session expired. Please log in again.");
+      }
+    }
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
   } catch (error) {
     console.error("API request failed:", error);
-
     throw error;
   }
 }
@@ -55,7 +105,3 @@ export const api = {
     request(endpoint, { method: "PUT", body }),
   delete: (endpoint: string) => request(endpoint, { method: "DELETE" }),
 };
-
-export async function getUserInfo() {
-  return api.get("/auth/v1/userinfo");
-}

@@ -11,6 +11,7 @@
   import Card from "$lib/components/ui/Card.svelte";
   import { auth, startAuthLogin, startAuthRegister } from "$lib/auth";
   import { api } from "$lib/api";
+  import { onMount } from "svelte";
 
   let userInfo: any = null;
   let posts: any[] = [];
@@ -56,11 +57,13 @@
     ];
   }
 
-  $: if ($auth) {
-    fetchUserInfo();
-    fetchPosts();
-    fetchNotifications();
-  }
+  onMount(() => {
+    if ($auth) {
+      fetchUserInfo();
+      fetchPosts();
+      fetchNotifications();
+    }
+  });
 
   function handleLogin() {
     startAuthLogin();

@@ -11,7 +11,7 @@ import (
 func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 	apiGroup := router.Group("/auth/v1")
 	{
-		apiGroup.POST("/token", ExchangeCode(appState))
+		apiGroup.POST("/token", GetAuthToken(appState))
 		apiGroup.GET("/userinfo", auth.AuthMiddleware(appState.JWKS), GetUserInfo())
 	}
 }

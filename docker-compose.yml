@@ -22,9 +22,9 @@ services:
       - OAUTH_CLIENT_ID=social-client
       - OAUTH_CLIENT_SECRET=social_secret
       - OAUTH_REDIRECT_URI=http://localhost:3000/callback
-      - OAUTH_AUTH_URL=http://keycloak:8080/realms/social/protocol/openid-connect/auth
-      - OAUTH_TOKEN_URL=http://keycloak:8080/realms/social/protocol/openid-connect/token
-      - JWKS_URL=http://keycloak:8080/realms/social/protocol/openid-connect/certs
+      - OAUTH_AUTH_URL=http://localhost:8080/realms/social/protocol/openid-connect/auth
+      - OAUTH_TOKEN_URL=http://localhost:8080/realms/social/protocol/openid-connect/token
+      - JWKS_URL=http://localhost:8080/realms/social/protocol/openid-connect/certs
       - ALLOWED_ORIGIN=http://localhost:3000
       - PORT=4000
       - DATABASE_URL=postgresql://user:password@postgres:5432/social
@@ -37,6 +37,8 @@ services:
       - postgres
     networks:
       - app-network
+    extra_hosts:
+      - "localhost:host-gateway"
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
