@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 
 type Theme = "light" | "dark";
 
-const defaultTheme: Theme = "light";
+const defaultTheme: Theme = "dark";
 
 // Initialize the store with the saved theme or the default
 const initialTheme: Theme =

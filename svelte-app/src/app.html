@@ -11,7 +11,7 @@
     <script>
       (function () {
         function applyTheme() {
-          const savedTheme = localStorage.getItem("theme") || "light";
+          const savedTheme = localStorage.getItem("theme") || "dark";
           document.documentElement.classList.toggle(
             "dark-theme",
             savedTheme === "dark",
