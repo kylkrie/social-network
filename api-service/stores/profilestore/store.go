@@ -81,7 +81,7 @@ func (s *ProfileStore) Delete(id uuid.UUID) error {
 func (s *ProfileStore) List(cursor string, limit int) ([]Profile, string, error) {
 	query := `
 		SELECT * FROM profiles
-		WHERE ($1 = '' OR created_at < (SELECT created_at FROM profiles WHERE id = $1::uuid))
+		WHERE ($1 = '' OR created_at <= (SELECT created_at FROM profiles WHERE id = $1::uuid))
 		ORDER BY created_at DESC
 		LIMIT $2
 	`
