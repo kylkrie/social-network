@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"yabro.io/social-api/app"
+	"yabro.io/social-api/apperror"
 	"yabro.io/social-api/routes"
 
 	"github.com/gin-gonic/gin"
@@ -40,6 +41,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Error running migrations")
 	}
 
+	apperror.RegisterCustomValidator()
 	router := gin.New()
 	routes.SetupRoutes(router, appState)
 

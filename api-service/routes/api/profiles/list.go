@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"yabro.io/social-api/app"
-	"yabro.io/social-api/apperror"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +22,7 @@ func ListProfiles(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req ListProfilesRequest
 		if err := c.ShouldBindQuery(&req); err != nil {
-			c.Error(apperror.ToAppError(err))
+			c.Error(err)
 			return
 		}
 
@@ -33,7 +32,7 @@ func ListProfiles(appState *app.AppState) gin.HandlerFunc {
 
 		dbProfiles, nextCursor, err := appState.Stores.Profile.List(req.Cursor, req.Limit)
 		if err != nil {
-			c.Error(apperror.ToAppError(err))
+			c.Error(err)
 			return
 		}
 

@@ -3,12 +3,14 @@ package apperror
 import (
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
 )
 
 type AppError struct {
-	Message string
-	Code    int
+	Message string      `json:"message"`
+	Code    int         `json:"-"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 func (e *AppError) Error() string {
@@ -27,6 +29,8 @@ func ToAppError(err interface{}) *AppError {
 	switch e := err.(type) {
 	case *AppError:
 		return e
+	case validator.ValidationErrors:
+		return NewValidationError(e)
 	case AuthErrorCode:
 		return HandleAuthError(e)
 	case error:

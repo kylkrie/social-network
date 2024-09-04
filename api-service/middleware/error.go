@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"net/http"
-
 	"yabro.io/social-api/apperror"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +13,13 @@ func ErrorHandler() gin.HandlerFunc {
 
 		if len(c.Errors) > 0 {
 			for _, err := range c.Errors {
-				switch e := err.Err.(type) {
-				case *apperror.AppError:
-					log.Warn().Int("code", e.Code).Str("error", e.Message).Msg("AppError")
-					c.JSON(e.Code, gin.H{"error": e.Message})
-				default:
-					log.Error().Err(e).Msg("Unexpected error")
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+				appErr := apperror.ToAppError(err.Err)
+				if appErr.Code >= 500 && appErr.Code < 600 {
+					log.Error().Int("code", appErr.Code).Str("error", appErr.Message).Msg("AppError")
+				} else {
+					log.Warn().Int("code", appErr.Code).Str("error", appErr.Message).Msg("AppError")
 				}
+				c.JSON(appErr.Code, appErr)
 			}
 			c.Abort()
 		}

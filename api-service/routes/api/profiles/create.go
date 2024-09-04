@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"yabro.io/social-api/app"
-	"yabro.io/social-api/apperror"
 	"yabro.io/social-api/auth"
 	"yabro.io/social-api/stores/profilestore"
 
@@ -24,13 +23,13 @@ func CreateProfile(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req CreateProfileRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
-			c.Error(apperror.ToAppError(err))
+			c.Error(err)
 			return
 		}
 
 		userID, err := auth.GetUserId(c)
 		if err != nil {
-			c.Error(apperror.ToAppError(err))
+			c.Error(err)
 			return
 		}
 
@@ -40,7 +39,7 @@ func CreateProfile(appState *app.AppState) gin.HandlerFunc {
 			Email:    req.Email,
 		})
 		if err != nil {
-			c.Error(apperror.ToAppError(err))
+			c.Error(err)
 			return
 		}
 
