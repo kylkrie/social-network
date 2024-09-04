@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,9 +13,13 @@ import (
 	"yabro.io/social-api/routes"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
 
 func main() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -23,6 +28,16 @@ func main() {
 	appState, err := app.CreateAppState()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error creating app state")
+	}
+
+	// migrations
+	goose.SetBaseFS(embedMigrations)
+	if err := goose.SetDialect("postgres"); err != nil {
+		log.Fatal().Err(err).Msg("Error setting goose dialect")
+	}
+
+	if err := goose.Up(appState.DB.DB, "migrations"); err != nil {
+		log.Fatal().Err(err).Msg("Error running migrations")
 	}
 
 	router := gin.New()
