@@ -4,52 +4,26 @@
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "verifyEmail": false,
-  "users": [
-    {
-      "username": "admin",
-      "enabled": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "admin_pass"
-        }
-      ],
-      "realmRoles": ["admin"]
-    },
-    {
-      "username": "user",
-      "enabled": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "user_pass"
-        }
-      ],
-      "realmRoles": ["user"]
-    }
-  ],
+  "ssoSessionIdleTimeout": 2592000,
+  "ssoSessionMaxLifespan": 31536000,
   "clients": [
     {
       "clientId": "social-client",
       "enabled": true,
       "clientAuthenticatorType": "client-secret",
       "secret": "social_secret",
-      "redirectUris": ["https://yabro.io/callback"],
-      "webOrigins": ["http://yabro.io"],
+      "redirectUris": [
+        "https://yabro.io/callback",
+        "https://oauth.pstmn.io/v1/callback"
+      ],
+      "webOrigins": ["https://yabro.io", "https://oauth.pstmn.io"],
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
-      "publicClient": false
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false
     }
-  ],
-  "roles": {
-    "realm": [
-      {
-        "name": "admin",
-        "description": "Administrator role for Social project"
-      },
-      {
-        "name": "user",
-        "description": "Standard user role for Social project"
-      }
-    ]
-  }
+  ]
 }
