@@ -9,12 +9,14 @@ services:
       - "3000:80"
     depends_on:
       - api-service
+    networks:
+      - app-network
 
   api-service:
     build:
       context: ./api-service
       dockerfile: Dockerfile
-      target: local
+      target: prod
     environment:
       - OAUTH_CLIENT_ID=social-client
       - OAUTH_CLIENT_SECRET=social_secret
@@ -24,61 +26,107 @@ services:
       - JWKS_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/certs
       - ALLOWED_ORIGIN=https://yabro.io
       - PORT=4000
-      - DATABASE_URL=postgresql://user:password@postgres:5432/social
+      - DATABASE_URL=postgresql://user:password@postgres-social:5432/social
+      - GIN_MODE=release
     ports:
       - "4000:4000"
-    volumes:
-      - ./api-service:/app
     depends_on:
       - keycloak
+      - postgres-social
     networks:
       - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres-keycloak:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak_password
       - KC_HOSTNAME=auth.yabro.io
       - KC_HOSTNAME_STRICT_HTTPS=true
+      - KC_PROXY=edge
+      - KC_HTTP_ENABLED=true
+      - KC_HTTP_PORT=8080
+      - KC_HOSTNAME_STRICT=false
     ports:
       - "8080:8080"
     volumes:
       - ./keycloak/prod:/opt/keycloak/data/import
-      - keycloak_data:/opt/keycloak/data
     command:
-      - start-dev
+      - start
+      - --optimized
       - --import-realm
+    depends_on:
+      postgres-keycloak:
+        condition: service_healthy
     networks:
       - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
-  postgres:
+  postgres-social:
     image: postgres:13
     environment:
       POSTGRES_DB: social
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_social_data:/var/lib/postgresql/data
     networks:
       - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-keycloak:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7.2
-    ports:
-      - "6379:6379"
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     networks:
       - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  keycloak_data:
-  postgres_data:
+  postgres_social_data:
+  postgres_keycloak_data:
   redis_data:

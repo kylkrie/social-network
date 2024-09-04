@@ -15,6 +15,7 @@ type AppState struct {
 	Config *Config
 	DB     *sqlx.DB
 	JWKS   *auth.JWKS
+	Stores *AppStores
 }
 
 func CreateAppState() (*AppState, error) {
@@ -45,6 +46,7 @@ func CreateAppState() (*AppState, error) {
 		Config: cfg,
 		DB:     dbpool,
 		JWKS:   jwks,
+		Stores: CreateStores(dbpool),
 	}
 
 	return appState, nil

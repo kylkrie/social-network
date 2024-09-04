@@ -1,36 +1,34 @@
+// ./auth/middleware.go
 package auth
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
+	"yabro.io/social-api/apperror"
 )
 
 func AuthMiddleware(jwks *JWKS) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			log.Info().Msg("Auth header is required")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			c.Error(apperror.ToAppError(apperror.ErrUnauthorized))
 			c.Abort()
 			return
 		}
 
 		bearerToken := strings.Split(authHeader, " ")
 		if len(bearerToken) != 2 || strings.ToLower(bearerToken[0]) != "bearer" {
-			log.Info().Msg("Auth header no bearer")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
+			c.Error(apperror.ToAppError(apperror.ErrInvalidToken))
 			c.Abort()
 			return
 		}
 
 		token, err := jwt.Parse(bearerToken[1], jwks.getKey)
 		if err != nil {
-			log.Info().Err(err).Msg("Invalid or expired token")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.Error(apperror.ToAppError(apperror.ErrInvalidToken))
 			c.Abort()
 			return
 		}
@@ -42,7 +40,7 @@ func AuthMiddleware(jwks *JWKS) gin.HandlerFunc {
 			c.Next()
 		} else {
 			log.Info().Msg("Invalid token claims")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.Error(apperror.ToAppError(apperror.ErrInvalidToken))
 			c.Abort()
 			return
 		}

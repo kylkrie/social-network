@@ -11,10 +11,10 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine, appState *app.AppState) {
+	router.Use(middleware.CORS(appState.Config.AllowedOrigin))
 	router.Use(middleware.Logger())
 	router.Use(middleware.RequestID())
 	router.Use(middleware.ErrorHandler())
-	router.Use(middleware.CORS(appState.Config.AllowedOrigin))
 
 	health.SetupRoutes(router, appState)
 	api.SetupRoutes(router, appState)

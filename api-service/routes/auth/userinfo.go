@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"yabro.io/social-api/apperror"
 )
 
 type UserInfo struct {
@@ -20,19 +21,19 @@ func GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("userID")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+			c.Error(apperror.ToAppError(apperror.ErrUnauthorized))
 			return
 		}
 
 		token, exists := c.Get("token")
 		if !exists {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Token not found in context"})
+			c.Error(apperror.ToAppError(apperror.ErrUnauthorized))
 			return
 		}
 
 		claims, ok := token.(*jwt.Token).Claims.(jwt.MapClaims)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid token claims"})
+			c.Error(apperror.ToAppError(apperror.ErrInvalidToken))
 			return
 		}
 
