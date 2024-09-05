@@ -2,7 +2,6 @@ package auth
 
 import (
 	"yabro.io/social-api/app"
-	"yabro.io/social-api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +11,5 @@ func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 	apiGroup := router.Group("/auth/v1")
 	{
 		apiGroup.POST("/token", GetAuthToken(appState))
-		apiGroup.GET("/userinfo", middleware.AuthMiddleware(appState), GetUserInfo(appState))
 	}
 }

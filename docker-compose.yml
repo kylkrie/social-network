@@ -29,6 +29,7 @@ services:
       - PORT=4000
       - DATABASE_URL=postgresql://user:password@postgres:5432/social
       - GIN_MODE=debug
+      - NODE_ID=100
     ports:
       - "4000:4000"
     volumes:

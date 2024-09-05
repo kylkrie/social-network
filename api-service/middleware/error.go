@@ -7,6 +7,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type ErrorResponse struct {
+	Error apperror.AppError `json:"error"`
+}
+
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
@@ -19,7 +23,7 @@ func ErrorHandler() gin.HandlerFunc {
 				} else {
 					log.Warn().Int("code", appErr.Code).Str("error", appErr.Message).Msg("AppError")
 				}
-				c.JSON(appErr.Code, appErr)
+				c.JSON(appErr.Code, ErrorResponse{Error: *appErr})
 			}
 			c.Abort()
 		}

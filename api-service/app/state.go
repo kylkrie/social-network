@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
+	"github.com/bwmarrin/snowflake"
 	"github.com/jmoiron/sqlx"
 	"yabro.io/social-api/auth"
 )
@@ -40,7 +42,15 @@ func CreateAppState() (*AppState, error) {
 		return nil, fmt.Errorf("failed to initialize JWKS: %v", err)
 	}
 
-	services, err := NewAppServices(dbpool, 100)
+	nodeIDStr := os.Getenv("NODE_ID")
+	nodeID, err := strconv.ParseInt(nodeIDStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("NODE_ID environment variable not set (int64)")
+	}
+
+	snowflakeNode, err := snowflake.NewNode(nodeID)
+
+	services, err := NewAppServices(dbpool, snowflakeNode)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize AppServices: %v", err)
 	}

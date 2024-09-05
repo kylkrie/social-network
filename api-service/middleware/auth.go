@@ -11,7 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"yabro.io/social-api/app"
 	"yabro.io/social-api/apperror"
-	"yabro.io/social-api/service"
 )
 
 func AuthMiddleware(appState *app.AppState) gin.HandlerFunc {
@@ -56,11 +55,11 @@ func AuthMiddleware(appState *app.AppState) gin.HandlerFunc {
 				// user not found, new user
 				if errors.Is(err, sql.ErrNoRows) {
 					log.Info().Msg("User not found, creating")
-					user, err := appState.Services.UserService.CreateUser(service.CreateUserInput{
-						AuthUUID: authUUID,
-						Username: claims["preferred_username"].(string),
-						Name:     claims["name"].(string),
-					})
+					user, err := appState.Services.UserService.CreateUser(
+						authUUID,
+						claims["preferred_username"].(string),
+						claims["name"].(string),
+					)
 					if err != nil {
 						log.Error().Err(err).Msg("Error creating User")
 						c.Error(err)

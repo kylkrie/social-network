@@ -1,6 +1,7 @@
 package apperror
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -31,6 +32,8 @@ func ToAppError(err interface{}) *AppError {
 		return e
 	case validator.ValidationErrors:
 		return NewValidationError(e)
+	case *json.UnmarshalTypeError, *json.SyntaxError:
+		return NewJSONUnmarshalError(e)
 	case AuthErrorCode:
 		return HandleAuthError(e)
 	case error:

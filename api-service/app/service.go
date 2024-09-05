@@ -1,8 +1,9 @@
 package app
 
 import (
+	"github.com/bwmarrin/snowflake"
 	"github.com/jmoiron/sqlx"
-	userdb "yabro.io/social-api/db/user"
+	"yabro.io/social-api/db/userdb"
 	"yabro.io/social-api/service"
 )
 
@@ -10,9 +11,9 @@ type AppServices struct {
 	UserService *service.UserService
 }
 
-func NewAppServices(db *sqlx.DB, nodeID int64) (*AppServices, error) {
+func NewAppServices(db *sqlx.DB, snowflakeNode *snowflake.Node) (*AppServices, error) {
 	userDb := userdb.NewUserDB(db)
-	userService, err := service.NewUserService(userDb, nodeID)
+	userService, err := service.NewUserService(userDb, snowflakeNode)
 	if err != nil {
 		return nil, err
 	}
