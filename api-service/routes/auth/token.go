@@ -27,7 +27,7 @@ func GetAuthToken(state *app.AppState) gin.HandlerFunc {
 
 		if request.Code != "" {
 			// Exchange code for token using PKCE
-			token, err = state.Config.OAuthConfig.Exchange(
+			token, err = state.AuthConfig.OAuthConfig.Exchange(
 				context.Background(),
 				request.Code,
 				oauth2.SetAuthURLParam("code_verifier", request.CodeVerifier),
@@ -39,7 +39,7 @@ func GetAuthToken(state *app.AppState) gin.HandlerFunc {
 			}
 		} else if request.RefreshToken != "" {
 			// Refresh the token
-			tokenSource := state.Config.OAuthConfig.TokenSource(context.Background(), &oauth2.Token{
+			tokenSource := state.AuthConfig.OAuthConfig.TokenSource(context.Background(), &oauth2.Token{
 				RefreshToken: request.RefreshToken,
 			})
 			token, err = tokenSource.Token()

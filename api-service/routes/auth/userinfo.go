@@ -5,45 +5,29 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"yabro.io/social-api/apperror"
+	"yabro.io/social-api/app"
 )
 
 type UserInfo struct {
-	Sub               string `json:"sub"`
-	PreferredUsername string `json:"preferred_username"`
-	Name              string `json:"name"`
-	GivenName         string `json:"given_name"`
-	FamilyName        string `json:"family_name"`
-	Email             string `json:"email"`
+	Name       string  `json:"name"`
+	Username   string  `json:"username"`
+	ProfileUrl *string `json:"profile_url"`
 }
 
-func GetUserInfo() gin.HandlerFunc {
+func GetUserInfo(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("userID")
-		if !exists {
-			c.Error(apperror.ToAppError(apperror.ErrUnauthorized))
-			return
-		}
+		userID := c.GetInt64("userID")
 
-		token, exists := c.Get("token")
-		if !exists {
-			c.Error(apperror.ToAppError(apperror.ErrUnauthorized))
-			return
-		}
-
-		claims, ok := token.(*jwt.Token).Claims.(jwt.MapClaims)
-		if !ok {
-			c.Error(apperror.ToAppError(apperror.ErrInvalidToken))
+		user, err := appState.Services.UserService.GetUser(userID)
+		if err != nil {
+			c.Error(err)
 			return
 		}
 
 		userInfo := UserInfo{
-			Sub:               userID.(string),
-			PreferredUsername: getStringClaim(claims, "preferred_username"),
-			Name:              getStringClaim(claims, "name"),
-			GivenName:         getStringClaim(claims, "given_name"),
-			FamilyName:        getStringClaim(claims, "family_name"),
-			Email:             getStringClaim(claims, "email"),
+			Name:       user.Name,
+			Username:   user.Username,
+			ProfileUrl: nil,
 		}
 
 		c.JSON(http.StatusOK, userInfo)

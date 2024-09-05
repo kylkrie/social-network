@@ -6,14 +6,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Config struct {
+type AuthConfig struct {
 	OAuthConfig   *oauth2.Config
 	AllowedOrigin string
 	JWKS_URL      string
 }
 
-func LoadConfig() (*Config, error) {
-	cfg := &Config{
+func LoadConfig() (*AuthConfig, error) {
+	cfg := &AuthConfig{
 		OAuthConfig: &oauth2.Config{
 			ClientID:     os.Getenv("OAUTH_CLIENT_ID"),
 			ClientSecret: os.Getenv("OAUTH_CLIENT_SECRET"),

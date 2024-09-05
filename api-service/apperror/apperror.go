@@ -35,6 +35,8 @@ func ToAppError(err interface{}) *AppError {
 		return HandleAuthError(e)
 	case error:
 		return handleStandardError(e)
+	case string:
+		return New(http.StatusInternalServerError, e)
 	default:
 		log.Error().Stack().Msg("Unknown AppError")
 		return New(http.StatusInternalServerError, "An unknown error occurred")

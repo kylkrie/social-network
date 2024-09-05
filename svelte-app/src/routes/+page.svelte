@@ -142,7 +142,7 @@
           <h2 class="text-xl font-semibold">
             {userInfo?.name || "Loading..."}
           </h2>
-          <p class="text-gray-600">{userInfo?.email || ""}</p>
+          <p class="text-gray-600">@{userInfo?.username || ""}</p>
         </div>
       </div>
     </Card>

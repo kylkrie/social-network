@@ -5,17 +5,15 @@ import (
 	"log"
 	"os"
 
-	"yabro.io/social-api/auth"
-	"yabro.io/social-api/postgres"
-
 	"github.com/jmoiron/sqlx"
+	"yabro.io/social-api/auth"
 )
 
 type AppState struct {
-	Config *Config
-	DB     *sqlx.DB
-	JWKS   *auth.JWKS
-	Stores *AppStores
+	AuthConfig *AuthConfig
+	DB         *sqlx.DB
+	JWKS       *auth.JWKS
+	Services   *AppServices
 }
 
 func CreateAppState() (*AppState, error) {
@@ -26,7 +24,7 @@ func CreateAppState() (*AppState, error) {
 	}
 
 	// postgres
-	dbpool, err := postgres.CreatePool()
+	dbpool, err := CreatePool()
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +40,16 @@ func CreateAppState() (*AppState, error) {
 		return nil, fmt.Errorf("failed to initialize JWKS: %v", err)
 	}
 
+	services, err := NewAppServices(dbpool, 100)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize AppServices: %v", err)
+	}
+
 	appState := &AppState{
-		Config: cfg,
-		DB:     dbpool,
-		JWKS:   jwks,
-		Stores: CreateStores(dbpool),
+		AuthConfig: cfg,
+		DB:         dbpool,
+		JWKS:       jwks,
+		Services:   services,
 	}
 
 	return appState, nil

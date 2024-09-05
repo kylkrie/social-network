@@ -16,7 +16,7 @@ type ginHands struct {
 	ClientIP   string
 	MsgStr     string
 	RequestID  string
-	UserID     string
+	UserID     int64
 }
 
 func ErrorLogger() gin.HandlerFunc {
@@ -59,10 +59,8 @@ func Logger() gin.HandlerFunc {
 		if !exists {
 			requestID = ""
 		}
-		userID, exists := c.Get("userID")
-		if !exists {
-			userID = ""
-		}
+
+		userID := c.GetInt64("userID")
 
 		cData := &ginHands{
 			Path:       path,
@@ -72,7 +70,7 @@ func Logger() gin.HandlerFunc {
 			ClientIP:   c.ClientIP(),
 			MsgStr:     msg,
 			RequestID:  requestID.(string),
-			UserID:     userID.(string),
+			UserID:     userID,
 		}
 
 		logSwitch(cData)
@@ -95,8 +93,8 @@ func addLogData(logEvent *zerolog.Event, data *ginHands) {
 	if data.RequestID != "" {
 		e = e.Str("request_id", data.RequestID)
 	}
-	if data.UserID != "" {
-		e = e.Str("user_id", data.UserID)
+	if data.UserID != 0 {
+		e = e.Int64("user_id", data.UserID)
 	}
 	e.Msg(data.MsgStr)
 }

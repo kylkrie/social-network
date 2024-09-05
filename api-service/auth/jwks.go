@@ -61,7 +61,7 @@ func (k *JWKS) updateKeys(jwksURL string) error {
 	return nil
 }
 
-func (k *JWKS) getKey(token *jwt.Token) (interface{}, error) {
+func (k *JWKS) GetKey(token *jwt.Token) (interface{}, error) {
 	k.mu.RLock()
 	defer k.mu.RLock()
 
