@@ -1,16 +1,14 @@
 import { createInfiniteQuery } from '@tanstack/svelte-query';
-import { api } from '$lib/api';
+import { postsApi } from '$lib/api/posts';
+import type { ListPostsParams, ListPostsResponse } from '$lib/api/posts';
+import { QK_POSTS } from './consts';
 
-interface ListPostsParams {
-  limit?: number;
-}
-
-export function useListPosts({ limit = 20 }: ListPostsParams = {}) {
+export function useListPosts(params: ListPostsParams = {}) {
   //@ts-ignore
-  return createInfiniteQuery({
-    queryKey: ['posts'],
-    queryFn: ({ pageParam = undefined }) =>
-      api.get(`/posts/v1?limit=${limit}${pageParam ? `&cursor=${pageParam}` : ''}`),
-    getNextPageParam: (lastPage: any) => lastPage.next_cursor || undefined,
+  return createInfiniteQuery<ListPostsResponse, Error>({
+    queryKey: [QK_POSTS, params],
+    queryFn: ({ pageParam }) =>
+      postsApi.listPosts({ ...params, cursor: pageParam as string }),
+    getNextPageParam: (lastPage) => lastPage.next_cursor,
   });
 }

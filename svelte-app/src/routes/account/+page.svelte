@@ -14,10 +14,10 @@
 
   $: if ($currentUserQuery.data) {
     editableUser = {
-      name: $currentUserQuery.data.data.name,
-      bio: $currentUserQuery.data.data.profile?.bio,
-      website: $currentUserQuery.data.data.profile?.website,
-      location: $currentUserQuery.data.data.profile?.location,
+      name: $currentUserQuery.data.name,
+      bio: $currentUserQuery.data.profile?.bio,
+      website: $currentUserQuery.data.profile?.website,
+      location: $currentUserQuery.data.profile?.location,
     };
   }
 
@@ -55,13 +55,13 @@
           Save Changes
         </button>
       {:else}
-        <p>Name: {$currentUserQuery.data.data.name}</p>
-        <p>Username: {$currentUserQuery.data.data.username}</p>
-        <p>Bio: {$currentUserQuery.data.data.profile?.bio}</p>
-        <p>Website: {$currentUserQuery.data.data.profile?.website}</p>
-        <p>Location: {$currentUserQuery.data.data.profile?.location}</p>
-        <p>Followers: {$currentUserQuery.data.data.profile?.follower_count}</p>
-        <p>Following: {$currentUserQuery.data.data.profile?.following_count}</p>
+        <p>Name: {$currentUserQuery.data.name}</p>
+        <p>Username: {$currentUserQuery.data.username}</p>
+        <p>Bio: {$currentUserQuery.data.profile?.bio}</p>
+        <p>Website: {$currentUserQuery.data.profile?.website}</p>
+        <p>Location: {$currentUserQuery.data.profile?.location}</p>
+        <p>Followers: {$currentUserQuery.data.profile?.follower_count}</p>
+        <p>Following: {$currentUserQuery.data.profile?.following_count}</p>
       {/if}
       <button on:click={handleEditToggle}>
         {editMode ? "Cancel" : "Edit Profile"}

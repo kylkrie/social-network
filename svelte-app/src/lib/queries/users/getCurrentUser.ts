@@ -1,10 +1,10 @@
 import { createQuery } from '@tanstack/svelte-query';
-import { api } from '$lib/api';
-import type { GetCurrentUserResponse, GetCurrentUserParams } from '$lib/api';
+import { type User, type GetCurrentUserParams, usersApi } from '$lib/api';
+import { QK_CURRENT_USER } from './consts';
 
 export function useGetCurrentUser(params: GetCurrentUserParams = {}) {
-  return createQuery<GetCurrentUserResponse>({
-    queryKey: ['currentUser', params],
-    queryFn: () => api.get(`/users/v1?${new URLSearchParams(params as any).toString()}`),
+  return createQuery<User>({
+    queryKey: [QK_CURRENT_USER, params],
+    queryFn: () => usersApi.getCurrentUser(params)
   });
 }

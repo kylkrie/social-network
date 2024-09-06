@@ -36,7 +36,7 @@
   // });
 </script>
 
-<div class="max-w-2xl mx-auto bg-surface text-text">
+<div class="max-w-2xl mx-auto text-text">
   <!-- Header -->
   <div class="border-b border-gray-200 p-4 flex items-center">
     <a href="/" class="mr-4">

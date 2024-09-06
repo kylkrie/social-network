@@ -1,19 +1,16 @@
 import { createMutation, useQueryClient } from '@tanstack/svelte-query';
-import { api } from '$lib/api';
-
-interface CreatePostData {
-  content: string;
-  conversation_id?: number;
-}
+import { postsApi } from '$lib/api/posts';
+import type { CreatePostRequest, Post } from '$lib/api/posts';
+import { QK_POSTS } from './consts';
 
 export function useCreatePost() {
   const queryClient = useQueryClient();
 
-  return createMutation({
-    mutationFn: (postData: CreatePostData) => api.post('/posts/v1', postData),
+  return createMutation<Post, Error, CreatePostRequest>({
+    mutationFn: (postData: CreatePostRequest) => postsApi.createPost(postData),
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: [QK_POSTS] });
     },
   });
 }

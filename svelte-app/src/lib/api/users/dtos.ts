@@ -1,31 +1,31 @@
 // User DTOs
-export interface PublicUser {
+export interface User {
   id: number;
   name: string;
   username: string;
-  pfp_url: string | null;
+  pfp_url: string;
   protected: boolean;
-  profile?: PublicUserProfile;
+  profile?: UserProfile;
 }
 
-export interface PublicUserProfile {
-  banner_url: string | null;
-  bio: string | null;
-  website: string | null;
-  location: string | null;
-  birthday: string | null; // ISO 8601 format
-  pinned_post_id: number | null;
-  follower_count: number | null;
-  following_count: number | null;
+export interface UserProfile {
+  banner_url?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  birthday?: string; // ISO 8601 format
+  pinned_post_id?: number;
+  follower_count?: number;
+  following_count?: number;
 }
 
 // API Response DTOs
 export interface GetUserResponse {
-  data: PublicUser;
+  data: User;
 }
 
 export interface GetCurrentUserResponse {
-  data: PublicUser;
+  data: User;
 }
 
 // Request DTOs

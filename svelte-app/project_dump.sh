@@ -1,7 +1,7 @@
 #!/bin/bash
 
 output_file="project_dump.txt"
-src_directory="src"
+src_directory="src/lib"
 
 # Clear the output file
 >"$output_file"

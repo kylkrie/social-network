@@ -56,7 +56,7 @@
         </div>
 
         <!-- Scrollable Main Content (no background color of its own) -->
-        <main class="flex-1 overflow-y-auto ml-64 pt-16">
+        <main class="flex-1 overflow-y-auto ml-64">
           <!-- Adjust top padding as needed -->
           <div class="mx-auto max-w-[600px]">
             <slot />
