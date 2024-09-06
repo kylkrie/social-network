@@ -3,63 +3,58 @@
 @tailwind utilities;
 
 :root {
+  /* Shared colors */
+  --primary: #8a4baf;
+  --primary-dark: #6a2b93;
+  --primary-light: #ab7ac4;
+  --secondary: #4a90e2;
+
   /* Light Theme */
-  --light-primary: #8a4baf;
-  --light-primary-dark: #6a2b93;
-  --light-primary-light: #ab7ac4;
-  --light-secondary: #4a90e2;
-  --light-background: #ffffff;
-  --light-surface: #f5f5f5;
-  --light-text: #333333;
-  --light-text-secondary: #666666;
-  --light-error: #d32f2f;
-  --light-success: #388e3c;
-  --light-warning: #f57c00;
+  --light-background: #f3f4f6;  /* Light gray background */
+  --light-surface: #ffffff;  /* White surface for cards, etc. */
+  --light-text: #111827;  /* Dark text for good contrast */
+  --light-text-secondary: #4b5563;  /* Secondary text color */
+  --light-text-tertiary: #9ca3af;  /* Tertiary text color */
+  --light-border: #e5e7eb;  /* Light border color */
+  --light-sidebar-hover: #e5e7eb;  /* Slightly darker than background for hover effect */
+  --light-sidebar-active: #d1d5db;  /* Even darker for active state */
 
   /* Dark Theme */
-  --dark-primary: #b39ddb;
-  --dark-primary-dark: #9575cd;
+  --dark-background: #1f2937;  /* Dark gray background */
+  --dark-surface: #374151;  /* Slightly lighter surface for cards, etc. */
+  --dark-text: #f9fafb;  /* Light text for good contrast */
+  --dark-text-secondary: #e5e7eb;  /* Secondary text color */
+  --dark-text-tertiary: #9ca3af;  /* Tertiary text color */
+  --dark-border: #4b5563;  /* Dark border color */
+  --dark-sidebar-hover: #374151;  /* Slightly lighter than background for hover effect */
+  --dark-sidebar-active: #4b5563;  /* Even lighter for active state */
 
-  --dark-primary-light: #d1c4e9;
-  --dark-secondary: #64b5f6;
-  --dark-background: #121212;
-
-  --dark-surface: #1e1e1e;
-  --dark-text: #ffffff;
-  --dark-text-secondary: #b0bec5;
-  --dark-error: #ef5350;
-  --dark-success: #4caf50;
-  --dark-warning: #ffa726;
+  /* Shared functional colors */
+  --error: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
 }
 
 /* Light theme (default) */
 html {
-  --primary: var(--light-primary);
-  --primary-dark: var(--light-primary-dark);
-  --primary-light: var(--light-primary-light);
-  --secondary: var(--light-secondary);
   --background: var(--light-background);
   --surface: var(--light-surface);
   --text: var(--light-text);
   --text-secondary: var(--light-text-secondary);
-  --error: var(--light-error);
-  --success: var(--light-success);
-  --warning: var(--light-warning);
+  --text-tertiary: var(--light-text-tertiary);
+  --border: var(--light-border);
+  --sidebar-hover: var(--light-sidebar-hover);
+  --sidebar-active: var(--light-sidebar-active);
 }
 
 /* Dark theme */
 html.dark-theme {
-  --primary: var(--dark-primary);
-  --primary-dark: var(--dark-primary-dark);
-
-  --primary-light: var(--dark-primary-light);
-  --secondary: var(--dark-secondary);
   --background: var(--dark-background);
   --surface: var(--dark-surface);
   --text: var(--dark-text);
   --text-secondary: var(--dark-text-secondary);
-
-  --error: var(--dark-error);
-  --success: var(--dark-success);
-  --warning: var(--dark-warning);
+  --text-tertiary: var(--dark-text-tertiary);
+  --border: var(--dark-border);
+  --sidebar-hover: var(--dark-sidebar-hover);
+  --sidebar-active: var(--dark-sidebar-active);
 }
