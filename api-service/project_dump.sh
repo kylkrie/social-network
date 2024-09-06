@@ -1,7 +1,7 @@
 #!/bin/bash
 
 output_file="project_dump.txt"
-src_directory="./db"
+src_directory="."
 
 # Clear the output file
 >"$output_file"

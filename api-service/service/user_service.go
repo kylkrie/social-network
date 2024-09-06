@@ -24,31 +24,29 @@ func (s *UserService) GetUserID(authUUID uuid.UUID) (int64, error) {
 	return s.userDB.GetUserID(authUUID)
 }
 
-func (s *UserService) GetUserByID(id int64, includeProfile bool, includeMetrics bool) (*PublicUser, error) {
-	user, profile, metrics, err := s.userDB.GetUser(
+func (s *UserService) GetUserByID(id int64, includeProfile bool) (*PublicUser, error) {
+	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{ID: &id},
 		includeProfile,
-		includeMetrics,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	publicUser := toPublicUser(user, profile, metrics)
+	publicUser := toPublicUser(user, profile)
 	return &publicUser, nil
 }
 
-func (s *UserService) GetUserByUsername(username string, includeProfile bool, includeMetrics bool) (*PublicUser, error) {
-	user, profile, metrics, err := s.userDB.GetUser(
+func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*PublicUser, error) {
+	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{Username: &username},
 		includeProfile,
-		includeMetrics,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	publicUser := toPublicUser(user, profile, metrics)
+	publicUser := toPublicUser(user, profile)
 	return &publicUser, nil
 }
 

@@ -13,25 +13,20 @@ type PublicUser struct {
 	PfpURL    *string            `json:"pfp_url"`
 	Protected bool               `json:"protected"`
 	Profile   *PublicUserProfile `json:"profile,omitempty"`
-	Metrics   *PublicUserMetrics `json:"metrics,omitempty"`
 }
 
 type PublicUserProfile struct {
-	Bio          *string    `json:"bio"`
-	Website      *string    `json:"website"`
-	Location     *string    `json:"location"`
-	Birthday     *time.Time `json:"birthday"`
-	PinnedPostID *int64     `json:"pinned_post_id"`
+	BannerUrl      *string    `json:"banner_url"`
+	Bio            *string    `json:"bio"`
+	Website        *string    `json:"website"`
+	Location       *string    `json:"location"`
+	Birthday       *time.Time `json:"birthday"`
+	PinnedPostID   *int64     `json:"pinned_post_id"`
+	FollowerCount  int        `json:"follower_count"`
+	FollowingCount int        `json:"following_count"`
 }
 
-type PublicUserMetrics struct {
-	FollowersCount int `db:"followers_count"`
-	FollowingCount int `db:"following_count"`
-	PostCount      int `db:"post_count"`
-	ListedCount    int `db:"listed_count"`
-}
-
-func toPublicUser(user *userdb.User, profile *userdb.UserProfile, metrics *userdb.UserPublicMetrics) PublicUser {
+func toPublicUser(user *userdb.User, profile *userdb.UserProfile) PublicUser {
 	return PublicUser{
 		ID:   user.ID,
 		Name: user.Name,
@@ -41,7 +36,6 @@ func toPublicUser(user *userdb.User, profile *userdb.UserProfile, metrics *userd
 		Protected: user.Protected,
 
 		Profile: toPublicProfile(profile),
-		Metrics: toPublicMetrics(metrics),
 	}
 }
 
@@ -51,25 +45,12 @@ func toPublicProfile(profile *userdb.UserProfile) *PublicUserProfile {
 	}
 
 	return &PublicUserProfile{
-		Bio: profile.Bio,
+		BannerUrl: profile.BannerUrl,
+		Bio:       profile.Bio,
 
 		Website:      profile.Website,
 		Location:     profile.Location,
 		Birthday:     profile.Birthday,
 		PinnedPostID: profile.PinnedPostID,
-	}
-}
-
-func toPublicMetrics(metrics *userdb.UserPublicMetrics) *PublicUserMetrics {
-	if metrics == nil {
-		return nil
-	}
-
-	return &PublicUserMetrics{
-		FollowersCount: metrics.FollowersCount,
-		FollowingCount: metrics.FollowingCount,
-
-		PostCount:   metrics.PostCount,
-		ListedCount: metrics.ListedCount,
 	}
 }

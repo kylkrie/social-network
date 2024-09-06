@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"net/http"
@@ -12,11 +12,9 @@ import (
 type GetUserRequest struct {
 	Username string `uri:"username" binding:"required"`
 	Profile  bool   `form:"profile"`
-	Metrics  bool   `form:"metrics"`
 }
 type GetUserMeRequest struct {
 	Profile bool `form:"profile"`
-	Metrics bool `form:"metrics"`
 }
 
 type GetUserResponse struct {
@@ -35,7 +33,7 @@ func GetUser(appState *app.AppState) gin.HandlerFunc {
 			return
 		}
 
-		user, err := appState.Services.UserService.GetUserByUsername(req.Username, req.Profile, req.Metrics)
+		user, err := appState.Services.UserService.GetUserByUsername(req.Username, req.Profile)
 		if err != nil {
 			c.Error(err)
 			return
@@ -54,7 +52,7 @@ func GetUserMe(appState *app.AppState) gin.HandlerFunc {
 		}
 
 		userID := auth.GetUserID(c)
-		user, err := appState.Services.UserService.GetUserByID(userID, req.Profile, req.Metrics)
+		user, err := appState.Services.UserService.GetUserByID(userID, req.Profile)
 		if err != nil {
 			c.Error(err)
 			return

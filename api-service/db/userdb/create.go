@@ -19,9 +19,6 @@ func (udb *UserDB) CreateUser(p CreateUserParams) (*User, error) {
 		), profile_insert AS (
 			INSERT INTO user_profiles (user_id)
 			VALUES ($2)
-		), metrics_insert AS (
-			INSERT INTO user_public_metrics (user_id)
-			VALUES ($2)
 		)
 		INSERT INTO users (id, name, username)
 		VALUES ($2, $3, $4)

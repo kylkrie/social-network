@@ -20,13 +20,6 @@ type UpdateUserProfileParams struct {
 	PinnedPostID *int64
 }
 
-type UpdateUserPublicMetricsParams struct {
-	FollowersCount *int
-	FollowingCount *int
-	PostCount      *int
-	ListedCount    *int
-}
-
 func (udb *UserDB) UpdateUser(userID int64, user *UpdateUserParams, profile *UpdateUserProfileParams) error {
 	if user == nil && profile == nil {
 		return nil
@@ -73,24 +66,6 @@ func (udb *UserDB) UpdateUser(userID int64, user *UpdateUserParams, profile *Upd
 
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
-}
-
-func (udb *UserDB) UpdateUserMetrics(userID int64, metrics *UpdateUserPublicMetricsParams) error {
-	query := `
-			UPDATE user_public_metrics
-			SET
-				followers_count = COALESCE($2, followers_count),
-				following_count = COALESCE($3, following_count),
-				post_count = COALESCE($4, post_count),
-				listed_count = COALESCE($5, listed_count)
-			WHERE user_id = $1
-		`
-	_, err := udb.db.Exec(query, userID, metrics.FollowersCount, metrics.FollowingCount, metrics.PostCount, metrics.ListedCount)
-	if err != nil {
-		return fmt.Errorf("failed to update user public metrics: %w", err)
 	}
 
 	return nil

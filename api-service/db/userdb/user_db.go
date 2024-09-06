@@ -33,6 +33,7 @@ type UserAuth struct {
 
 type UserProfile struct {
 	UserID       int64      `db:"user_id"`
+	BannerUrl    *string    `db:"banner_url"`
 	Bio          *string    `db:"bio"`
 	Website      *string    `db:"website"`
 	Location     *string    `db:"location"`
@@ -40,13 +41,4 @@ type UserProfile struct {
 	PinnedPostID *int64     `db:"pinned_post_id"`
 	CreatedAt    time.Time  `db:"created_at"`
 	UpdatedAt    time.Time  `db:"updated_at"`
-}
-type UserPublicMetrics struct {
-	UserID         int64     `db:"user_id"`
-	FollowersCount int       `db:"followers_count"`
-	FollowingCount int       `db:"following_count"`
-	PostCount      int       `db:"post_count"`
-	ListedCount    int       `db:"listed_count"`
-	CreatedAt      time.Time `db:"created_at"`
-	UpdatedAt      time.Time `db:"updated_at"`
 }
