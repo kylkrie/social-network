@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { auth } from "./auth";
+import { auth } from "../auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const REFRESH_THRESHOLD = 10000; // 10 seconds
@@ -50,7 +50,7 @@ async function request(
   endpoint: string,
   options: RequestOptions,
 ): Promise<any> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}/api${endpoint}`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...options.headers,
@@ -90,7 +90,18 @@ async function request(
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+
+    // Check if the response has content
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    } else {
+      // For non-JSON responses, return an object with status and statusText
+      return {
+        status: response.status,
+        statusText: response.statusText,
+      };
+    }
   } catch (error) {
     console.error("API request failed:", error);
     throw error;

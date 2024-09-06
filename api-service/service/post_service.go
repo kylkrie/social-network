@@ -82,36 +82,3 @@ func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]Post,
 
 	return publicPosts, nextCursor, nil
 }
-
-func toPublicPost(post *postdb.Post, metrics *postdb.PostPublicMetrics) *Post {
-	if post.DeletedAt != nil {
-		deleted := true
-		return &Post{
-			ID:             post.ID,
-			Content:        "",
-			AuthorID:       post.AuthorID,
-			ConversationID: post.ConversationID,
-			CreatedAt:      post.CreatedAt,
-			IsDeleted:      &deleted,
-		}
-	}
-
-	publicPost := &Post{
-		ID:             post.ID,
-		Content:        post.Content,
-		AuthorID:       post.AuthorID,
-		ConversationID: post.ConversationID,
-		CreatedAt:      post.CreatedAt,
-	}
-
-	if metrics != nil {
-		publicPost.PublicMetrics = &PostPublicMetrics{
-			Reposts: metrics.Reposts,
-			Replies: metrics.Replies,
-			Likes:   metrics.Likes,
-			Views:   metrics.Views,
-		}
-	}
-
-	return publicPost
-}

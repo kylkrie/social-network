@@ -19,7 +19,7 @@
 
   async function fetchUserInfo() {
     try {
-      userInfo = (await api.get("/api/users/v1")).data;
+      userInfo = (await api.get("/users/v1")).data;
     } catch (error) {
       console.error("Failed to fetch user info", error);
     }

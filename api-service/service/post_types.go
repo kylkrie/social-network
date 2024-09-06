@@ -2,6 +2,8 @@ package service
 
 import (
 	"time"
+
+	"yabro.io/social-api/db/postdb"
 )
 
 type Post struct {
@@ -41,19 +43,35 @@ type PostReference struct {
 	ReferenceType    string `json:"reference_type"`
 }
 
-type CreatePostRequest struct {
-	Content        string `json:"content"`
-	ConversationID *int64 `json:"conversation_id,omitempty"`
-}
+func toPublicPost(post *postdb.Post, metrics *postdb.PostPublicMetrics) *Post {
+	if post.DeletedAt != nil {
+		deleted := true
+		return &Post{
+			ID:             post.ID,
+			Content:        "",
+			AuthorID:       post.AuthorID,
+			ConversationID: post.ConversationID,
+			CreatedAt:      post.CreatedAt,
+			IsDeleted:      &deleted,
+		}
+	}
 
-type UpdatePostRequest struct {
-	Content string `json:"content"`
-}
+	publicPost := &Post{
+		ID:             post.ID,
+		Content:        post.Content,
+		AuthorID:       post.AuthorID,
+		ConversationID: post.ConversationID,
+		CreatedAt:      post.CreatedAt,
+	}
 
-type GetPostResponse struct {
-	Post *Post `json:"post"`
-}
+	if metrics != nil {
+		publicPost.PublicMetrics = &PostPublicMetrics{
+			Reposts: metrics.Reposts,
+			Replies: metrics.Replies,
+			Likes:   metrics.Likes,
+			Views:   metrics.Views,
+		}
+	}
 
-type ListPostsResponse struct {
-	Posts []Post `json:"posts"`
+	return publicPost
 }

@@ -1,127 +1,71 @@
-<!-- src/routes/account/+page.svelte -->
-
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { User, Lock, Shield } from "lucide-svelte";
-  import Card from "$lib/components/ui/Card.svelte";
-  import Button from "$lib/components/ui/Button.svelte";
-  import Input from "$lib/components/ui/Input.svelte";
+  import { useGetCurrentUser, useUpdateCurrentUser } from "$lib/queries";
 
-  let user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-  };
+  const currentUserQuery = useGetCurrentUser({ profile: true });
+  const updateUserMutation = useUpdateCurrentUser();
 
-  let newPassword = "";
-  let confirmPassword = "";
-  let currentPassword = "";
-  let showSuccessMessage = false;
+  let editMode = false;
+  let editableUser: {
+    name?: string;
+    bio?: string;
+    website?: string;
+    location?: string;
+  } = {};
 
-  function updateProfile() {
-    // In a real app, you would send this update to your API
-    showSuccessMessage = true;
-    setTimeout(() => (showSuccessMessage = false), 3000);
+  $: if ($currentUserQuery.data) {
+    editableUser = {
+      name: $currentUserQuery.data.data.name,
+      bio: $currentUserQuery.data.data.profile?.bio,
+      website: $currentUserQuery.data.data.profile?.website,
+      location: $currentUserQuery.data.data.profile?.location,
+    };
   }
 
-  function updatePassword() {
-    if (
-      newPassword === confirmPassword &&
-      newPassword.length > 0 &&
-      currentPassword.length > 0
-    ) {
-      // In a real app, you would send this update to your API
-      newPassword = "";
-      confirmPassword = "";
-      currentPassword = "";
-      showSuccessMessage = true;
-      setTimeout(() => (showSuccessMessage = false), 3000);
-    } else {
-      alert("Please fill all password fields correctly");
-    }
+  function handleEditToggle() {
+    editMode = !editMode;
   }
 
-  onMount(() => {
-    // In a real app, you might fetch user data from your API here
-  });
+  function handleUpdateUser() {
+    $updateUserMutation.mutate(editableUser, {
+      onSuccess: () => {
+        editMode = false;
+      },
+    });
+  }
 </script>
 
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">My Account</h1>
+<div>
+  <h1>User Profile</h1>
 
-  <div class="space-y-6">
-    <Card title="Profile Information">
-      <div class="space-y-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-700"
-            >Name</label
-          >
-          <Input type="text" id="name" bind:value={user.name} />
-        </div>
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700"
-            >Email</label
-          >
-          <Input type="email" id="email" bind:value={user.email} />
-        </div>
-        <Button on:click={updateProfile}>
-          <User class="h-4 w-4 mr-2" />
-          Update Profile
-        </Button>
-      </div>
-    </Card>
-
-    <Card title="Change Password">
-      <div class="space-y-4">
-        <div>
-          <label
-            for="current-password"
-            class="block text-sm font-medium text-gray-700"
-            >Current Password</label
-          >
-          <Input
-            type="password"
-            id="current-password"
-            bind:value={currentPassword}
-          />
-        </div>
-        <div>
-          <label
-            for="new-password"
-            class="block text-sm font-medium text-gray-700">New Password</label
-          >
-          <Input type="password" id="new-password" bind:value={newPassword} />
-        </div>
-
-        <div>
-          <label
-            for="confirm-password"
-            class="block text-sm font-medium text-gray-700"
-            >Confirm New Password</label
-          >
-          <Input
-            type="password"
-            id="confirm-password"
-            bind:value={confirmPassword}
-          />
-        </div>
-        <Button on:click={updatePassword}>
-          <Lock class="h-4 w-4 mr-2" />
-          Change Password
-        </Button>
-      </div>
-    </Card>
-
-    <Card title="Account Security">
-      <div class="space-y-4">
-        <p class="text-sm text-gray-600">
-          Enhance your account security with these additional features:
-        </p>
-        <Button variant="outline">
-          <Shield class="h-4 w-4 mr-2" />
-          Enable Two-Factor Authentication
-        </Button>
-        <Button variant="outline">View Login History</Button>
-      </div>
-    </Card>
-  </div>
+  {#if $currentUserQuery.isLoading}
+    <p>Loading user data...</p>
+  {:else if $currentUserQuery.isError}
+    <p>Error: {$currentUserQuery.error.message}</p>
+  {:else}
+    <div>
+      {#if editMode}
+        <input bind:value={editableUser.name} placeholder="Name" />
+        <textarea bind:value={editableUser.bio} placeholder="Bio"></textarea>
+        <input bind:value={editableUser.website} placeholder="Website" />
+        <input bind:value={editableUser.location} placeholder="Location" />
+        <button
+          on:click={handleUpdateUser}
+          disabled={$updateUserMutation.isPending}
+        >
+          Save Changes
+        </button>
+      {:else}
+        <p>Name: {$currentUserQuery.data.data.name}</p>
+        <p>Username: {$currentUserQuery.data.data.username}</p>
+        <p>Bio: {$currentUserQuery.data.data.profile?.bio}</p>
+        <p>Website: {$currentUserQuery.data.data.profile?.website}</p>
+        <p>Location: {$currentUserQuery.data.data.profile?.location}</p>
+        <p>Followers: {$currentUserQuery.data.data.profile?.follower_count}</p>
+        <p>Following: {$currentUserQuery.data.data.profile?.following_count}</p>
+      {/if}
+      <button on:click={handleEditToggle}>
+        {editMode ? "Cancel" : "Edit Profile"}
+      </button>
+    </div>
+  {/if}
 </div>
