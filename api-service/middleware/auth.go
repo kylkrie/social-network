@@ -57,8 +57,8 @@ func AuthMiddleware(appState *app.AppState) gin.HandlerFunc {
 					log.Info().Msg("User not found, creating")
 					user, err := appState.Services.UserService.CreateUser(
 						authUUID,
-						claims["preferred_username"].(string),
 						claims["name"].(string),
+						claims["preferred_username"].(string),
 					)
 					if err != nil {
 						log.Error().Err(err).Msg("Error creating User")
