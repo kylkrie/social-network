@@ -9,30 +9,6 @@ import (
 	"yabro.io/social-api/auth"
 )
 
-type CreatePostRequest struct {
-	Content        string `json:"content" binding:"required"`
-	ConversationID *int64 `json:"conversation_id"`
-}
-
-func CreatePost(appState *app.AppState) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req CreatePostRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.Error(err)
-			return
-		}
-
-		userID := auth.GetUserID(c)
-		post, err := appState.Services.PostService.CreatePost(userID, req.Content, req.ConversationID)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-
-		c.JSON(http.StatusCreated, gin.H{"data": post})
-	}
-}
-
 func GetPost(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -48,54 +24,6 @@ func GetPost(appState *app.AppState) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"data": post})
-	}
-}
-
-type UpdatePostRequest struct {
-	Content string `json:"content" binding:"required"`
-}
-
-func UpdatePost(appState *app.AppState) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-
-		var req UpdatePostRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.Error(err)
-			return
-		}
-
-		userID := auth.GetUserID(c)
-		post, err := appState.Services.PostService.UpdatePost(id, userID, req.Content)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"data": post})
-	}
-}
-
-func DeletePost(appState *app.AppState) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-
-		userID := auth.GetUserID(c)
-		err = appState.Services.PostService.DeletePost(id, userID)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-
-		c.Status(http.StatusNoContent)
 	}
 }
 
