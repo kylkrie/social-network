@@ -6,7 +6,7 @@
   export let onToggleSidebar: () => void;
 </script>
 
-<header class="bg-indigo-600 text-white">
+<header class="bg-primary text-white">
   <div class="mx-auto px-2 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">

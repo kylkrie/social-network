@@ -79,6 +79,7 @@
 <style>
   .profile-info {
     width: 100%;
+    color: var(--text);
   }
 
   .profile-header {
@@ -94,18 +95,18 @@
   }
 
   .banner-placeholder {
-    background-color: #e0e0e0;
+    background-color: var(--primary-light);
   }
 
   .profile-picture {
     position: absolute;
-    background-color: #e0e0e0;
+    background-color: var(--primary-light);
     bottom: 0;
     left: 20px;
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    border: 4px solid white;
+    border: 4px solid var(--background);
     object-fit: cover;
   }
 

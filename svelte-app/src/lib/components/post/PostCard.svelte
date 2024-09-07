@@ -28,10 +28,10 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="border-y border-gray-200 p-2 hover:bg-gray-50 cursor-pointer"
+  class="border-y border-border p-2 hover:bg-hover cursor-pointer"
   on:click={handlePostClick}
 >
   <div class="flex">
@@ -44,9 +44,9 @@
       />
     {:else}
       <div
-        class="rounded-full bg-gray-300 h-12 w-12 mr-3 flex items-center justify-center"
+        class="rounded-full bg-primary-light h-12 w-12 mr-3 flex items-center justify-center"
       >
-        <Users class="h-6 w-6 text-gray-600" />
+        <Users class="h-6 w-6 text-background" />
       </div>
     {/if}
 
@@ -54,11 +54,11 @@
       <!-- Header: Name, Username, and More options -->
       <div class="flex justify-between items-center mb-0.5">
         <div>
-          <span class="font-bold">{user.name}</span>
-          <span class="text-gray-500 ml-2">@{user.username}</span>
+          <span class="font-bold text-text">{user.name}</span>
+          <span class="text-text-secondary ml-2">@{user.username}</span>
         </div>
         <button
-          class="text-gray-500 hover:text-gray-700"
+          class="text-text-secondary hover:text-text"
           on:click={() => handleIconClick("more")}
         >
           <MoreHorizontal size={20} />
@@ -66,12 +66,14 @@
       </div>
 
       <!-- Post content -->
-      <p class="mb-3 whitespace-pre-wrap break-words">{post.content}</p>
+      <p class="mb-3 text-text whitespace-pre-wrap break-words">
+        {post.content}
+      </p>
 
       <!-- Action icons -->
-      <div class="flex justify-between text-gray-500">
+      <div class="flex justify-between text-text-secondary">
         <button
-          class="flex items-center hover:text-blue-500"
+          class="flex items-center hover:text-primary-light"
           on:click={() => handleIconClick("reply")}
         >
           <MessageCircle size={18} />
@@ -92,7 +94,7 @@
           <span class="ml-2">{post.public_metrics?.likes || 0}</span>
         </button>
         <button
-          class="flex items-center hover:text-blue-500"
+          class="flex items-center hover:text-primary"
           on:click={() => handleIconClick("view")}
         >
           <Eye size={18} />
@@ -106,7 +108,7 @@
             <Bookmark size={18} />
           </button>
           <button
-            class="hover:text-blue-500"
+            class="hover:text-primary"
             on:click={() => handleIconClick("share")}
           >
             <Share size={18} />

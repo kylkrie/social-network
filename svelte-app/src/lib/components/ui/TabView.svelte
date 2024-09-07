@@ -13,7 +13,7 @@
   <div class="tab-header">
     {#each tabs as tab}
       <button
-        class="tab-button"
+        class="tab-button mx-4"
         class:active={activeTab === tab.name}
         on:click={() => (activeTab = tab.name)}
       >
@@ -37,7 +37,6 @@
 
   .tab-header {
     display: flex;
-    border-bottom: 1px solid var(--color-border);
   }
 
   .tab-button {
@@ -46,16 +45,16 @@
     background: none;
     cursor: pointer;
     font-size: 1rem;
-    color: var(--color-text-secondary);
+    color: var(--text-secondary);
     transition: color 0.3s ease;
   }
 
   .tab-button:hover {
-    color: var(--color-text);
+    color: var(--text-secondary);
   }
 
   .tab-button.active {
-    color: var(--color-primary);
-    border-bottom: 2px solid var(--color-primary);
+    color: var(--text);
+    border-bottom: 2px solid var(--primary);
   }
 </style>

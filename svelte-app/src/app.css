@@ -4,35 +4,58 @@
 
 :root {
   /* Shared colors */
-  --primary: #8a4baf;
-  --primary-dark: #6a2b93;
-  --primary-light: #ab7ac4;
+  --primary: #4f46e5;  /* A rich indigo */
+  --primary-light: #818cf8;  /* Lighter indigo for hover states or backgrounds */
+  --primary-dark: #3730a3;  /* Darker indigo for active states or text */
   --secondary: #4a90e2;
 
-  /* Light Theme */
-  --light-background: #f3f4f6;  /* Light gray background */
-  --light-surface: #ffffff;  /* White surface for cards, etc. */
-  --light-text: #111827;  /* Dark text for good contrast */
-  --light-text-secondary: #4b5563;  /* Secondary text color */
-  --light-text-tertiary: #9ca3af;  /* Tertiary text color */
-  --light-border: #e5e7eb;  /* Light border color */
-  --light-sidebar-hover: #e5e7eb;  /* Slightly darker than background for hover effect */
-  --light-sidebar-active: #d1d5db;  /* Even darker for active state */
-
-  /* Dark Theme */
-  --dark-background: #1f2937;  /* Dark gray background */
-  --dark-surface: #374151;  /* Slightly lighter surface for cards, etc. */
-  --dark-text: #f9fafb;  /* Light text for good contrast */
-  --dark-text-secondary: #e5e7eb;  /* Secondary text color */
-  --dark-text-tertiary: #9ca3af;  /* Tertiary text color */
-  --dark-border: #4b5563;  /* Dark border color */
-  --dark-sidebar-hover: #374151;  /* Slightly lighter than background for hover effect */
-  --dark-sidebar-active: #4b5563;  /* Even lighter for active state */
-
-  /* Shared functional colors */
+  /* Functional colors */
   --error: #ef4444;
   --success: #10b981;
   --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Light Theme */
+  --light-background: #f3f4f6;
+  --light-surface: #ffffff;
+  --light-text: #111827;
+  --light-text-secondary: #4b5563;
+  --light-text-tertiary: #9ca3af;
+  --light-border: #d5d7db;
+  --light-sidebar-hover: #e5e7eb;
+  --light-sidebar-active: #d1d5db;
+  --light-card-background: #f2f2f2;
+  --light-hover: #f3f4f6;
+  --light-active: #e5e7eb;
+  --light-divider: #e2e8f0;
+  --light-input-background: #f9fafb;
+  --light-input-border: #d1d5db;
+  --light-input-text: #111827;
+  --light-input-placeholder: #9ca3af;
+  --light-button-text: #ffffff;
+  --light-button-disabled: #e5e7eb;
+  --light-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Dark Theme */
+  --dark-background: #0f1927;
+  --dark-surface: #374151;
+  --dark-text: #f9fafb;
+  --dark-text-secondary: #e5e7eb;
+  --dark-text-tertiary: #9ca3af;
+  --dark-border: #4b5563;
+  --dark-sidebar-hover: #374151;
+  --dark-sidebar-active: #4b5563;
+  --dark-card-background: #2d3748;
+  --dark-hover: #2c3440;
+  --dark-active: #374151;
+  --dark-divider: #4a5568;
+  --dark-input-background: #2d3748;
+  --dark-input-border: #4b5563;
+  --dark-input-text: #f9fafb;
+  --dark-input-placeholder: #9ca3af;
+  --dark-button-text: #ffffff;
+  --dark-button-disabled: #4b5563;
+  --dark-shadow: rgba(0, 0, 0, 0.25);
 }
 
 /* Light theme (default) */
@@ -45,6 +68,17 @@ html {
   --border: var(--light-border);
   --sidebar-hover: var(--light-sidebar-hover);
   --sidebar-active: var(--light-sidebar-active);
+  --card-background: var(--light-card-background);
+  --hover: var(--light-hover);
+  --active: var(--light-active);
+  --divider: var(--light-divider);
+  --input-background: var(--light-input-background);
+  --input-border: var(--light-input-border);
+  --input-text: var(--light-input-text);
+  --input-placeholder: var(--light-input-placeholder);
+  --button-text: var(--light-button-text);
+  --button-disabled: var(--light-button-disabled);
+  --shadow: var(--light-shadow);
 }
 
 /* Dark theme */
@@ -57,4 +91,15 @@ html.dark-theme {
   --border: var(--dark-border);
   --sidebar-hover: var(--dark-sidebar-hover);
   --sidebar-active: var(--dark-sidebar-active);
+  --card-background: var(--dark-card-background);
+  --hover: var(--dark-hover);
+  --active: var(--dark-active);
+  --divider: var(--dark-divider);
+  --input-background: var(--dark-input-background);
+  --input-border: var(--dark-input-border);
+  --input-text: var(--dark-input-text);
+  --input-placeholder: var(--dark-input-placeholder);
+  --button-text: var(--dark-button-text);
+  --button-disabled: var(--dark-button-disabled);
+  --shadow: var(--dark-shadow);
 }

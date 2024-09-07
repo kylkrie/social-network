@@ -34,15 +34,15 @@
 
 {#if loading}
   <Card>
-    <p>Loading posts...</p>
+    <p class="text-text-secondary">Loading posts...</p>
   </Card>
 {:else if error}
   <Card>
-    <p class="text-red-500">{error}</p>
+    <p class="text-error">{error}</p>
   </Card>
 {:else if posts.length === 0}
   <Card>
-    <p>No posts yet.</p>
+    <p class="text-text-secondary">No posts yet.</p>
   </Card>
 {:else}
   {#each posts as post}
