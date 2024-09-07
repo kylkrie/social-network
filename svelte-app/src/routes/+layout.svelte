@@ -8,6 +8,8 @@
   import { auth } from "$lib/auth";
   import { onMount } from "svelte";
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
 
   let isSidebarOpen = false;
 
@@ -30,6 +32,10 @@
   ];
 
   $: isAuthenticated = $auth;
+
+  $: if (!isAuthenticated && $page.url.pathname !== "/") {
+    goto("/");
+  }
 
   const queryClient = new QueryClient();
 </script>
