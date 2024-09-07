@@ -4,11 +4,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
+	"yabro.io/social-api/internal/service"
 )
 
 type CreatePostRequest struct {
-	Content        string `json:"content" validate:"required"`
-	ConversationID *int64 `json:"conversation_id"`
+	Content       string `json:"content" validate:"required"`
+	ReplyToPostID *int64 `json:"reply_to_post_id"`
+	QuotePostID   *int64 `json:"quote_post_id"`
 }
 
 func CreatePost(appState *app.AppState) fiber.Handler {
@@ -23,7 +25,12 @@ func CreatePost(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		post, err := appState.Services.PostService.CreatePost(userID, req.Content, req.ConversationID)
+		post, err := appState.Services.PostService.CreatePost(service.CreatePostParams{
+			UserID:        userID,
+			Content:       req.Content,
+			ReplyToPostID: req.ReplyToPostID,
+			QuotePostID:   req.QuotePostID,
+		})
 		if err != nil {
 			return err
 		}

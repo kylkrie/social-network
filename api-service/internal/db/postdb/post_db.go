@@ -14,6 +14,14 @@ func NewPostDB(db *sqlx.DB) *PostDB {
 	return &PostDB{db: db}
 }
 
+type PostData struct {
+	Post       Post
+	Edits      *[]PostEdit
+	Metrics    *PostPublicMetrics
+	References *[]PostReference
+	Tags       *[]PostTag
+}
+
 type Post struct {
 	ID             int64      `db:"id"`
 	Content        string     `db:"content"`
@@ -54,3 +62,11 @@ type PostReference struct {
 	ReferencedPostID int64  `db:"referenced_post_id"`
 	ReferenceType    string `db:"reference_type"`
 }
+
+type PostReferenceType string
+
+const (
+	PostReferenceTypeQuote   = "quote"
+	PostReferenceTypeReplyTo = "reply_to"
+	PostReferenceTypeRepost  = "repost"
+)

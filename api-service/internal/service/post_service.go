@@ -21,30 +21,76 @@ func NewPostService(postDB *postdb.PostDB, snowflakeNode *snowflake.Node) (*Post
 }
 
 func (s *PostService) GetPostByID(id int64, includeMetrics bool) (*dto.Post, error) {
-	post, metrics, err := s.postDB.GetPost(id, includeMetrics)
+	post, err := s.postDB.GetPostData(id, includeMetrics)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
 	}
 
-	return toPublicPost(post, metrics), nil
+	return toPublicPost(*post), nil
 }
 
-func (s *PostService) CreatePost(userID int64, content string, conversationID *int64) (*dto.Post, error) {
+type CreatePostParams struct {
+	UserID        int64
+	Content       string
+	ReplyToPostID *int64
+	QuotePostID   *int64
+}
+
+func (s *PostService) CreatePost(p CreatePostParams) (*dto.Post, error) {
 	id := s.snowflakeNode.Generate().Int64()
+
+	var conversationID *int64
+	var references []postdb.CreatePostReference
+
+	if p.ReplyToPostID != nil {
+		replyToPost, err := s.GetPostByID(*p.ReplyToPostID, false)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get reply-to post: %w", err)
+		}
+		if replyToPost.ConversationID != nil {
+			conversationID = replyToPost.ConversationID
+		} else {
+			conversationID = &replyToPost.ID
+		}
+		references = append(references, postdb.CreatePostReference{
+			ID:              s.snowflakeNode.Generate().Int64(),
+			ReferencePostID: *p.ReplyToPostID,
+			ReferenceType:   postdb.PostReferenceTypeReplyTo,
+		})
+	}
+
+	if p.QuotePostID != nil {
+		_, err := s.GetPostByID(*p.QuotePostID, false)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get quoted post: %w", err)
+		}
+
+		references = append(references, postdb.CreatePostReference{
+			ID:              s.snowflakeNode.Generate().Int64(),
+			ReferencePostID: *p.QuotePostID,
+			ReferenceType:   postdb.PostReferenceTypeQuote,
+		})
+	}
 
 	createParams := postdb.CreatePostParams{
 		ID:             id,
-		Content:        content,
-		AuthorID:       userID,
+		Content:        p.Content,
+		AuthorID:       p.UserID,
 		ConversationID: conversationID,
+		References:     &references,
 	}
 
-	post, err := s.postDB.CreatePost(createParams)
+	err := s.postDB.CreatePost(createParams)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create post: %w", err)
 	}
 
-	return toPublicPost(post, nil), nil
+	postData, err := s.postDB.GetPostData(id, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return toPublicPost(*postData), nil
 }
 
 func (s *PostService) UpdatePost(id int64, userID int64, content string) (*dto.Post, error) {
@@ -58,7 +104,7 @@ func (s *PostService) UpdatePost(id int64, userID int64, content string) (*dto.P
 		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
 
-	return toPublicPost(post, nil), nil
+	return toPublicPost(postdb.PostData{Post: *post}), nil
 }
 
 func (s *PostService) DeletePost(id int64, userID int64) error {
@@ -71,14 +117,14 @@ func (s *PostService) DeletePost(id int64, userID int64) error {
 }
 
 func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]dto.Post, *int64, error) {
-	posts, nextCursor, err := s.postDB.ListPosts(userID, limit, cursor)
+	posts, nextCursor, err := s.postDB.ListPostDatas(userID, limit, cursor)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list posts: %w", err)
 	}
 
 	publicPosts := make([]dto.Post, len(posts))
 	for i, post := range posts {
-		publicPosts[i] = *toPublicPost(&post, nil)
+		publicPosts[i] = *toPublicPost(post)
 	}
 
 	return publicPosts, nextCursor, nil
