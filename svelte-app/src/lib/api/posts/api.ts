@@ -5,7 +5,8 @@ import type {
   UpdatePostRequest,
   GetPostParams,
   ListPostsParams,
-  ListPostsResponse
+  ListPostsResponse,
+  GetPostResponse
 } from './dtos';
 
 const API_PATH = '/posts/v1';
@@ -14,26 +15,25 @@ export const postsApi = {
   /**
    * Create a new post
    */
-  createPost: async (postData: CreatePostRequest): Promise<Post> => {
+  createPost: async (postData: CreatePostRequest): Promise<GetPostResponse> => {
     const response = await api.post(API_PATH, postData);
-    return response.data;
+    return response;
   },
 
   /**
    * Get a post by ID
    */
-  getPost: async (id: number, params: GetPostParams = {}): Promise<Post> => {
+  getPost: async (id: number, params: GetPostParams = {}): Promise<GetPostResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
-    return response.data;
+    return response;
   },
 
   /**
    * Update an existing post
    */
-  updatePost: async (id: number, postData: UpdatePostRequest): Promise<Post> => {
-    const response = await api.put(`${API_PATH}/${id}`, postData);
-    return response.data;
+  updatePost: async (id: number, postData: UpdatePostRequest): Promise<void> => {
+    await api.put(`${API_PATH}/${id}`, postData);
   },
 
   /**

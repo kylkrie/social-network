@@ -1,25 +1,25 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { useListPosts } from "$lib/queries/posts";
-  import type { Post } from "$lib/api/posts/dtos";
+  import type { ListPostsResponse, Post } from "$lib/api/posts/dtos";
   import Card from "$lib/components/ui/Card.svelte";
   import PostCard from "../post/PostCard.svelte";
-  import { useGetCurrentUser } from "$lib/queries";
+  import type { User } from "$lib/api";
 
   let posts: Post[] = [];
+  let user: User;
   let error: string | null = null;
   let loading = true;
 
   const listPosts = useListPosts({ limit: 10 });
-  const getCurrentUser = useGetCurrentUser({ profile: true });
-  const user = $getCurrentUser.data;
 
   onMount(async () => {
     try {
       const result = await $listPosts.refetch();
       if (result.isSuccess) {
-        //@ts-ignore
-        posts = result.data.pages[0].data;
+        const res = result.data.pages[0] as ListPostsResponse;
+        posts = res.data;
+        user = res.includes.users[0];
       } else {
         error = "Failed to fetch posts";
       }

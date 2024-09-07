@@ -1,5 +1,13 @@
+import type { Post } from './posts';
+import type { User } from './users';
+
 export * from './users'
 export * from './api'
+
+export interface IncludesData {
+  users?: User[];
+  posts?: Post[];
+}
 
 export function cleanUrlParams(params: Record<string, any>): string {
   const cleanParams = Object.fromEntries(

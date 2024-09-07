@@ -1,7 +1,6 @@
 <script lang="ts" module>
   import { type ComponentType } from 'svelte';
   import { type Icon } from 'lucide-svelte';
-
   export interface SidebarItem {
     icon: ComponentType<Icon>;
     label: string;
@@ -11,10 +10,22 @@
 
 <script lang="ts">
   import { page } from "$app/stores";
+  import Button from "$lib/components/ui/Button.svelte";
+  import PostModal from "$lib/components/post/PostModal.svelte";
+  import { PenSquare } from "lucide-svelte";
 
   export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;
   export let onCloseSidebar: () => void;
+
+  let isPostModalOpen = false;
+
+  function openPostModal() {
+    isPostModalOpen = true;
+    if (isSidebarOpen) {
+      onCloseSidebar();
+    }
+  }
 </script>
 
 <nav
@@ -41,6 +52,11 @@
           </a>
         {/each}
       </div>
+      <div class="px-4 mb-4">
+        <Button on:click={openPostModal} variant="default" size="lg">
+          Post
+        </Button>
+      </div>
     </div>
   </div>
 </nav>
@@ -51,3 +67,5 @@
     on:click={onCloseSidebar}
   ></div>
 {/if}
+
+<PostModal bind:isOpen={isPostModalOpen} />

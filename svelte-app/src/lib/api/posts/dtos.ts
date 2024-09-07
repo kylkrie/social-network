@@ -1,3 +1,5 @@
+import type { IncludesData } from "..";
+
 // Post DTOs
 export interface Post {
   id: number;
@@ -40,10 +42,12 @@ export interface PostReference {
 // API Response DTOs
 export interface GetPostResponse {
   data: Post;
+  includes?: IncludesData;
 }
 
 export interface ListPostsResponse {
   data: Post[];
+  includes?: IncludesData;
   next_cursor?: string;
 }
 

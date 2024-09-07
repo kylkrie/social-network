@@ -55,7 +55,7 @@
       <div class="flex justify-between items-center mb-0.5">
         <div>
           <span class="font-bold text-text">{user.name}</span>
-          <span class="text-text-secondary ml-2">@{user.username}</span>
+          <span class="text-text-secondary">@{user.username}</span>
         </div>
         <button
           class="text-text-secondary hover:text-text"
