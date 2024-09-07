@@ -1,4 +1,4 @@
-import { api } from '$lib/api';
+import { api, cleanUrlParams } from '$lib/api';
 import type {
   Post,
   CreatePostRequest,
@@ -23,7 +23,7 @@ export const postsApi = {
    * Get a post by ID
    */
   getPost: async (id: number, params: GetPostParams = {}): Promise<Post> => {
-    const queryString = new URLSearchParams(params as any).toString();
+    const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
     return response.data;
   },
@@ -47,7 +47,7 @@ export const postsApi = {
    * List posts
    */
   listPosts: async (params: ListPostsParams = {}): Promise<ListPostsResponse> => {
-    const queryString = new URLSearchParams(params as any).toString();
+    const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}?${queryString}`);
     return response;
   },

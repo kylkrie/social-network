@@ -3,7 +3,7 @@ export interface User {
   id: number;
   name: string;
   username: string;
-  pfp_url: string;
+  pfp_url?: string;
   protected: boolean;
   profile?: UserProfile;
 }
