@@ -13,7 +13,7 @@ import (
 	"yabro.io/social-api/internal/apperror"
 )
 
-func AuthMiddleware(appState *app.AppState) fiber.Handler {
+func ValidateAuthToken(appState *app.AppState) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get Auth header
 		authHeader := c.Get("Authorization")

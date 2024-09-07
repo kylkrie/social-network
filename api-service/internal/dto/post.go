@@ -1,9 +1,7 @@
-package service
+package dto
 
 import (
 	"time"
-
-	"yabro.io/social-api/internal/db/postdb"
 )
 
 type Post struct {
@@ -41,37 +39,4 @@ type PostPublicMetrics struct {
 type PostReference struct {
 	ReferencedPostID int64  `json:"referenced_post_id"`
 	ReferenceType    string `json:"reference_type"`
-}
-
-func toPublicPost(post *postdb.Post, metrics *postdb.PostPublicMetrics) *Post {
-	if post.DeletedAt != nil {
-		deleted := true
-		return &Post{
-			ID:             post.ID,
-			Content:        "",
-			AuthorID:       post.AuthorID,
-			ConversationID: post.ConversationID,
-			CreatedAt:      post.CreatedAt,
-			IsDeleted:      &deleted,
-		}
-	}
-
-	publicPost := &Post{
-		ID:             post.ID,
-		Content:        post.Content,
-		AuthorID:       post.AuthorID,
-		ConversationID: post.ConversationID,
-		CreatedAt:      post.CreatedAt,
-	}
-
-	if metrics != nil {
-		publicPost.PublicMetrics = &PostPublicMetrics{
-			Reposts: metrics.Reposts,
-			Replies: metrics.Replies,
-			Likes:   metrics.Likes,
-			Views:   metrics.Views,
-		}
-	}
-
-	return publicPost
 }

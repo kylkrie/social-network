@@ -20,7 +20,12 @@ func GetPost(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		return c.JSON(fiber.Map{"data": post})
+		includes, err := appState.Services.IncludeService.GetIncludesForPost(post)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{"data": post, "includes": includes})
 	}
 }
 
@@ -46,8 +51,14 @@ func ListPosts(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(posts)
+		if err != nil {
+			return err
+		}
+
 		response := fiber.Map{
-			"data": posts,
+			"data":     posts,
+			"includes": includes,
 		}
 		if nextCursor != nil {
 			response["next_cursor"] = *nextCursor

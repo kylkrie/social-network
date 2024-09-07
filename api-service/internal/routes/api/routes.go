@@ -11,7 +11,7 @@ import (
 // SetupRoutes configures the API routes
 func SetupRoutes(app *fiber.App, appState *app.AppState) {
 	apiGroup := app.Group("/api")
-	apiGroup.Use(middleware.AuthMiddleware(appState))
+	apiGroup.Use(middleware.ValidateAuthToken(appState))
 
 	users.SetupRoutes(apiGroup, appState)
 	posts.SetupRoutes(apiGroup, appState)

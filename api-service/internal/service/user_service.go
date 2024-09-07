@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"github.com/google/uuid"
 	"yabro.io/social-api/internal/db/userdb"
+	"yabro.io/social-api/internal/dto"
 )
 
 type UserService struct {
@@ -24,7 +25,7 @@ func (s *UserService) GetUserID(authUUID uuid.UUID) (int64, error) {
 	return s.userDB.GetUserID(authUUID)
 }
 
-func (s *UserService) GetUserByID(id int64, includeProfile bool) (*PublicUser, error) {
+func (s *UserService) GetUserByID(id int64, includeProfile bool) (*dto.User, error) {
 	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{ID: &id},
 		includeProfile,
@@ -37,7 +38,7 @@ func (s *UserService) GetUserByID(id int64, includeProfile bool) (*PublicUser, e
 	return &publicUser, nil
 }
 
-func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*PublicUser, error) {
+func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*dto.User, error) {
 	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{Username: &username},
 		includeProfile,

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"yabro.io/social-api/internal/app"
-	"yabro.io/social-api/internal/middleware"
+	"yabro.io/social-api/internal/apperror"
 	"yabro.io/social-api/internal/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,7 +41,7 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		ErrorHandler: middleware.ErrorHandler,
+		ErrorHandler: apperror.ErrorHandler,
 	})
 
 	// Setup routes

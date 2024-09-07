@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
+	"yabro.io/social-api/internal/dto"
 	"yabro.io/social-api/internal/service"
 )
 
@@ -20,7 +21,7 @@ type UpdateUserMeRequest struct {
 }
 
 type UpdateUserMeResponse struct {
-	Data service.PublicUser `json:"data"`
+	Data dto.User `json:"data"`
 }
 
 func UpdateUserMe(appState *app.AppState) fiber.Handler {

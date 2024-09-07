@@ -9,8 +9,9 @@ import (
 )
 
 type AppServices struct {
-	UserService *service.UserService
-	PostService *service.PostService
+	UserService    *service.UserService
+	PostService    *service.PostService
+	IncludeService *service.IncludeService
 }
 
 func NewAppServices(db *sqlx.DB, snowflakeNode *snowflake.Node) (*AppServices, error) {
@@ -26,9 +27,12 @@ func NewAppServices(db *sqlx.DB, snowflakeNode *snowflake.Node) (*AppServices, e
 		return nil, err
 	}
 
+	includeService := service.NewIncludeService(userDb, postDb)
+
 	services := &AppServices{
-		UserService: userService,
-		PostService: postService,
+		UserService:    userService,
+		PostService:    postService,
+		IncludeService: includeService,
 	}
 
 	return services, nil

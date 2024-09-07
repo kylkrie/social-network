@@ -1,11 +1,10 @@
 package users
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
-	"yabro.io/social-api/internal/service"
+	"yabro.io/social-api/internal/dto"
 )
 
 type GetUserRequest struct {
@@ -18,10 +17,8 @@ type GetUserMeRequest struct {
 }
 
 type GetUserResponse struct {
-	Data service.PublicUser `json:"data"`
+	Data dto.User `json:"data"`
 }
-
-var validate = validator.New()
 
 func GetUser(appState *app.AppState) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -31,7 +28,7 @@ func GetUser(appState *app.AppState) fiber.Handler {
 		if err := c.QueryParser(&req); err != nil {
 			return err
 		}
-		if err := validate.Struct(req); err != nil {
+		if err := appState.Validator.Struct(req); err != nil {
 			return err
 		}
 
@@ -51,7 +48,7 @@ func GetUserMe(appState *app.AppState) fiber.Handler {
 		if err := c.QueryParser(&req); err != nil {
 			return err
 		}
-		if err := validate.Struct(req); err != nil {
+		if err := appState.Validator.Struct(req); err != nil {
 			return err
 		}
 

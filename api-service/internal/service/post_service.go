@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/snowflake"
 	"yabro.io/social-api/internal/db/postdb"
+	"yabro.io/social-api/internal/dto"
 )
 
 type PostService struct {
@@ -19,7 +20,7 @@ func NewPostService(postDB *postdb.PostDB, snowflakeNode *snowflake.Node) (*Post
 	}, nil
 }
 
-func (s *PostService) GetPostByID(id int64, includeMetrics bool) (*Post, error) {
+func (s *PostService) GetPostByID(id int64, includeMetrics bool) (*dto.Post, error) {
 	post, metrics, err := s.postDB.GetPost(id, includeMetrics)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get post: %w", err)
@@ -28,7 +29,7 @@ func (s *PostService) GetPostByID(id int64, includeMetrics bool) (*Post, error) 
 	return toPublicPost(post, metrics), nil
 }
 
-func (s *PostService) CreatePost(userID int64, content string, conversationID *int64) (*Post, error) {
+func (s *PostService) CreatePost(userID int64, content string, conversationID *int64) (*dto.Post, error) {
 	id := s.snowflakeNode.Generate().Int64()
 
 	createParams := postdb.CreatePostParams{
@@ -46,7 +47,7 @@ func (s *PostService) CreatePost(userID int64, content string, conversationID *i
 	return toPublicPost(post, nil), nil
 }
 
-func (s *PostService) UpdatePost(id int64, userID int64, content string) (*Post, error) {
+func (s *PostService) UpdatePost(id int64, userID int64, content string) (*dto.Post, error) {
 	updateParams := postdb.UpdatePostParams{
 		ID:      id,
 		Content: content,
@@ -69,13 +70,13 @@ func (s *PostService) DeletePost(id int64, userID int64) error {
 	return nil
 }
 
-func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]Post, *int64, error) {
+func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]dto.Post, *int64, error) {
 	posts, nextCursor, err := s.postDB.ListPosts(userID, limit, cursor)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list posts: %w", err)
 	}
 
-	publicPosts := make([]Post, len(posts))
+	publicPosts := make([]dto.Post, len(posts))
 	for i, post := range posts {
 		publicPosts[i] = *toPublicPost(&post, nil)
 	}
