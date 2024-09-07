@@ -3,17 +3,16 @@ package main
 import (
 	"context"
 	"embed"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"yabro.io/social-api/app"
-	"yabro.io/social-api/apperror"
-	"yabro.io/social-api/routes"
+	"yabro.io/social-api/internal/app"
+	"yabro.io/social-api/internal/middleware"
+	"yabro.io/social-api/internal/routes"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -41,41 +40,45 @@ func main() {
 		log.Fatal().Err(err).Msg("Error running migrations")
 	}
 
-	apperror.RegisterCustomValidator()
-	router := gin.New()
-	routes.SetupRoutes(router, appState)
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler,
+	})
+
+	// Setup routes
+	routes.SetupRoutes(app, appState)
 
 	port := os.Getenv("PORT")
-	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: router,
+	if port == "" {
+		port = "8080" // Default port if not specified
 	}
 
-	// Start the server
+	// Start the server in a goroutine
 	go func() {
 		log.Info().Msgf("Starting server on port %s", port)
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatal().Err(err).Msg("HTTP server ListenAndServe")
+		if err := app.Listen(":" + port); err != nil {
+			log.Fatal().Err(err).Msg("Error starting server")
 		}
 	}()
 
 	// Setup channel to listen for termination signals
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
-	// Block until a signal is received.
-	<-c
+	// Block until a signal is received
+	<-quit
 	log.Info().Msg("Shutting down gracefully...")
 
-	// Create a deadline to wait for.
+	// Create a deadline for graceful shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Doesn't block if no connections, but will wait until the timeout deadline.
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatal().Err(err).Msg("HTTP server Shutdown")
+	// Attempt to gracefully shutdown the server
+	if err := app.ShutdownWithContext(ctx); err != nil {
+		log.Fatal().Err(err).Msg("Server forced to shutdown")
 	}
 
-	// Now that the server has shut down, we can close other resources.
+	// Now that the server has shut down, we can close other resources
 	appState.Close()
+
+	log.Info().Msg("Server exiting")
 }
