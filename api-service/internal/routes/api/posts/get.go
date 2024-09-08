@@ -1,11 +1,10 @@
 package posts
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
+	"yabro.io/social-api/internal/db/postdb"
 )
 
 func GetPost(appState *app.AppState) fiber.Handler {
@@ -29,24 +28,41 @@ func GetPost(appState *app.AppState) fiber.Handler {
 	}
 }
 
+type ListPostsQuery struct {
+	Limit          *int   `query:"limit" validate:"omitempty,min=1,max=100"`
+	Cursor         *int64 `query:"cursor" validate:"omitempty"`
+	Replies        *bool  `query:"replies" validate:"omitempty"`
+	ConversationID *int64 `query:"conversation_id" validate:"omitempty"`
+}
+
 func ListPosts(appState *app.AppState) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		limit := c.QueryInt("limit", 20)
-		if limit > 100 {
-			limit = 100
+		var query ListPostsQuery
+		if err := c.QueryParser(&query); err != nil {
+			return err
 		}
 
-		var cursor *int64
-		if cursorStr := c.Query("cursor"); cursorStr != "" {
-			cursorVal, err := strconv.ParseInt(cursorStr, 10, 64)
-			if err != nil {
-				return err
-			}
-			cursor = &cursorVal
+		if err := appState.Validator.Struct(query); err != nil {
+			return err
 		}
 
 		userID := auth.GetUserID(c)
-		posts, nextCursor, err := appState.Services.PostService.ListPosts(userID, limit, cursor)
+		limit := 20
+		if query.Limit != nil {
+			limit = *query.Limit
+		}
+		isReply := false
+		if query.Replies != nil {
+			isReply = *query.Replies
+		}
+
+		posts, nextCursor, err := appState.Services.PostService.ListPosts(postdb.ListPostParams{
+			UserID:         userID,
+			Limit:          limit,
+			Cursor:         query.Cursor,
+			IsReply:        isReply,
+			ConversationID: query.ConversationID,
+		})
 		if err != nil {
 			return err
 		}

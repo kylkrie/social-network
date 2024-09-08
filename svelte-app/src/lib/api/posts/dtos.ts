@@ -2,10 +2,10 @@ import type { IncludesData } from "..";
 
 // Post DTOs
 export interface Post {
-  id: number;
+  id: string;
   content: string;
-  author_id: number;
-  conversation_id?: number;
+  author_id: string;
+  conversation_id?: string;
   created_at: string; // ISO 8601 format
   updated_at: string; // ISO 8601 format
   deleted_at?: string; // ISO 8601 format
@@ -54,7 +54,7 @@ export interface ListPostsResponse {
 // Request DTOs
 export interface CreatePostRequest {
   content: string;
-  conversation_id?: number;
+  conversation_id?: string;
 }
 
 export interface UpdatePostRequest {
@@ -65,6 +65,8 @@ export interface UpdatePostRequest {
 export interface ListPostsParams {
   limit?: number;
   cursor?: string;
+  replies?: boolean;
+  conversation_id?: string;
 }
 
 export interface GetPostParams {

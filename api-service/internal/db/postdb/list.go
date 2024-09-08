@@ -2,31 +2,46 @@ package postdb
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 )
 
-func (pdb *PostDB) ListPosts(userID int64, limit int, cursor *int64) ([]Post, *int64, error) {
-	query := `
-		SELECT *
-		FROM posts
-		WHERE author_id = $1 AND deleted_at IS NULL
-	`
-	args := []interface{}{userID}
+type ListPostParams struct {
+	UserID         int64
+	Limit          int
+	Cursor         *int64
+	IsReply        bool
+	ConversationID *int64
+}
 
-	if cursor != nil {
-		query += ` AND id < $2
-		ORDER BY id DESC
-		LIMIT $3`
-		args = append(args, *cursor, limit+1) // fetch one extra to determine if there are more results
+func (pdb *PostDB) ListPosts(p ListPostParams) ([]Post, *int64, error) {
+	log.Info().Any("p", p).Msg("List")
+
+	query := strings.Builder{}
+	query.WriteString("SELECT * FROM posts WHERE author_id = $1 AND deleted_at IS NULL")
+	args := []interface{}{p.UserID}
+
+	if p.ConversationID != nil {
+		query.WriteString(fmt.Sprintf(" AND conversation_id = $%d", len(args)+1))
+		args = append(args, *p.ConversationID)
+	} else if p.IsReply {
+		query.WriteString(" AND conversation_id IS NOT NULL")
 	} else {
-		query += `
-		ORDER BY id DESC
-		LIMIT $2`
-		args = append(args, limit+1) // fetch one extra to determine if there are more results
+		query.WriteString(" AND conversation_id IS NULL")
 	}
 
-	rows, err := pdb.db.Queryx(query, args...)
+	if p.Cursor != nil {
+		query.WriteString(fmt.Sprintf(" AND id < $%d", len(args)+1))
+		args = append(args, *p.Cursor)
+	}
+
+	query.WriteString(" ORDER BY id DESC")
+	query.WriteString(fmt.Sprintf(" LIMIT $%d", len(args)+1))
+	args = append(args, p.Limit+1)
+
+	rows, err := pdb.db.Queryx(query.String(), args...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list posts: %w", err)
 	}
@@ -42,17 +57,17 @@ func (pdb *PostDB) ListPosts(userID int64, limit int, cursor *int64) ([]Post, *i
 	}
 
 	var nextCursor *int64
-	if len(posts) > limit {
-		nextCursor = &posts[limit-1].ID
-		posts = posts[:limit]
+	if len(posts) > p.Limit {
+		nextCursor = &posts[p.Limit-1].ID
+		posts = posts[:p.Limit]
 	}
 
 	return posts, nextCursor, nil
 }
 
-func (pdb *PostDB) ListPostDatas(userID int64, limit int, cursor *int64) ([]PostData, *int64, error) {
+func (pdb *PostDB) ListPostDatas(p ListPostParams) ([]PostData, *int64, error) {
 	// First, fetch the posts
-	posts, nextCursor, err := pdb.ListPosts(userID, limit, cursor)
+	posts, nextCursor, err := pdb.ListPosts(p)
 	if err != nil {
 		return nil, nil, err
 	}

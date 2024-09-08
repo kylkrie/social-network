@@ -5,10 +5,10 @@ import (
 )
 
 type Post struct {
-	ID             int64              `json:"id"`
+	ID             string             `json:"id"`
 	Content        string             `json:"content"`
-	AuthorID       int64              `json:"author_id"`
-	ConversationID *int64             `json:"conversation_id,omitempty"`
+	AuthorID       string             `json:"author_id"`
+	ConversationID *string            `json:"conversation_id,omitempty"`
 	CreatedAt      time.Time          `json:"created_at"`
 	IsDeleted      *bool              `json:"is_deleted,omitempty"`
 	PublicMetrics  *PostPublicMetrics `json:"public_metrics,omitempty"`
@@ -37,6 +37,6 @@ type PostPublicMetrics struct {
 }
 
 type PostReference struct {
-	ReferencedPostID int64  `json:"referenced_post_id"`
+	ReferencedPostID string `json:"referenced_post_id"`
 	ReferenceType    string `json:"reference_type"`
 }

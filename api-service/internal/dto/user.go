@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID        int64        `json:"id"`
+	ID        string       `json:"id"`
 	Name      string       `json:"name"`
 	Username  string       `json:"username"`
 	PfpURL    *string      `json:"pfp_url"`

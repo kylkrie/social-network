@@ -37,6 +37,7 @@
 
   .tab-header {
     display: flex;
+    border-bottom: 1px solid var(--border)
   }
 
   .tab-button {

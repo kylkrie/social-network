@@ -3,11 +3,12 @@ package service
 import (
 	"yabro.io/social-api/internal/db/userdb"
 	"yabro.io/social-api/internal/dto"
+	"yabro.io/social-api/internal/util"
 )
 
 func toPublicUser(user *userdb.User, profile *userdb.UserProfile) dto.User {
 	return dto.User{
-		ID:   user.ID,
+		ID:   util.Int64ToString(user.ID),
 		Name: user.Name,
 
 		Username:  user.Username,

@@ -4,11 +4,16 @@ import type { ListPostsParams, ListPostsResponse } from '$lib/api/posts';
 import { QK_POSTS } from './consts';
 
 export function useListPosts(params: ListPostsParams = {}) {
-  //@ts-ignore
   return createInfiniteQuery<ListPostsResponse, Error>({
     queryKey: [QK_POSTS, params],
-    queryFn: ({ pageParam }) =>
-      postsApi.listPosts({ ...params, cursor: pageParam as string }),
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
+    queryFn: ({ pageParam = undefined }) => {
+      console.log('list', pageParam)
+      return postsApi.listPosts({
+        ...params,
+        cursor: pageParam as string | undefined
+      })
+    },
+    getNextPageParam: (lastPage) => lastPage.next_cursor || undefined,
+    initialPageParam: undefined,
   });
 }

@@ -10,11 +10,15 @@
     Share,
     Users,
   } from "lucide-svelte";
-  import type { Post } from "$lib/api/posts/dtos";
+  import type { Post, PostReference } from "$lib/api/posts/dtos";
   import type { User } from "$lib/api/users/dtos";
 
   export let post: Post;
   export let user: User;
+  let isReply = post.references?.some(
+    (r: PostReference) => r.reference_type == "reply_to",
+  );
+  export let hasReplies = false;
 
   function handlePostClick(event: MouseEvent) {
     // Prevent the post click if the click was on a button
@@ -31,25 +35,31 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="border-y border-border p-2 hover:bg-hover cursor-pointer"
+  class="p-2 hover:bg-hover cursor-pointer relative border-t-0
+  {hasReplies ? 'border-b-0' : ''} border-y border-border"
   on:click={handlePostClick}
 >
-  <div class="flex">
+  {#if isReply}
+    <div class="absolute top-0 left-8 w-0.5 h-2 bg-border"></div>
+  {/if}
+  <div class="flex relative">
+    {#if hasReplies}
+      <div class="absolute bottom-0 left-8 w-0.5 h-full bg-border"></div>
+    {/if}
     <!-- Profile picture -->
     {#if user.pfp_url}
       <img
         src={user.pfp_url || "/default-avatar.png"}
         alt="Profile"
-        class="w-12 h-12 rounded-full mr-3"
+        class="w-12 h-12 rounded-full mr-3 z-10"
       />
     {:else}
       <div
-        class="rounded-full bg-primary-light h-12 w-12 mr-3 flex items-center justify-center"
+        class="rounded-full bg-primary-light h-12 w-12 mr-3 flex items-center justify-center z-10"
       >
         <Users class="h-6 w-6 text-background" />
       </div>
     {/if}
-
     <div class="flex-grow">
       <!-- Header: Name, Username, and More options -->
       <div class="flex justify-between items-center mb-0.5">
@@ -64,12 +74,10 @@
           <MoreHorizontal size={20} />
         </button>
       </div>
-
       <!-- Post content -->
       <p class="mb-3 text-text whitespace-pre-wrap break-words">
         {post.content}
       </p>
-
       <!-- Action icons -->
       <div class="flex justify-between text-text-secondary">
         <button

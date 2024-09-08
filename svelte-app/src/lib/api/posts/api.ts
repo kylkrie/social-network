@@ -1,6 +1,5 @@
 import { api, cleanUrlParams } from '$lib/api';
 import type {
-  Post,
   CreatePostRequest,
   UpdatePostRequest,
   GetPostParams,
@@ -23,7 +22,7 @@ export const postsApi = {
   /**
    * Get a post by ID
    */
-  getPost: async (id: number, params: GetPostParams = {}): Promise<GetPostResponse> => {
+  getPost: async (id: string, params: GetPostParams = {}): Promise<GetPostResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
     return response;
@@ -32,14 +31,14 @@ export const postsApi = {
   /**
    * Update an existing post
    */
-  updatePost: async (id: number, postData: UpdatePostRequest): Promise<void> => {
+  updatePost: async (id: string, postData: UpdatePostRequest): Promise<void> => {
     await api.put(`${API_PATH}/${id}`, postData);
   },
 
   /**
    * Delete a post
    */
-  deletePost: async (id: number): Promise<void> => {
+  deletePost: async (id: string): Promise<void> => {
     await api.delete(`${API_PATH}/${id}`);
   },
 

@@ -3,26 +3,27 @@ package service
 import (
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/dto"
+	"yabro.io/social-api/internal/util"
 )
 
 func toPublicPost(p postdb.PostData) *dto.Post {
 	if p.Post.DeletedAt != nil {
 		deleted := true
 		return &dto.Post{
-			ID:             p.Post.ID,
+			ID:             util.Int64ToString(p.Post.ID),
 			Content:        "",
-			AuthorID:       p.Post.AuthorID,
-			ConversationID: p.Post.ConversationID,
+			AuthorID:       util.Int64ToString(p.Post.AuthorID),
+			ConversationID: util.NullableInt64ToString(p.Post.ConversationID),
 			CreatedAt:      p.Post.CreatedAt,
 			IsDeleted:      &deleted,
 		}
 	}
 
 	publicPost := &dto.Post{
-		ID:             p.Post.ID,
+		ID:             util.Int64ToString(p.Post.ID),
 		Content:        p.Post.Content,
-		AuthorID:       p.Post.AuthorID,
-		ConversationID: p.Post.ConversationID,
+		AuthorID:       util.Int64ToString(p.Post.AuthorID),
+		ConversationID: util.NullableInt64ToString(p.Post.ConversationID),
 		CreatedAt:      p.Post.CreatedAt,
 	}
 
@@ -67,7 +68,7 @@ func toPublicPostReferences(references *[]postdb.PostReference) []dto.PostRefere
 	publicReferences := make([]dto.PostReference, len(*references))
 	for i, ref := range *references {
 		publicReferences[i] = dto.PostReference{
-			ReferencedPostID: ref.ReferencedPostID,
+			ReferencedPostID: util.Int64ToString(ref.ReferencedPostID),
 			ReferenceType:    ref.ReferenceType,
 		}
 	}

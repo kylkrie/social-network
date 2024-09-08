@@ -1,38 +1,36 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { useListPosts } from "$lib/queries/posts";
-  import type { ListPostsResponse, Post } from "$lib/api/posts/dtos";
   import Card from "$lib/components/ui/Card.svelte";
   import PostCard from "../post/PostCard.svelte";
-  import type { User } from "$lib/api";
+  import type { Post } from "$lib/api/posts/dtos";
+  import type { User } from "$lib/api/users/dtos";
 
-  let posts: Post[] = [];
-  let user: User;
-  let error: string | null = null;
-  let loading = true;
+  const listPostsQuery = useListPosts({ limit: 3 });
 
-  const listPosts = useListPosts({ limit: 10 });
+  $: allPosts =
+    $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
+      page.data.map((post, postIndex) => ({
+        ...post,
+        uniqueKey: `${pageIndex}-${postIndex}-${post.id}`,
+      })),
+    ) ?? [];
+  $: users =
+    $listPostsQuery.data?.pages.flatMap((page) => page.includes.users) ?? [];
+  $: isLoading = $listPostsQuery.isLoading;
+  $: error = $listPostsQuery.error;
 
-  onMount(async () => {
-    try {
-      const result = await $listPosts.refetch();
-      if (result.isSuccess) {
-        const res = result.data.pages[0] as ListPostsResponse;
-        posts = res.data;
-        user = res.includes.users[0];
-      } else {
-        error = "Failed to fetch posts";
-      }
-    } catch (e) {
-      error = "An error occurred while fetching posts";
-      console.error(e);
-    } finally {
-      loading = false;
+  function handleLoadMore() {
+    if ($listPostsQuery.hasNextPage) {
+      $listPostsQuery.fetchNextPage();
     }
-  });
+  }
+
+  function getUserForPost(post: Post): User | undefined {
+    return users.find((user) => user.id === post.author_id);
+  }
 </script>
 
-{#if loading}
+{#if isLoading && allPosts.length === 0}
   <Card>
     <p class="text-text-secondary">Loading posts...</p>
   </Card>
@@ -40,12 +38,26 @@
   <Card>
     <p class="text-error">{error}</p>
   </Card>
-{:else if posts.length === 0}
+{:else if allPosts.length === 0}
   <Card>
     <p class="text-text-secondary">No posts yet.</p>
   </Card>
 {:else}
-  {#each posts as post}
-    <PostCard {user} {post} />
+  {#each allPosts as post (post.uniqueKey)}
+    <PostCard user={getUserForPost(post)} {post} />
   {/each}
+  {#if $listPostsQuery.hasNextPage}
+    <button
+      on:click={handleLoadMore}
+      class="w-full p-2 bg-primary text-white rounded mt-4"
+    >
+      {$listPostsQuery.isFetchingNextPage ? "Loading more..." : "Load More"}
+    </button>
+  {/if}
+{/if}
+
+{#if $listPostsQuery.isFetchingNextPage}
+  <Card>
+    <p class="text-text-secondary">Loading more posts...</p>
+  </Card>
 {/if}

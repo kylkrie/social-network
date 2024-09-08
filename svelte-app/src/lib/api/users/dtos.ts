@@ -1,6 +1,6 @@
 // User DTOs
 export interface User {
-  id: number;
+  id: string;
   name: string;
   username: string;
   pfp_url?: string;
@@ -14,7 +14,7 @@ export interface UserProfile {
   website?: string;
   location?: string;
   birthday?: string; // ISO 8601 format
-  pinned_post_id?: number;
+  pinned_post_id?: string;
   follower_count?: number;
   following_count?: number;
 }
@@ -36,7 +36,7 @@ export interface UpdateUserRequest {
   website?: string;
   location?: string;
   birthday?: string; // ISO 8601 format
-  pinned_post_id?: number;
+  pinned_post_id?: string;
 }
 
 // Query Parameter DTOs

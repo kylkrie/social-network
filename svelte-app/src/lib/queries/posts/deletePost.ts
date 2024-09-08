@@ -5,8 +5,8 @@ import { QK_POST, QK_POSTS } from './consts';
 export function useDeletePost() {
   const queryClient = useQueryClient();
 
-  return createMutation<void, Error, number>({
-    mutationFn: (id: number) => postsApi.deletePost(id),
+  return createMutation<void, Error, string>({
+    mutationFn: (id: string) => postsApi.deletePost(id),
     onSuccess: (_, id) => {
       queryClient.removeQueries({ queryKey: [QK_POST, id] });
       queryClient.invalidateQueries({ queryKey: [QK_POSTS] });

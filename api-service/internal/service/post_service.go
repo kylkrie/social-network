@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/dto"
+	"yabro.io/social-api/internal/util"
 )
 
 type PostService struct {
@@ -39,7 +40,7 @@ type CreatePostParams struct {
 func (s *PostService) CreatePost(p CreatePostParams) (*dto.Post, error) {
 	id := s.snowflakeNode.Generate().Int64()
 
-	var conversationID *int64
+	var conversationID *string
 	var references []postdb.CreatePostReference
 
 	if p.ReplyToPostID != nil {
@@ -76,7 +77,7 @@ func (s *PostService) CreatePost(p CreatePostParams) (*dto.Post, error) {
 		ID:             id,
 		Content:        p.Content,
 		AuthorID:       p.UserID,
-		ConversationID: conversationID,
+		ConversationID: util.NullableStringToInt64MustParse(conversationID),
 		References:     &references,
 	}
 
@@ -116,8 +117,8 @@ func (s *PostService) DeletePost(id int64, userID int64) error {
 	return nil
 }
 
-func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]dto.Post, *int64, error) {
-	posts, nextCursor, err := s.postDB.ListPostDatas(userID, limit, cursor)
+func (s *PostService) ListPosts(p postdb.ListPostParams) ([]dto.Post, *string, error) {
+	posts, nextCursor, err := s.postDB.ListPostDatas(p)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list posts: %w", err)
 	}
@@ -127,5 +128,5 @@ func (s *PostService) ListPosts(userID int64, limit int, cursor *int64) ([]dto.P
 		publicPosts[i] = *toPublicPost(post)
 	}
 
-	return publicPosts, nextCursor, nil
+	return publicPosts, util.NullableInt64ToString(nextCursor), nil
 }
