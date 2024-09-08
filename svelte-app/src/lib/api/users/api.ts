@@ -6,7 +6,7 @@ import type {
   UpdateUserRequest
 } from './dtos';
 
-const API_PATH = '/users/v1';
+const API_PATH = '/users';
 
 export const usersApi = {
   /**

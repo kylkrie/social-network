@@ -6,7 +6,7 @@ import (
 )
 
 func SetupRoutes(router fiber.Router, appState *app.AppState) {
-	profilesGroup := router.Group("/users/v1")
+	profilesGroup := router.Group("/users")
 	profilesGroup.Get("", GetUserMe(appState))
 	profilesGroup.Put("", UpdateUserMe(appState))
 	profilesGroup.Get("/:username", GetUser(appState))

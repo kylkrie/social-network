@@ -9,7 +9,7 @@ import (
 )
 
 type ListPostParams struct {
-	UserID         int64
+	UserID         *int64
 	Limit          int
 	Cursor         *int64
 	IsReply        bool
@@ -20,8 +20,13 @@ func (pdb *PostDB) ListPosts(p ListPostParams) ([]Post, *int64, error) {
 	log.Info().Any("p", p).Msg("List")
 
 	query := strings.Builder{}
-	query.WriteString("SELECT * FROM posts WHERE author_id = $1 AND deleted_at IS NULL")
-	args := []interface{}{p.UserID}
+	query.WriteString("SELECT * FROM posts WHERE deleted_at IS NULL")
+	args := []interface{}{}
+
+	if p.UserID != nil {
+		query.WriteString(fmt.Sprintf(" AND author_id = $%d", len(args)+1))
+		args = append(args, *p.UserID)
+	}
 
 	if p.ConversationID != nil {
 		query.WriteString(fmt.Sprintf(" AND conversation_id = $%d", len(args)+1))

@@ -57,7 +57,7 @@ func ListPosts(appState *app.AppState) fiber.Handler {
 		}
 
 		posts, nextCursor, err := appState.Services.PostService.ListPosts(postdb.ListPostParams{
-			UserID:         userID,
+			UserID:         &userID,
 			Limit:          limit,
 			Cursor:         query.Cursor,
 			IsReply:        isReply,

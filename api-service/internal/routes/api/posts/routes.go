@@ -6,7 +6,7 @@ import (
 )
 
 func SetupRoutes(router fiber.Router, appState *app.AppState) {
-	postsGroup := router.Group("/posts/v1")
+	postsGroup := router.Group("/posts")
 
 	postsGroup.Post("", CreatePost(appState))
 	postsGroup.Get("", ListPosts(appState))

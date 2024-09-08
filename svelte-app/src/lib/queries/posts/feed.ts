@@ -1,13 +1,14 @@
-import { createInfiniteQuery } from '@tanstack/svelte-query';
-import { postsApi } from '$lib/api/posts';
-import type { ListPostsParams, ListPostsResponse } from '$lib/api/posts';
-import { QK_POSTS } from './consts';
 
-export function useListPosts(params: ListPostsParams = {}) {
+import { createInfiniteQuery } from '@tanstack/svelte-query';
+import type { ListPostsResponse } from '$lib/api/posts';
+import { QK_POSTS } from './consts';
+import { feedsApi, type ListFeedParams } from '$lib/api';
+
+export function useListFeed(params: ListFeedParams = {}) {
   return createInfiniteQuery<ListPostsResponse, Error>({
-    queryKey: [QK_POSTS, 'post', params.conversation_id, params.replies],
+    queryKey: [QK_POSTS, 'feed'],
     queryFn: ({ pageParam = undefined }) => {
-      return postsApi.listPosts({
+      return feedsApi.listFeedPosts({
         ...params,
         cursor: pageParam as string | undefined
       })

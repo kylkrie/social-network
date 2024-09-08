@@ -21,7 +21,7 @@ async function getValidToken(): Promise<string | null> {
 }
 
 async function request(endpoint: string, options: RequestInit): Promise<any> {
-  const url = `${API_BASE_URL}/api${endpoint}`;
+  const url = `${API_BASE_URL}/api/v1${endpoint}`;
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
 
