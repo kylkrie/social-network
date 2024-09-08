@@ -1,4 +1,6 @@
-<!-- src/lib/components/Post.svelte -->
+<script lang="ts" module>
+export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
+</script>
 <script lang="ts">
   import {
     MoreHorizontal,
@@ -15,10 +17,9 @@
 
   export let post: Post;
   export let user: User;
-  let isReply = post.references?.some(
-    (r: PostReference) => r.reference_type == "reply_to",
-  );
-  export let hasReplies = false;
+  export let variant: PostCardVariant = "normal"
+  $: replySource = variant === "reply_source"
+  $: replyDest = variant === "reply_dest"
 
   function handlePostClick(event: MouseEvent) {
     // Prevent the post click if the click was on a button
@@ -36,16 +37,16 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="p-2 hover:bg-hover cursor-pointer relative border-t-0
-  {hasReplies ? 'border-b-0' : ''} border-y border-border"
+  {replySource ? 'border-b-0' : ''} border-y border-border"
   on:click={handlePostClick}
 >
-  {#if isReply}
+  {#if replyDest}
     <div class="absolute top-0 left-8 w-0.5 h-2 bg-border"></div>
   {/if}
+  {#if replySource}
+    <div class="absolute top-2 bottom-0 left-8 w-0.5 h-full bg-border"></div>
+  {/if}
   <div class="flex relative">
-    {#if hasReplies}
-      <div class="absolute bottom-0 left-8 w-0.5 h-full bg-border"></div>
-    {/if}
     <!-- Profile picture -->
     {#if user.pfp_url}
       <img

@@ -1,4 +1,3 @@
-<!-- src/lib/components/PostModal.svelte -->
 <script lang="ts">
   import { useCreatePost } from "$lib/queries/posts";
   import Button from "$lib/components/ui/Button.svelte";
@@ -6,6 +5,10 @@
   import Modal from "../ui/Modal.svelte";
 
   export let isOpen = false;
+  let textAreaElement: HTMLTextAreaElement;
+  $: if (isOpen && textAreaElement) {
+    setTimeout(() => textAreaElement.focus(), 0);
+  }
 
   let content = "";
   let characterCount = 0;
@@ -53,7 +56,8 @@
   </div>
 
   <textarea
-    class="w-full h-32 p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+    bind:this={textAreaElement}
+    class="w-full h-32 p-2 bg-background text-text resize-none focus:outline-none"
     placeholder="What's happening?"
     bind:value={content}
     on:input={handleInput}

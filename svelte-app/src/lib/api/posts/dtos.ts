@@ -35,7 +35,7 @@ export interface PostTag {
 }
 
 export interface PostReference {
-  referenced_post_id: number;
+  referenced_post_id: string;
   reference_type: string;
 }
 

@@ -5,8 +5,7 @@
     type SidebarItem,
   } from "$lib/components/layout/SideBar.svelte";
   import { Bell, Home, MessageSquare, User, Bookmark } from "lucide-svelte";
-  import { auth } from "$lib/auth";
-  import { onMount } from "svelte";
+  import { auth } from "$lib/stores";
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
@@ -20,8 +19,6 @@
   function closeSidebar() {
     isSidebarOpen = false;
   }
-
-  onMount(() => auth.init());
 
   const sidebarItems: SidebarItem[] = [
     { icon: Home, label: "Home", href: "/" },
@@ -53,6 +50,14 @@
       <!-- Main content area with shared background -->
       <div class="flex flex-1 bg-background overflow-hidden">
         <!-- Sidebar (no background color of its own) -->
+
+        <!-- Scrollable Main Content (no background color of its own) -->
+        <main class="flex-1 overflow-y-auto" class:ml-64={isSidebarOpen}>
+          <!-- Adjust top padding as needed -->
+          <div class="mx-auto max-w-[600px]">
+            <slot />
+          </div>
+        </main>
         <div class="fixed left-0 top-16 bottom-0 z-10 w-64">
           <SideBar
             bind:isSidebarOpen
@@ -60,14 +65,6 @@
             onCloseSidebar={closeSidebar}
           />
         </div>
-
-        <!-- Scrollable Main Content (no background color of its own) -->
-        <main class="flex-1 overflow-y-auto ml-64">
-          <!-- Adjust top padding as needed -->
-          <div class="mx-auto max-w-[600px]">
-            <slot />
-          </div>
-        </main>
       </div>
     </div>
   {/if}

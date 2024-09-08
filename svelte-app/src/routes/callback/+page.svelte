@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { handleCallback } from "$lib/auth";
+  import { handleCallback } from "$lib/stores";
   import { goto } from "$app/navigation";
 
   let message = "";

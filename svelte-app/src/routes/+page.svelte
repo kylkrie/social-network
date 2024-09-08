@@ -9,7 +9,7 @@
   } from "lucide-svelte";
   import Button from "$lib/components/ui/Button.svelte";
   import Card from "$lib/components/ui/Card.svelte";
-  import { auth, startAuthLogin, startAuthRegister } from "$lib/auth";
+  import { auth, startAuthLogin, startAuthRegister } from "$lib/stores";
   import { api } from "$lib/api";
   import { onMount } from "svelte";
 

@@ -12,7 +12,6 @@
   import { page } from "$app/stores";
   import Button from "$lib/components/ui/Button.svelte";
   import PostModal from "$lib/components/post/PostModal.svelte";
-  import { PenSquare } from "lucide-svelte";
 
   export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;

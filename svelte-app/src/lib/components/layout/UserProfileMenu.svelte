@@ -1,7 +1,7 @@
 <!-- src/lib/components/layout/UserProfileMenu.svelte -->
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { auth } from "$lib/auth";
+  import { auth } from "$lib/stores";
   import { User, LogOut, Users } from "lucide-svelte";
   import { onMount } from "svelte";
 

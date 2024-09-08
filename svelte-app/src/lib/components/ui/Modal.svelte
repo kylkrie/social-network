@@ -19,12 +19,12 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-gray-700 bg-opacity-50 z-50 flex items-center justify-center p-4"
     on:click={() => (isOpen = false)}
     transition:fade={{ duration: 200 }}
   >
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl {width} w-full"
+      class="bg-background rounded-lg shadow-xl {width} w-full"
       on:click|stopPropagation
       transition:scale={{ duration: 200, start: 0.95 }}
     >

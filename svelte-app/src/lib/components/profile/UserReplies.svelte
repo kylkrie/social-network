@@ -7,13 +7,15 @@
 
   const listPostsQuery = useListPosts({ limit: 3, replies: true });
 
-  $: allPosts =
+  $: allReplies =
     $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
       page.data.map((post, postIndex) => ({
         ...post,
         uniqueKey: `${pageIndex}-${postIndex}-${post.id}`,
       })),
     ) ?? [];
+  $: replySources =
+    $listPostsQuery.data?.pages.flatMap((page) => page.includes.posts) ?? [];
   $: users =
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.users) ?? [];
   $: isLoading = $listPostsQuery.isLoading;
@@ -28,23 +30,29 @@
   function getUserForPost(post: Post): User | undefined {
     return users.find((user) => user.id === post.author_id);
   }
+  function getReplySourceForDest(dest: Post): Post | undefined {
+    const sourceId = dest.references.find(
+      (p) => p.reference_type === "reply_to",
+    ).referenced_post_id;
+    return replySources.find((s) => s.id === sourceId);
+  }
 </script>
 
-{#if isLoading && allPosts.length === 0}
-  <Card>
-    <p class="text-text-secondary">Loading posts...</p>
-  </Card>
+{#if isLoading && allReplies.length === 0}
+  <p class="text-text-secondary">Loading posts...</p>
 {:else if error}
-  <Card>
-    <p class="text-error">{error}</p>
-  </Card>
-{:else if allPosts.length === 0}
-  <Card>
-    <p class="text-text-secondary">No posts yet.</p>
-  </Card>
+  <p class="text-error">{error}</p>
+{:else if allReplies.length === 0}
+  <p class="text-text-secondary">No posts yet.</p>
 {:else}
-  {#each allPosts as post (post.uniqueKey)}
-    <PostCard user={getUserForPost(post)} {post} />
+  {#each allReplies as dest (dest.uniqueKey)}
+    {@const source = getReplySourceForDest(dest)}
+    <PostCard
+      user={getUserForPost(source)}
+      post={source}
+      variant="reply_source"
+    />
+    <PostCard user={getUserForPost(dest)} post={dest} variant="reply_dest" />
   {/each}
   {#if $listPostsQuery.hasNextPage}
     <button
@@ -57,7 +65,5 @@
 {/if}
 
 {#if $listPostsQuery.isFetchingNextPage}
-  <Card>
-    <p class="text-text-secondary">Loading more posts...</p>
-  </Card>
+  <p class="text-text-secondary">Loading more posts...</p>
 {/if}
