@@ -1,6 +1,9 @@
 <script lang="ts" module>
-export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
+  import { postModalStore } from "$lib/stores";
+
+  export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
 </script>
+
 <script lang="ts">
   import {
     MoreHorizontal,
@@ -12,14 +15,18 @@ export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
     Share,
     Users,
   } from "lucide-svelte";
-  import type { Post, PostReference } from "$lib/api/posts/dtos";
+  import type { Post } from "$lib/api/posts/dtos";
   import type { User } from "$lib/api/users/dtos";
 
   export let post: Post;
   export let user: User;
-  export let variant: PostCardVariant = "normal"
-  $: replySource = variant === "reply_source"
-  $: replyDest = variant === "reply_dest"
+  export let variant: PostCardVariant = "normal";
+  export let quotePost: Post | null = null;
+  export let quoteUser: User | null = null;
+  export let showButtons: boolean = true;
+
+  $: replySource = variant === "reply_source";
+  $: replyDest = variant === "reply_dest";
 
   function handlePostClick(event: MouseEvent) {
     // Prevent the post click if the click was on a button
@@ -30,6 +37,14 @@ export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
 
   function handleIconClick(action: string) {
     console.log(`${action} clicked`);
+  }
+
+  function handleReply() {
+    postModalStore.openModal('reply', post, user);
+  }
+
+  function handleQuote() {
+    postModalStore.openModal('quote', post, user);
   }
 </script>
 
@@ -68,29 +83,57 @@ export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
           <span class="font-bold text-text">{user.name}</span>
           <span class="text-text-secondary">@{user.username}</span>
         </div>
+        {#if showButtons}
         <button
           class="text-text-secondary hover:text-text"
           on:click={() => handleIconClick("more")}
         >
           <MoreHorizontal size={20} />
         </button>
+        {/if}
       </div>
       <!-- Post content -->
       <p class="mb-3 text-text whitespace-pre-wrap break-words">
         {post.content}
       </p>
+      
+      <!-- Quote section -->
+      {#if quotePost && quoteUser}
+        <div class="mt-2 mb-3 border border-border rounded-lg p-3">
+          <div class="flex items-center mb-2">
+            {#if quoteUser.pfp_url}
+              <img
+                src={quoteUser.pfp_url || "/default-avatar.png"}
+                alt="Quoted Profile"
+                class="w-5 h-5 rounded-full mr-2"
+              />
+            {:else}
+              <div class="rounded-full bg-primary-light h-5 w-5 mr-2 flex items-center justify-center">
+                <Users class="h-3 w-3 text-background" />
+              </div>
+            {/if}
+            <span class="font-bold text-sm text-text">{quoteUser.name}</span>
+            <span class="text-sm text-text-secondary ml-1">@{quoteUser.username}</span>
+          </div>
+          <p class="text-sm text-text-secondary whitespace-pre-wrap break-words">
+            {quotePost.content}
+          </p>
+        </div>
+      {/if}
+
+      {#if showButtons}
       <!-- Action icons -->
       <div class="flex justify-between text-text-secondary">
         <button
           class="flex items-center hover:text-primary-light"
-          on:click={() => handleIconClick("reply")}
+          on:click={() => handleReply()}
         >
           <MessageCircle size={18} />
           <span class="ml-2">{post.public_metrics?.replies || 0}</span>
         </button>
         <button
           class="flex items-center hover:text-green-500"
-          on:click={() => handleIconClick("repost")}
+          on:click={() => handleQuote()}
         >
           <Repeat2 size={18} />
           <span class="ml-2">{post.public_metrics?.reposts || 0}</span>
@@ -124,6 +167,7 @@ export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
           </button>
         </div>
       </div>
+      {/if}
     </div>
   </div>
 </div>

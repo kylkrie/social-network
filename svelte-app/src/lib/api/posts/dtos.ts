@@ -54,7 +54,8 @@ export interface ListPostsResponse {
 // Request DTOs
 export interface CreatePostRequest {
   content: string;
-  conversation_id?: string;
+  reply_to_post_id?: string;
+  quote_post_id?: string;
 }
 
 export interface UpdatePostRequest {

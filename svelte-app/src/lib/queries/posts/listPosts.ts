@@ -7,7 +7,6 @@ export function useListPosts(params: ListPostsParams = {}) {
   return createInfiniteQuery<ListPostsResponse, Error>({
     queryKey: [QK_POSTS, params],
     queryFn: ({ pageParam = undefined }) => {
-      console.log('list', pageParam)
       return postsApi.listPosts({
         ...params,
         cursor: pageParam as string | undefined

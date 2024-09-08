@@ -47,7 +47,7 @@ func ListPosts(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		limit := 20
+		limit := 10
 		if query.Limit != nil {
 			limit = *query.Limit
 		}

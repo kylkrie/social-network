@@ -5,7 +5,7 @@
   import type { Post } from "$lib/api/posts/dtos";
   import type { User } from "$lib/api/users/dtos";
 
-  const listPostsQuery = useListPosts({ limit: 3 });
+  const listPostsQuery = useListPosts();
 
   $: allPosts =
     $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
@@ -16,6 +16,9 @@
     ) ?? [];
   $: users =
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.users) ?? [];
+  $: includePosts =
+    $listPostsQuery.data?.pages.flatMap((page) => page.includes.posts) ?? [];
+  $: includePosts;
   $: isLoading = $listPostsQuery.isLoading;
   $: error = $listPostsQuery.error;
 
@@ -27,6 +30,16 @@
 
   function getUserForPost(post: Post): User | undefined {
     return users.find((user) => user.id === post.author_id);
+  }
+  function getQuoteForPost(post: Post): { user: User; post: Post } {
+    const ref = post.references?.find((r) => r.reference_type === "quote");
+    if (!ref) {
+      return undefined;
+    }
+    const quotePost = includePosts.find((p) => p.id === ref.referenced_post_id);
+    const quoteUser = getUserForPost(quotePost);
+
+    return { user: quoteUser, post: quotePost };
   }
 </script>
 
@@ -44,7 +57,13 @@
   </Card>
 {:else}
   {#each allPosts as post (post.uniqueKey)}
-    <PostCard user={getUserForPost(post)} {post} />
+    {@const quote = getQuoteForPost(post)}
+    <PostCard
+      user={getUserForPost(post)}
+      {post}
+      quotePost={quote?.post}
+      quoteUser={quote?.user}
+    />
   {/each}
   {#if $listPostsQuery.hasNextPage}
     <button

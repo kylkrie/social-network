@@ -4,7 +4,13 @@
   import Button from "$lib/components/ui/Button.svelte";
 
   const getCurrentUser = useGetCurrentUser({ profile: true });
+
   $: user = $getCurrentUser.data as User;
+  $: name = user?.name ?? "";
+  $: username = user?.username ? `@${user.username}` : "";
+  $: bio = user?.profile?.bio ?? "";
+  $: followerCount = user?.profile?.follower_count ?? 0;
+  $: followingCount = user?.profile?.following_count ?? 0;
 </script>
 
 <div class="profile-info">
@@ -27,17 +33,17 @@
   <div class="profile-details">
     <div class="flex justify-between items-center">
       <div class="flex flex-col">
-        <h1 class="text-2xl font-bold">{user?.name || ""}</h1>
-        <p class="text-gray-600">@{user?.username || ""}</p>
+        <h1 class="text-2xl font-bold">{name}</h1>
+        <p class="text-gray-600">{username}</p>
       </div>
       <div>
         <Button>Edit Profile</Button>
       </div>
     </div>
-    <p class="mt-2">{user?.profile?.bio || ""}</p>
+    <p class="mt-2">{bio}</p>
     <div class="mt-4 flex space-x-4">
-      <span>{user?.profile?.follower_count || " "} Followers</span>
-      <span>{user?.profile?.following_count || " "} Following</span>
+      <span>{followerCount} Followers</span>
+      <span>{followingCount} Following</span>
     </div>
   </div>
 </div>

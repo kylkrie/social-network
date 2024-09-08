@@ -46,6 +46,7 @@ export const postsApi = {
    * List posts
    */
   listPosts: async (params: ListPostsParams = {}): Promise<ListPostsResponse> => {
+    console.log(params);
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}?${queryString}`);
     return response;

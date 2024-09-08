@@ -1,4 +1,6 @@
 <script lang="ts" module>
+    import { postModalStore } from '$lib/stores';
+
   import { type ComponentType } from 'svelte';
   import { type Icon } from 'lucide-svelte';
   export interface SidebarItem {
@@ -11,20 +13,10 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Button from "$lib/components/ui/Button.svelte";
-  import PostModal from "$lib/components/post/PostModal.svelte";
 
   export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;
   export let onCloseSidebar: () => void;
-
-  let isPostModalOpen = false;
-
-  function openPostModal() {
-    isPostModalOpen = true;
-    if (isSidebarOpen) {
-      onCloseSidebar();
-    }
-  }
 </script>
 
 <nav
@@ -52,7 +44,7 @@
         {/each}
       </div>
       <div class="px-4 mb-4">
-        <Button on:click={openPostModal} variant="default" size="lg">
+        <Button on:click={() => postModalStore.openModal("normal")} variant="default" size="lg">
           Post
         </Button>
       </div>
@@ -66,5 +58,3 @@
     on:click={onCloseSidebar}
   ></div>
 {/if}
-
-<PostModal bind:isOpen={isPostModalOpen} />

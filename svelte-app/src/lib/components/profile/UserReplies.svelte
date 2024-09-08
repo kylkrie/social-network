@@ -1,11 +1,10 @@
 <script lang="ts">
   import { useListPosts } from "$lib/queries/posts";
-  import Card from "$lib/components/ui/Card.svelte";
   import PostCard from "../post/PostCard.svelte";
   import type { Post } from "$lib/api/posts/dtos";
   import type { User } from "$lib/api/users/dtos";
 
-  const listPostsQuery = useListPosts({ limit: 3, replies: true });
+  const listPostsQuery = useListPosts({ replies: true });
 
   $: allReplies =
     $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
@@ -14,7 +13,7 @@
         uniqueKey: `${pageIndex}-${postIndex}-${post.id}`,
       })),
     ) ?? [];
-  $: replySources =
+  $: includePosts =
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.posts) ?? [];
   $: users =
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.users) ?? [];
@@ -34,7 +33,17 @@
     const sourceId = dest.references.find(
       (p) => p.reference_type === "reply_to",
     ).referenced_post_id;
-    return replySources.find((s) => s.id === sourceId);
+    return includePosts.find((s) => s.id === sourceId);
+  }
+  function getQuoteForPost(post: Post): { user: User; post: Post } {
+    const ref = post.references?.find((r) => r.reference_type === "quote");
+    if (!ref) {
+      return undefined;
+    }
+    const quotePost = includePosts.find((p) => p.id === ref.referenced_post_id);
+    const quoteUser = getUserForPost(quotePost);
+
+    return { user: quoteUser, post: quotePost };
   }
 </script>
 
@@ -47,12 +56,22 @@
 {:else}
   {#each allReplies as dest (dest.uniqueKey)}
     {@const source = getReplySourceForDest(dest)}
+    {@const sourceQuote = getQuoteForPost(source)}
+    {@const destQuote = getQuoteForPost(dest)}
     <PostCard
       user={getUserForPost(source)}
       post={source}
+      quoteUser={sourceQuote?.user}
+      quotePost={sourceQuote?.post}
       variant="reply_source"
     />
-    <PostCard user={getUserForPost(dest)} post={dest} variant="reply_dest" />
+    <PostCard
+      user={getUserForPost(dest)}
+      post={dest}
+      quoteUser={destQuote?.user}
+      quotePost={destQuote?.post}
+      variant="reply_dest"
+    />
   {/each}
   {#if $listPostsQuery.hasNextPage}
     <button

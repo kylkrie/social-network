@@ -5,12 +5,13 @@ import (
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/service"
+	"yabro.io/social-api/internal/util"
 )
 
 type CreatePostRequest struct {
-	Content       string `json:"content" validate:"required"`
-	ReplyToPostID *int64 `json:"reply_to_post_id"`
-	QuotePostID   *int64 `json:"quote_post_id"`
+	Content       string  `json:"content" validate:"required"`
+	ReplyToPostID *string `json:"reply_to_post_id"`
+	QuotePostID   *string `json:"quote_post_id"`
 }
 
 func CreatePost(appState *app.AppState) fiber.Handler {
@@ -24,12 +25,21 @@ func CreatePost(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
+		replyToPostID, err := util.NullableStringToInt64(req.ReplyToPostID)
+		if err != nil {
+			return err
+		}
+		quotePostID, err := util.NullableStringToInt64(req.QuotePostID)
+		if err != nil {
+			return err
+		}
+
 		userID := auth.GetUserID(c)
 		post, err := appState.Services.PostService.CreatePost(service.CreatePostParams{
 			UserID:        userID,
 			Content:       req.Content,
-			ReplyToPostID: req.ReplyToPostID,
-			QuotePostID:   req.QuotePostID,
+			ReplyToPostID: replyToPostID,
+			QuotePostID:   quotePostID,
 		})
 		if err != nil {
 			return err
