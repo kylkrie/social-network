@@ -117,7 +117,7 @@
       </div>
 
       {#if showButtons}
-        <PostActionButtons {post} />
+        <PostActionButtons {post} {user} />
       {/if}
     </div>
   </div>

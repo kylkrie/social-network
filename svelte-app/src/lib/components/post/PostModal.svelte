@@ -21,6 +21,8 @@
 
   $: isReply = variant === "reply";
   $: isQuote = variant === "quote";
+  $: console.log(variant, post, user);
+  $: console.log("test");
 
   function handleInput(event: Event) {
     const target = event.target as HTMLTextAreaElement;

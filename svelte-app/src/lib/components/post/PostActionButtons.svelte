@@ -9,15 +9,17 @@
   } from "lucide-svelte";
   import { postModalStore } from "$lib/stores";
   import type { Post } from "$lib/api/posts/dtos";
+  import type { User } from "$lib/api";
 
   export let post: Post;
+  export let user: User;
 
   function handleReply() {
-    postModalStore.openModal("reply", post);
+    postModalStore.openModal("reply", post, user);
   }
 
   function handleQuote() {
-    postModalStore.openModal("quote", post);
+    postModalStore.openModal("quote", post, user);
   }
 
   function handleIconClick(action: string) {
