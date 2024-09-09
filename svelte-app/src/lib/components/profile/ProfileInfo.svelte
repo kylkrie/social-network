@@ -1,11 +1,20 @@
 <script lang="ts">
-  import { useGetCurrentUser } from "$lib/queries/users";
+  import { useGetCurrentUser, useGetUser } from "$lib/queries/users";
   import type { User } from "$lib/api/users/dtos";
   import Button from "$lib/components/ui/Button.svelte";
 
-  const getCurrentUser = useGetCurrentUser({ profile: true });
+  export let profile: string = undefined;
 
-  $: user = $getCurrentUser.data as User;
+  const getUser = profile
+    ? useGetUser(profile, { profile: true })
+    : useGetCurrentUser({ profile: true });
+
+  const getCurrentUser = useGetCurrentUser();
+
+  $: user = $getUser.data as User;
+  $: isCurrentUserProfile =
+    $getCurrentUser.data?.id && $getCurrentUser.data.id === user?.id;
+
   $: name = user?.name ?? "";
   $: username = user?.username ? `@${user.username}` : "";
   $: bio = user?.profile?.bio ?? "";
@@ -36,9 +45,11 @@
         <h1 class="text-2xl font-bold">{name}</h1>
         <p class="text-gray-600">{username}</p>
       </div>
-      <div>
-        <Button>Edit Profile</Button>
-      </div>
+      {#if isCurrentUserProfile}
+        <div>
+          <Button>Edit Profile</Button>
+        </div>
+      {/if}
     </div>
     <p class="mt-2">{bio}</p>
     <div class="mt-4 flex space-x-4">

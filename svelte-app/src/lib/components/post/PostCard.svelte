@@ -50,7 +50,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div on:click|stopPropagation={handleUserClick} class="cursor-pointer">
-      {#if user.pfp_url}
+      {#if user?.pfp_url}
         <img
           src={user.pfp_url || "/default-avatar.png"}
           alt="Profile"
@@ -70,8 +70,8 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div on:click|stopPropagation={handleUserClick} class="cursor-pointer">
-          <span class="font-bold text-text hover:underline">{user.name}</span>
-          <span class="text-text-secondary hover:underline">@{user.username}</span>
+          <span class="font-bold text-text hover:underline">{user?.name}</span>
+          <span class="text-text-secondary hover:underline">@{user?.username}</span>
           <span class="text-text-tertiary text-sm"> - {postDate}</span>
         </div>
         {#if showButtons}

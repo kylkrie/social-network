@@ -3,8 +3,10 @@
   import PostCard from "../post/PostCard.svelte";
   import type { Post } from "$lib/api/posts/dtos";
   import type { User } from "$lib/api/users/dtos";
+  import { getQuoteForPost, getUserForPost } from "$lib/util";
 
-  const listPostsQuery = useListPosts({ replies: true });
+  export let username: string = undefined;
+  const listPostsQuery = useListPosts({ username, replies: true });
 
   $: allReplies =
     $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
@@ -26,24 +28,11 @@
     }
   }
 
-  function getUserForPost(post: Post): User | undefined {
-    return users.find((user) => user.id === post.author_id);
-  }
   function getReplySourceForDest(dest: Post): Post | undefined {
     const sourceId = dest.references.find(
       (p) => p.reference_type === "reply_to",
     ).referenced_post_id;
     return includePosts.find((s) => s.id === sourceId);
-  }
-  function getQuoteForPost(post: Post): { user: User; post: Post } {
-    const ref = post.references?.find((r) => r.reference_type === "quote");
-    if (!ref) {
-      return undefined;
-    }
-    const quotePost = includePosts.find((p) => p.id === ref.referenced_post_id);
-    const quoteUser = getUserForPost(quotePost);
-
-    return { user: quoteUser, post: quotePost };
   }
 </script>
 
@@ -56,17 +45,17 @@
 {:else}
   {#each allReplies as dest (dest.uniqueKey)}
     {@const source = getReplySourceForDest(dest)}
-    {@const sourceQuote = getQuoteForPost(source)}
-    {@const destQuote = getQuoteForPost(dest)}
+    {@const sourceQuote = getQuoteForPost(users, includePosts, source)}
+    {@const destQuote = getQuoteForPost(users, includePosts, dest)}
     <PostCard
-      user={getUserForPost(source)}
+      user={getUserForPost(users, source)}
       post={source}
       quoteUser={sourceQuote?.user}
       quotePost={sourceQuote?.post}
       variant="reply_source"
     />
     <PostCard
-      user={getUserForPost(dest)}
+      user={getUserForPost(users, dest)}
       post={dest}
       quoteUser={destQuote?.user}
       quotePost={destQuote?.post}

@@ -1,43 +1,24 @@
-<script lang="ts" module>
-  export interface Tab {
-    name: string;
-    component: any;
-  }
-</script>
 <script lang="ts">
-  export let tabs: Tab[] = [];
-  export let activeTab: string = tabs[0]?.name || "";
+  export let tabs: string[] = [];
+  export let activeTab: string = tabs[0] || "";
 </script>
 
-<div class="tab-view">
-  <div class="tab-header">
-    {#each tabs as tab}
-      <button
-        class="tab-button mx-4"
-        class:active={activeTab === tab.name}
-        on:click={() => (activeTab = tab.name)}
-      >
-        {tab.name}
-      </button>
-    {/each}
-  </div>
-  <div class="tab-content">
-    {#each tabs as tab}
-      {#if activeTab === tab.name}
-        <svelte:component this={tab.component} />
-      {/if}
-    {/each}
-  </div>
+<div class="tab-header">
+  {#each tabs as tab}
+    <button
+      class="tab-button mx-4"
+      class:active={activeTab === tab}
+      on:click={() => (activeTab = tab)}
+    >
+      {tab}
+    </button>
+  {/each}
 </div>
 
 <style>
-  .tab-view {
-    width: 100%;
-  }
-
   .tab-header {
     display: flex;
-    border-bottom: 1px solid var(--border)
+    border-bottom: 1px solid var(--border);
   }
 
   .tab-button {

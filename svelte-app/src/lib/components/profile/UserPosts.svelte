@@ -1,11 +1,10 @@
 <script lang="ts">
   import { useListPosts } from "$lib/queries/posts";
-  import Card from "$lib/components/ui/Card.svelte";
   import PostCard from "../post/PostCard.svelte";
-  import type { Post } from "$lib/api/posts/dtos";
-  import type { User } from "$lib/api/users/dtos";
+  import { getQuoteForPost, getUserForPost } from "$lib/util";
 
-  const listPostsQuery = useListPosts();
+  export let username: string = undefined;
+  const listPostsQuery = useListPosts({ username });
 
   $: allPosts =
     $listPostsQuery.data?.pages.flatMap((page, pageIndex) =>
@@ -18,7 +17,6 @@
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.users) ?? [];
   $: includePosts =
     $listPostsQuery.data?.pages.flatMap((page) => page.includes.posts) ?? [];
-  $: includePosts;
   $: isLoading = $listPostsQuery.isLoading;
   $: error = $listPostsQuery.error;
 
@@ -27,39 +25,19 @@
       $listPostsQuery.fetchNextPage();
     }
   }
-
-  function getUserForPost(post: Post): User | undefined {
-    return users.find((user) => user.id === post.author_id);
-  }
-  function getQuoteForPost(post: Post): { user: User; post: Post } {
-    const ref = post.references?.find((r) => r.reference_type === "quote");
-    if (!ref) {
-      return undefined;
-    }
-    const quotePost = includePosts.find((p) => p.id === ref.referenced_post_id);
-    const quoteUser = getUserForPost(quotePost);
-
-    return { user: quoteUser, post: quotePost };
-  }
 </script>
 
 {#if isLoading && allPosts.length === 0}
-  <Card>
-    <p class="text-text-secondary">Loading posts...</p>
-  </Card>
+  <p class="text-text-secondary">Loading posts...</p>
 {:else if error}
-  <Card>
-    <p class="text-error">{error}</p>
-  </Card>
+  <p class="text-error">{error}</p>
 {:else if allPosts.length === 0}
-  <Card>
-    <p class="text-text-secondary">No posts yet.</p>
-  </Card>
+  <p class="text-text-secondary">No posts yet.</p>
 {:else}
   {#each allPosts as post (post.uniqueKey)}
-    {@const quote = getQuoteForPost(post)}
+    {@const quote = getQuoteForPost(users, includePosts, post)}
     <PostCard
-      user={getUserForPost(post)}
+      user={getUserForPost(users, post)}
       {post}
       quotePost={quote?.post}
       quoteUser={quote?.user}
@@ -76,7 +54,5 @@
 {/if}
 
 {#if $listPostsQuery.isFetchingNextPage}
-  <Card>
-    <p class="text-text-secondary">Loading more posts...</p>
-  </Card>
+  <p class="text-text-secondary">Loading more posts...</p>
 {/if}

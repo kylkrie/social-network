@@ -1,14 +1,14 @@
-import { api, cleanUrlParams } from '$lib/api';
+import { api, cleanUrlParams } from "$lib/api";
 import type {
   CreatePostRequest,
   UpdatePostRequest,
   GetPostParams,
   ListPostsParams,
   ListPostsResponse,
-  GetPostResponse
-} from './dtos';
+  GetPostResponse,
+} from "./dtos";
 
-const API_PATH = '/posts';
+const API_PATH = "/posts";
 
 export const postsApi = {
   /**
@@ -22,7 +22,10 @@ export const postsApi = {
   /**
    * Get a post by ID
    */
-  getPost: async (id: string, params: GetPostParams = {}): Promise<GetPostResponse> => {
+  getPost: async (
+    id: string,
+    params: GetPostParams = {},
+  ): Promise<GetPostResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
     return response;
@@ -31,7 +34,10 @@ export const postsApi = {
   /**
    * Update an existing post
    */
-  updatePost: async (id: string, postData: UpdatePostRequest): Promise<void> => {
+  updatePost: async (
+    id: string,
+    postData: UpdatePostRequest,
+  ): Promise<void> => {
     await api.put(`${API_PATH}/${id}`, postData);
   },
 
@@ -45,7 +51,9 @@ export const postsApi = {
   /**
    * List posts
    */
-  listPosts: async (params: ListPostsParams = {}): Promise<ListPostsResponse> => {
+  listPosts: async (
+    params: ListPostsParams = {},
+  ): Promise<ListPostsResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}?${queryString}`);
     return response;

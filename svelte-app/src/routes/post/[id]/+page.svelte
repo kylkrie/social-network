@@ -1,28 +1,27 @@
 <script lang="ts">
-  import TabView from "$lib/components/ui/TabView.svelte";
-  import ProfileInfo from "$lib/components/profile/ProfileInfo.svelte";
-  import UserPosts from "$lib/components/profile/UserPosts.svelte";
-  import UserMedia from "$lib/components/profile/UserMedia.svelte";
-  import UserLikes from "$lib/components/profile/UserLikes.svelte";
-  import UserReplies from "$lib/components/profile/UserReplies.svelte";
+  import { page } from "$app/stores";
+  import PostCard from "$lib/components/post/PostCard.svelte";
+  import { useGetPost } from "$lib/queries";
+  import { getUserForPost } from "$lib/util";
 
-  const tabs = [
-    { name: "Posts", component: UserPosts },
-    { name: "Replies", component: UserReplies },
-    { name: "Media", component: UserMedia },
-    { name: "Likes", component: UserLikes },
-  ];
-
-  let activeTab = "Posts";
+  $: postId = $page.params.id;
+  $: getPost = useGetPost(postId);
+  $: post = $getPost.data?.data;
+  $: users = $getPost.data?.includes.users;
+  $: user = post ? getUserForPost(users, post) : undefined;
 </script>
 
-<div class="profile-page border-x border-border">
-  <ProfileInfo />
-  <TabView {tabs} bind:activeTab />
+<div class="page border-x border-border">
+  <div class="text-text p-4 font-bold text-lg">
+    <h1>Post</h1>
+  </div>
+  {#if post && user}
+    <PostCard {post} {user} />
+  {/if}
 </div>
 
 <style>
-  .profile-page {
+  .page {
     max-width: 800px;
     margin: 0 auto;
   }

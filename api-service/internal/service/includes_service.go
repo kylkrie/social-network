@@ -20,7 +20,7 @@ func NewIncludeService(userDB *userdb.UserDB, postDB *postdb.PostDB) *IncludeSer
 }
 
 func (s *IncludeService) GetIncludesForPosts(posts []dto.Post) (*dto.IncludeData, error) {
-	// Collect unique author IDs
+	// Collect unique IDs for original post set
 	authorIDs := make(map[string]struct{})
 	postIDs := make(map[string]struct{})
 	for _, post := range posts {
@@ -33,17 +33,28 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post) (*dto.IncludeData
 		}
 	}
 
-	// Convert map to slice
-	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
-	for id := range authorIDs {
-		uniqueAuthorIDs = append(uniqueAuthorIDs, util.StringToInt64MustParse(id))
-	}
+	// Fetch include Posts
 	uniquePostIDs := make([]int64, 0, len(postIDs))
 	for id := range postIDs {
 		uniquePostIDs = append(uniquePostIDs, util.StringToInt64MustParse(id))
 	}
+	includePosts, err := s.postDB.GetMany(uniquePostIDs)
+	if err != nil {
+		return nil, err
+	}
+	dtoPosts := make([]dto.Post, len(includePosts))
+	for i, post := range includePosts {
+		dtoPost := *toPublicPost(postdb.PostData{Post: *post})
+		dtoPosts[i] = dtoPost
+		// add include post author IDs
+		authorIDs[dtoPost.AuthorID] = struct{}{}
+	}
 
 	// Fetch includeUsers
+	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
+	for id := range authorIDs {
+		uniqueAuthorIDs = append(uniqueAuthorIDs, util.StringToInt64MustParse(id))
+	}
 	includeUsers, err := s.userDB.GetMany(uniqueAuthorIDs)
 	if err != nil {
 		return nil, err
@@ -53,17 +64,6 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post) (*dto.IncludeData
 	dtoUsers := make([]dto.User, len(includeUsers))
 	for i, user := range includeUsers {
 		dtoUsers[i] = toPublicUser(user, nil)
-	}
-
-	// Fetch Posts
-	includePosts, err := s.postDB.GetMany(uniquePostIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	dtoPosts := make([]dto.Post, len(includePosts))
-	for i, post := range includePosts {
-		dtoPosts[i] = *toPublicPost(postdb.PostData{Post: *post})
 	}
 
 	return &dto.IncludeData{

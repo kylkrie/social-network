@@ -5,20 +5,26 @@
   import UserMedia from "$lib/components/profile/UserMedia.svelte";
   import UserLikes from "$lib/components/profile/UserLikes.svelte";
   import UserReplies from "$lib/components/profile/UserReplies.svelte";
+  import { page } from "$app/stores";
 
-  const tabs = [
-    { name: "Posts", component: UserPosts },
-    { name: "Replies", component: UserReplies },
-    { name: "Media", component: UserMedia },
-    { name: "Likes", component: UserLikes },
-  ];
+  $: username = $page.params.id;
+  const tabs = ["Posts", "Replies", "Media", "Likes"];
 
   let activeTab = "Posts";
 </script>
 
 <div class="profile-page border-x border-border">
-  <ProfileInfo />
+  <ProfileInfo profile={username} />
   <TabView {tabs} bind:activeTab />
+  {#if activeTab === "Posts"}
+    <UserPosts {username} />
+  {:else if activeTab === "Replies"}
+    <UserReplies {username} />
+  {:else if activeTab === "Media"}
+    <UserMedia />
+  {:else if activeTab === "Likes"}
+    <UserLikes />
+  {/if}
 </div>
 
 <style>

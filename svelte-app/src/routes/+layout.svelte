@@ -29,7 +29,7 @@
     { icon: Bell, label: "Notifications", href: "/notifications" },
   ];
 
-  $: isAuthenticated = $auth;
+  $: isAuthenticated = $auth?.accessToken;
 
   $: if (!isAuthenticated && $page.url.pathname !== "/") {
     goto("/");

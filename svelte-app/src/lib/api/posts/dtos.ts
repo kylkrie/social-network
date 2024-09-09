@@ -64,12 +64,12 @@ export interface UpdatePostRequest {
 
 // Query Parameter DTOs
 export interface ListPostsParams {
+  user_id?: string;
+  username?: string;
   limit?: number;
   cursor?: string;
   replies?: boolean;
   conversation_id?: string;
 }
 
-export interface GetPostParams {
-  include_metrics?: boolean;
-}
+export interface GetPostParams {}

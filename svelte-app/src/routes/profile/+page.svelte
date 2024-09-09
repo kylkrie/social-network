@@ -6,12 +6,7 @@
   import UserLikes from "$lib/components/profile/UserLikes.svelte";
   import UserReplies from "$lib/components/profile/UserReplies.svelte";
 
-  const tabs = [
-    { name: "Posts", component: UserPosts },
-    { name: "Replies", component: UserReplies },
-    { name: "Media", component: UserMedia },
-    { name: "Likes", component: UserLikes },
-  ];
+  const tabs = ["Posts", "Replies", "Media", "Likes"];
 
   let activeTab = "Posts";
 </script>
@@ -19,6 +14,15 @@
 <div class="profile-page border-x border-border">
   <ProfileInfo />
   <TabView {tabs} bind:activeTab />
+  {#if activeTab === "Posts"}
+    <UserPosts />
+  {:else if activeTab === "Replies"}
+    <UserReplies />
+  {:else if activeTab === "Media"}
+    <UserMedia />
+  {:else if activeTab === "Likes"}
+    <UserLikes />
+  {/if}
 </div>
 
 <style>
