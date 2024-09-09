@@ -44,7 +44,7 @@
     <div class="flex justify-between items-center">
       <div class="flex flex-col">
         <h1 class="text-2xl font-bold">{name}</h1>
-        <p class="text-gray-600">{username}</p>
+        <p class="text-text-tertiary">{username}</p>
       </div>
       {#if isCurrentUserProfile}
         <div>

@@ -1,36 +1,46 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import PageContent from "$lib/components/layout/PageContent.svelte";
   import PostCard from "$lib/components/post/PostCard.svelte";
-  import { useGetPost } from "$lib/queries";
-  import { getUserForPost } from "$lib/util";
+  import PostFeed from "$lib/components/post/PostFeed.svelte";
+  import { useGetPost, useListPosts } from "$lib/queries";
+  import { getQuoteForPost, getReplyForPost } from "$lib/util";
   import { ArrowLeft } from "lucide-svelte";
 
   $: postId = $page.params.id;
   $: getPost = useGetPost(postId);
-  $: post = $getPost.data?.data;
-  $: users = $getPost.data?.includes.users;
-  $: user = post ? getUserForPost(users, post) : undefined;
+  $: post = $getPost.data.post;
+  $: includes = $getPost.data.includes;
+  $: postData = post
+    ? { post: post, user: includes.users[post.author_id] }
+    : undefined;
+  $: replyPost = post ? getReplyForPost(post, includes) : undefined;
+  $: quotePost = post ? getQuoteForPost(post, includes) : undefined;
+  $: feed = post
+    ? useListPosts({ conversation_id: post.conversation_id || post.id })
+    : undefined;
 
   function goBack() {
     history.back();
   }
 </script>
 
-<div class="page border-x border-border">
+<PageContent>
   <div class="text-text p-4 font-bold text-lg flex items-center">
     <button on:click={goBack} class="mr-4 hover:text-primary-light">
       <ArrowLeft size={24} />
     </button>
     <h1>Post</h1>
   </div>
-  {#if post && user}
-    <PostCard {post} {user} />
+  {#if postData}
+    {#if replyPost}
+      <PostCard data={replyPost} variant="reply_source" />
+      <PostCard data={postData} variant="reply_dest" clickable={false} />
+    {:else}
+      <PostCard data={postData} quote={quotePost} clickable={false} />
+    {/if}
   {/if}
-</div>
-
-<style>
-  .page {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-</style>
+  {#if feed && $feed.data.posts?.length > 0}
+    <PostFeed postData={feed} />
+  {/if}
+</PageContent>

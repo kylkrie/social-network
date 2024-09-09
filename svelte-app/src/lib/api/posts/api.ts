@@ -7,6 +7,12 @@ import type {
   ListPostsResponse,
   GetPostResponse,
 } from "./dtos";
+import {
+  parseGetPostResponse,
+  parseListPostsResponse,
+  type ParsedGetPostResponse,
+  type ParsedListPostsResponse,
+} from "./parsed";
 
 const API_PATH = "/posts";
 
@@ -25,10 +31,10 @@ export const postsApi = {
   getPost: async (
     id: string,
     params: GetPostParams = {},
-  ): Promise<GetPostResponse> => {
+  ): Promise<ParsedGetPostResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
-    return response;
+    return parseGetPostResponse(response);
   },
 
   /**
@@ -53,9 +59,9 @@ export const postsApi = {
    */
   listPosts: async (
     params: ListPostsParams = {},
-  ): Promise<ListPostsResponse> => {
+  ): Promise<ParsedListPostsResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}?${queryString}`);
-    return response;
+    return parseListPostsResponse(response);
   },
 };

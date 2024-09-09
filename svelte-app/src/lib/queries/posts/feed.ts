@@ -1,19 +1,45 @@
+import { createInfiniteQuery } from "@tanstack/svelte-query";
+import type { ListPostsParams, ParsedListPostsResponse } from "$lib/api/posts";
+import { QK_POSTS } from "./consts";
+import { derived, type Readable } from "svelte/store";
+import type { ListPostsQueryResult, ProcessedListPostsData } from "./listPosts";
+import { feedsApi, type ListFeedParams } from "$lib/api";
 
-import { createInfiniteQuery } from '@tanstack/svelte-query';
-import type { ListPostsResponse } from '$lib/api/posts';
-import { QK_POSTS } from './consts';
-import { feedsApi, type ListFeedParams } from '$lib/api';
-
-export function useListFeed(params: ListFeedParams = {}) {
-  return createInfiniteQuery<ListPostsResponse, Error>({
-    queryKey: [QK_POSTS, 'feed'],
+export function useListFeed(
+  params: ListFeedParams = {},
+): Readable<ListPostsQueryResult> {
+  const query = createInfiniteQuery<ParsedListPostsResponse, Error>({
+    queryKey: [QK_POSTS, "feed"],
     queryFn: ({ pageParam = undefined }) => {
       return feedsApi.listFeedPosts({
         ...params,
-        cursor: pageParam as string | undefined
-      })
+        cursor: pageParam as string | undefined,
+      });
     },
-    getNextPageParam: (lastPage) => lastPage.next_cursor || undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
     initialPageParam: undefined,
+  });
+
+  return derived(query, ($query): ListPostsQueryResult => {
+    const processedData: ProcessedListPostsData = {
+      posts: $query.data?.pages.flatMap((page) => page.posts) ?? [],
+      includes: {
+        posts:
+          $query.data?.pages.reduce(
+            (acc, page) => ({ ...acc, ...page.includes.posts }),
+            {},
+          ) ?? {},
+        users:
+          $query.data?.pages.reduce(
+            (acc, page) => ({ ...acc, ...page.includes.users }),
+            {},
+          ) ?? {},
+      },
+    };
+
+    return {
+      data: processedData,
+      query: $query,
+    };
   });
 }

@@ -73,6 +73,21 @@ func (pdb *PostDB) CreatePost(p CreatePostParams) error {
 						return fmt.Errorf("failed to update reply metrics: %w", err)
 					}
 				}
+
+				// If it's a quote, update the repost count for the referenced post
+				if ref.ReferenceType == PostReferenceTypeQuote || ref.ReferenceType == PostReferenceTypeRepost {
+					updateMetricsQuery := `
+					INSERT INTO post_public_metrics (post_id, reposts)
+					VALUES ($1, 1)
+					ON CONFLICT (post_id) 
+					DO UPDATE SET reposts = post_public_metrics.reposts + 1
+					`
+					_, err := tx.Exec(updateMetricsQuery, ref.ReferencePostID)
+					if err != nil {
+						return fmt.Errorf("failed to update reply metrics: %w", err)
+					}
+				}
+
 			}
 		}
 	}

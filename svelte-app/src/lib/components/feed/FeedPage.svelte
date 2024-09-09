@@ -1,16 +1,13 @@
-<script lang="ts">
+<script>
+  import { useListFeed } from "$lib/queries/posts/feed";
+  import PageContent from "../layout/PageContent.svelte";
+  import PostFeed from "../post/PostFeed.svelte";
   import FeedHeader from "./FeedHeader.svelte";
-  import FeedPosts from "./FeedPosts.svelte";
+
+  const feedData = useListFeed();
 </script>
 
-<div class="profile-page border-x border-border">
+<PageContent>
   <FeedHeader />
-  <FeedPosts />
-</div>
-
-<style>
-  .profile-page {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-</style>
+  <PostFeed postData={feedData} />
+</PageContent>

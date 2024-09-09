@@ -68,7 +68,11 @@
   <div class="p-4">
     {#if isReply && post && user}
       <div class="mb-4">
-        <PostCard {post} {user} variant="reply_source" showButtons={false} />
+        <PostCard
+          data={{ post, user }}
+          variant="reply_source"
+          showButtons={false}
+        />
       </div>
     {/if}
 
@@ -92,7 +96,7 @@
 
     {#if isQuote && post && user}
       <div class="mt-4 border border-border rounded-lg">
-        <PostCard {post} {user} variant="normal" />
+        <PostCard data={{ post, user }} variant="normal" />
       </div>
     {/if}
 
