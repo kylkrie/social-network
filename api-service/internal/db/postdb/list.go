@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rs/zerolog/log"
 )
 
 type ListPostParams struct {
@@ -17,8 +16,6 @@ type ListPostParams struct {
 }
 
 func (pdb *PostDB) ListPosts(p ListPostParams) ([]Post, *int64, error) {
-	log.Info().Any("p", p).Msg("List")
-
 	query := strings.Builder{}
 	query.WriteString("SELECT * FROM posts WHERE deleted_at IS NULL")
 	args := []interface{}{}

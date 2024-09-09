@@ -11,13 +11,13 @@ type UserLookup struct {
 }
 
 func (udb *UserDB) GetUser(lookup UserLookup, includeProfile bool) (*User, *UserProfile, error) {
-	query := "SELECT u.id, u.name, u.username, u.pfp_url, u.protected"
+	query := "SELECT u.id, u.name, u.username, u.pfp_url, u.protected, u.created_at"
 	joins := []string{}
 	scanArgs := []interface{}{}
 	var user User
 	var profile *UserProfile
 
-	scanArgs = append(scanArgs, &user.ID, &user.Name, &user.Username, &user.PfpURL, &user.Protected)
+	scanArgs = append(scanArgs, &user.ID, &user.Name, &user.Username, &user.PfpURL, &user.Protected, &user.CreatedAt)
 
 	if includeProfile {
 		query += ", p.bio, p.website, p.location, p.birthday, p.pinned_post_id, p.posts, p.followers, p.following"
