@@ -6,23 +6,23 @@
   import { page } from "$app/stores";
   import { useListPosts } from "$lib/queries";
   import PostFeed from "$lib/components/post/PostFeed.svelte";
-  import type { Readable } from "svelte/store";
-  import type { ListPostsQueryResult } from "$lib/queries";
   import PageContent from "$lib/components/layout/PageContent.svelte";
 
-  $: username = $page.params.id;
   const tabs = ["Posts", "Replies", "Media", "Likes"];
   let activeTab = "Posts";
 
-  let postsQuery: Readable<ListPostsQueryResult>;
-  let repliesQuery: Readable<ListPostsQueryResult>;
+  $: username = $page.params.id;
 
-  $: {
-    if (activeTab === "Posts" && !postsQuery) {
-      postsQuery = useListPosts({ username });
-    } else if (activeTab === "Replies" && !repliesQuery) {
-      repliesQuery = useListPosts({ username, replies: true });
-    }
+  $: postsQuery =
+    activeTab === "Posts" ? useListPosts({ username }) : undefined;
+  $: repliesQuery =
+    activeTab === "Replies"
+      ? useListPosts({ username, replies: true })
+      : undefined;
+
+  $: if (username) {
+    // Reset to Posts tab when username changes
+    activeTab = "Posts";
   }
 </script>
 

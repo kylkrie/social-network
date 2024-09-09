@@ -7,7 +7,7 @@
 
   export let profile: string = undefined;
 
-  const getUser = profile
+  $: getUser = profile
     ? useGetUser(profile, { profile: true })
     : useGetCurrentUser({ profile: true });
 
@@ -43,7 +43,7 @@
   }
 </script>
 
-<div class="profile-info text-text">
+<div class="profile-info">
   <div class="profile-header">
     {#if user?.profile?.banner_url}
       <img
