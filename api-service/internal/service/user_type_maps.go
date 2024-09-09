@@ -14,6 +14,7 @@ func toPublicUser(user *userdb.User, profile *userdb.UserProfile) dto.User {
 		Username:  user.Username,
 		PfpURL:    user.PfpURL,
 		Protected: user.Protected,
+		CreatedAt: user.CreatedAt,
 
 		Profile: toPublicProfile(profile),
 	}

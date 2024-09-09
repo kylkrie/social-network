@@ -5,6 +5,7 @@ export interface User {
   username: string;
   pfp_url?: string;
   protected: boolean;
+  created_at: string;
   profile?: UserProfile;
 }
 

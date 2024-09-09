@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import TabView from "$lib/components/ui/TabView.svelte";
   import ProfileInfo from "$lib/components/profile/ProfileInfo.svelte";
   import UserMedia from "$lib/components/profile/UserMedia.svelte";

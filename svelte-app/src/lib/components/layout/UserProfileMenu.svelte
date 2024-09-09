@@ -74,14 +74,6 @@
       aria-labelledby="user-menu"
     >
       <button
-        on:click={handleMyAccount}
-        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        role="menuitem"
-      >
-        <User class="inline-block mr-2 h-4 w-4" />
-        My Account
-      </button>
-      <button
         on:click={handleLogout}
         class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
         role="menuitem"

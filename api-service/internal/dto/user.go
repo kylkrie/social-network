@@ -10,6 +10,7 @@ type User struct {
 	Username  string       `json:"username"`
 	PfpURL    *string      `json:"pfp_url"`
 	Protected bool         `json:"protected"`
+	CreatedAt time.Time    `json:"created_at"`
 	Profile   *UserProfile `json:"profile,omitempty"`
 }
 

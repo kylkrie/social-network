@@ -39,35 +39,37 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-  {#if !isAuthenticated}
-    <slot />
-  {:else}
-    <div class="h-screen flex flex-col">
-      <!-- Top Bar (kept as is) -->
-      <div class="z-10">
-        <TopBar onToggleSidebar={toggleSidebar} />
-      </div>
-
-      <!-- Main content area with shared background -->
-      <div class="flex flex-1 bg-background overflow-hidden">
-        <!-- Sidebar (no background color of its own) -->
-        <div class="fixed left-0 top-16 bottom-0 z-10 w-64">
-          <SideBar
-            bind:isSidebarOpen
-            {sidebarItems}
-            onCloseSidebar={closeSidebar}
-          />
+  <div class="bg-background text-text">
+    {#if !isAuthenticated}
+      <slot />
+    {:else}
+      <div class="h-screen flex flex-col">
+        <!-- Top Bar (kept as is) -->
+        <div class="z-10">
+          <TopBar onToggleSidebar={toggleSidebar} />
         </div>
 
-        <!-- Scrollable Main Content (no background color of its own) -->
-        <main class="flex-1 overflow-y-auto ml-64">
-          <!-- Adjust top padding as needed -->
-          <div class="mx-auto max-w-[600px]">
-            <slot />
+        <!-- Main content area with shared background -->
+        <div class="flex flex-1 bg-background overflow-hidden">
+          <!-- Sidebar (no background color of its own) -->
+          <div class="fixed left-0 top-16 bottom-0 z-10 w-64">
+            <SideBar
+              bind:isSidebarOpen
+              {sidebarItems}
+              onCloseSidebar={closeSidebar}
+            />
           </div>
-        </main>
+
+          <!-- Scrollable Main Content (no background color of its own) -->
+          <main class="flex-1 overflow-y-auto ml-64">
+            <!-- Adjust top padding as needed -->
+            <div class="mx-auto max-w-[600px]">
+              <slot />
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
-  {/if}
-  <PostModal />
+    {/if}
+    <PostModal />
+  </div>
 </QueryClientProvider>
