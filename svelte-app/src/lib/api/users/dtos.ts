@@ -15,6 +15,7 @@ export interface UserProfile {
   location?: string;
   birthday?: string; // ISO 8601 format
   pinned_post_id?: string;
+  post_count?: number;
   follower_count?: number;
   following_count?: number;
 }

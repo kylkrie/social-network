@@ -35,6 +35,17 @@ func (pdb *PostDB) CreatePost(p CreatePostParams) error {
 		return fmt.Errorf("failed to create post: %w", err)
 	}
 
+	// Increment post_count in user_profiles
+	updateProfileQuery := `
+		UPDATE user_profiles
+		SET posts = posts + 1
+		WHERE user_id = $1
+	`
+	_, err = tx.Exec(updateProfileQuery, p.AuthorID)
+	if err != nil {
+		return fmt.Errorf("failed to update user profile post count: %w", err)
+	}
+
 	// Insert into post_references table and update metrics if references are provided
 	if p.References != nil {
 		references := *p.References

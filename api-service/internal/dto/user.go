@@ -20,6 +20,7 @@ type UserProfile struct {
 	Location       *string    `json:"location"`
 	Birthday       *time.Time `json:"birthday"`
 	PinnedPostID   *int64     `json:"pinned_post_id"`
+	PostCount      int        `json:"post_count"`
 	FollowerCount  int        `json:"follower_count"`
 	FollowingCount int        `json:"following_count"`
 }

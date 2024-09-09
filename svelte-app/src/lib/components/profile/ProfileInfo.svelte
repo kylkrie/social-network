@@ -18,6 +18,7 @@
   $: name = user?.name ?? "";
   $: username = user?.username ? `@${user.username}` : "";
   $: bio = user?.profile?.bio ?? "";
+  $: postCount = user?.profile?.post_count ?? 0;
   $: followerCount = user?.profile?.follower_count ?? 0;
   $: followingCount = user?.profile?.following_count ?? 0;
 </script>
@@ -53,6 +54,7 @@
     </div>
     <p class="mt-2">{bio}</p>
     <div class="mt-4 flex space-x-4">
+      <span>{postCount} Posts</span>
       <span>{followerCount} Followers</span>
       <span>{followingCount} Following</span>
     </div>

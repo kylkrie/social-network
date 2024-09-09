@@ -28,9 +28,12 @@ func toPublicProfile(profile *userdb.UserProfile) *dto.UserProfile {
 		BannerUrl: profile.BannerUrl,
 		Bio:       profile.Bio,
 
-		Website:      profile.Website,
-		Location:     profile.Location,
-		Birthday:     profile.Birthday,
-		PinnedPostID: profile.PinnedPostID,
+		Website:        profile.Website,
+		Location:       profile.Location,
+		Birthday:       profile.Birthday,
+		PinnedPostID:   profile.PinnedPostID,
+		PostCount:      profile.Posts,
+		FollowerCount:  profile.Followers,
+		FollowingCount: profile.Following,
 	}
 }

@@ -39,6 +39,9 @@ type UserProfile struct {
 	Location     *string    `db:"location"`
 	Birthday     *time.Time `db:"birthday"`
 	PinnedPostID *int64     `db:"pinned_post_id"`
+	Posts        int        `db:"posts"`
+	Followers    int        `db:"followers"`
+	Following    int        `db:"following"`
 	CreatedAt    time.Time  `db:"created_at"`
 	UpdatedAt    time.Time  `db:"updated_at"`
 }

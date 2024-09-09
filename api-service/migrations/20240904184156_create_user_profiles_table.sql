@@ -7,6 +7,7 @@ CREATE TABLE user_profiles (
     location VARCHAR(100),
     birthday DATE,
     pinned_post_id BIGINT,
+    posts INT DEFAULT 0,
     followers INT DEFAULT 0,
     following INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
