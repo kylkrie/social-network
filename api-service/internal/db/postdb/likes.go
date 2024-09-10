@@ -2,6 +2,7 @@ package postdb
 
 import (
 	"fmt"
+	"strings"
 )
 
 func (pdb *PostDB) LikePost(postID, userID int64) error {
@@ -88,43 +89,55 @@ func (pdb *PostDB) UnlikePost(postID, userID int64) error {
 	return nil
 }
 
-type UserPostInteraction struct {
-	PostID       int64
-	IsLiked      bool
-	IsBookmarked bool
-}
+func (pdb *PostDB) ListUserLikes(userID int64, limit int, cursor *int64) ([]PostData, *int64, error) {
+	query := strings.Builder{}
+	query.WriteString(`
+        SELECT p.*, m.reposts, m.replies, m.likes, m.views
+        FROM posts p
+        JOIN post_likes l ON p.id = l.post_id
+        LEFT JOIN post_public_metrics m ON p.id = m.post_id
+        WHERE l.user_id = $1 AND p.deleted_at IS NULL
+    `)
 
-func (pdb *PostDB) GetUserPostInteractions(postIDs []int64, userID int64) ([]UserPostInteraction, error) {
-	query := `
-        SELECT 
-            p.id AS post_id,
-            CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked,
-            CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked
-        FROM unnest($1::bigint[]) p(id)
-        LEFT JOIN post_likes l ON p.id = l.post_id AND l.user_id = $2
-        LEFT JOIN post_bookmarks b ON p.id = b.post_id AND b.user_id = $2
-        ORDER BY p.id
-    `
+	args := []interface{}{userID}
 
-	rows, err := pdb.db.Query(query, postIDs, userID)
+	if cursor != nil {
+		query.WriteString(fmt.Sprintf(" AND p.id < $%d", len(args)+1))
+		args = append(args, *cursor)
+	}
+
+	query.WriteString(" ORDER BY p.id DESC")
+	query.WriteString(fmt.Sprintf(" LIMIT $%d", len(args)+1))
+
+	args = append(args, limit+1)
+
+	rows, err := pdb.db.Queryx(query.String(), args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user post interactions: %w", err)
+		return nil, nil, fmt.Errorf("failed to list user likes: %w", err)
 	}
 	defer rows.Close()
 
-	var interactions []UserPostInteraction
+	var posts []PostData
 	for rows.Next() {
-		var interaction UserPostInteraction
-		err := rows.Scan(&interaction.PostID, &interaction.IsLiked, &interaction.IsBookmarked)
+		var post Post
+		var metrics PostPublicMetrics
+		err := rows.Scan(
+			&post.ID, &post.Content, &post.AuthorID, &post.ConversationID,
+			&post.CreatedAt, &post.UpdatedAt, &post.DeletedAt,
+
+			&metrics.Reposts, &metrics.Replies, &metrics.Likes, &metrics.Views,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan user post interaction: %w", err)
+			return nil, nil, fmt.Errorf("failed to scan post: %w", err)
 		}
-		interactions = append(interactions, interaction)
+		posts = append(posts, PostData{Post: post, Metrics: &metrics})
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating user post interactions: %w", err)
+	var nextCursor *int64
+	if len(posts) > limit {
+		nextCursor = &posts[limit-1].Post.ID
+		posts = posts[:limit]
 	}
 
-	return interactions, nil
+	return posts, nextCursor, nil
 }
