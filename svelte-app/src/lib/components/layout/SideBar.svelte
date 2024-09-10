@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import { postModalStore } from '$lib/stores';
+    import { fade } from 'svelte/transition';
 
   import { type ComponentType } from 'svelte';
   import { type Icon } from 'lucide-svelte';
@@ -13,6 +13,8 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Button from "$lib/components/ui/Button.svelte";
+  import { postModalStore } from "$lib/stores";
+  import { X } from 'lucide-svelte';
 
   export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;
@@ -20,11 +22,14 @@
 </script>
 
 <nav
-  class="sidebar-content {isSidebarOpen
-    ? 'translate-x-0'
-    : '-translate-x-full'} md:translate-x-0 fixed md:static inset-y-0 left-0 transform transition ease-in-out z-30 w-64 flex-shrink-0"
+  class="fixed md:static inset-y-0 left-0 z-30 w-64 bg-background shadow-lg md:shadow-none transition-transform duration-300 ease-in-out transform {isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0"
 >
   <div class="h-full flex flex-col">
+    <div class="flex justify-end p-4 md:hidden">
+      <button on:click={onCloseSidebar} class="text-text-secondary hover:text-text">
+        <X size={24} />
+      </button>
+    </div>
     <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
       <div class="flex-1 px-2 space-y-1">
         {#each sidebarItems as item}
@@ -36,17 +41,17 @@
             class:text-text={$page.url.pathname === item.href}
           >
             <svelte:component
-              this={item.icon as any}
+              this={item.icon}
               class="mr-3 flex-shrink-0 h-6 w-6"
             />
             {item.label}
           </a>
         {/each}
-      </div>
-      <div class="px-4 mb-4">
-        <Button on:click={() => postModalStore.openModal("normal")} variant="default" size="lg">
-          Post
-        </Button>
+        <div class="mx-auto max-w-full p-4">
+          <Button on:click={() => postModalStore.openModal("normal")}>
+            Post
+          </Button>
+        </div>
       </div>
     </div>
   </div>
@@ -54,7 +59,8 @@
 
 {#if isSidebarOpen}
   <div
-    class="fixed inset-0 bg-background bg-opacity-75 z-20 md:hidden"
+    transition:fade={{ duration: 200 }}
+    class="fixed inset-0 bg-gray-800 bg-opacity-75 z-20 md:hidden transition-colors duration-300"
     on:click={onCloseSidebar}
   ></div>
 {/if}

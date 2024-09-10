@@ -10,6 +10,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import PostModal from "$lib/components/post/PostModal.svelte";
+  import RightBar from "$lib/components/layout/RightBar.svelte";
 
   let isSidebarOpen = false;
 
@@ -44,27 +45,37 @@
       <slot />
     {:else}
       <div class="h-screen flex flex-col">
-        <!-- Top Bar (kept as is) -->
+        <!-- Top Bar -->
         <div class="z-10">
           <TopBar onToggleSidebar={toggleSidebar} />
         </div>
 
         <!-- Main content area with shared background -->
         <div class="flex flex-1 bg-background overflow-hidden">
-          <!-- Sidebar (no background color of its own) -->
-          <div class="fixed left-0 top-16 bottom-0 z-10 w-64">
-            <SideBar
-              bind:isSidebarOpen
-              {sidebarItems}
-              onCloseSidebar={closeSidebar}
-            />
-          </div>
+          <!-- Sidebar (visible on all screen sizes, positioned absolutely on small screens) -->
+          <SideBar
+            bind:isSidebarOpen
+            {sidebarItems}
+            onCloseSidebar={closeSidebar}
+          />
 
-          <!-- Scrollable Main Content (no background color of its own) -->
-          <main class="flex-1 overflow-y-auto ml-64">
-            <!-- Adjust top padding as needed -->
-            <div class="mx-auto max-w-[600px]">
-              <slot />
+          <!-- Scrollable Main Content -->
+          <main class="flex-1 overflow-y-auto w-full">
+            <div class="flex justify-center max-w-screen-xl mx-auto">
+              <!-- Center content on small to large screens, align left on xl -->
+              <div class="w-full max-w-[600px] px-4 xl:px-0">
+                <slot />
+              </div>
+
+              <!-- Spacer for xl screens -->
+              <div class="hidden xl:block w-8"></div>
+
+              <!-- Right sidebar for xl screens -->
+              <div class="hidden xl:block w-80">
+                <div class="fixed top-16 bottom-0 w-80 overflow-y-auto">
+                  <RightBar />
+                </div>
+              </div>
             </div>
           </main>
         </div>
