@@ -8,7 +8,6 @@ import type {
   ListPostsParams,
   ParsedIncludesData,
   ParsedListPostsResponse,
-  ParsedUserInteractions,
 } from "$lib/api/posts";
 import type { Post } from "$lib/api";
 import { QK_POSTS } from "./consts";
@@ -42,45 +41,53 @@ export function useListPosts(
     initialPageParam: undefined,
   });
 
-  return derived(query, ($query): ListPostsQueryResult => {
-    const processedData: ProcessedListPostsData = {
-      posts: $query.data?.pages.flatMap((page) => page.posts) ?? [],
-      includes: {
-        posts:
-          $query.data?.pages.reduce(
-            (acc, page) => ({ ...acc, ...page.includes.posts }),
-            {},
-          ) ?? {},
-        users:
-          $query.data?.pages.reduce(
-            (acc, page) => ({ ...acc, ...page.includes.users }),
-            {},
-          ) ?? {},
+  return derived(query, processListPostsQuery);
+}
 
-        userInteractions: {
-          likedPosts:
-            $query.data?.pages.reduce(
-              (acc, page) => ({
-                ...acc,
-                ...page.includes.userInteractions.likedPosts,
-              }),
-              {},
-            ) ?? {},
-          bookmarkedPosts:
-            $query.data?.pages.reduce(
-              (acc, page) => ({
-                ...acc,
-                ...page.includes.userInteractions.bookmarkedPosts,
-              }),
-              {},
-            ) ?? {},
-        },
+export function processListPostsQuery(
+  query: InfiniteQueryObserverResult<
+    InfiniteData<ParsedListPostsResponse, unknown>,
+    Error
+  >,
+): ListPostsQueryResult {
+  const processedData: ProcessedListPostsData = {
+    posts: query.data?.pages.flatMap((page) => page.posts) ?? [],
+
+    includes: {
+      posts:
+        query.data?.pages.reduce(
+          (acc, page) => ({ ...acc, ...page.includes.posts }),
+          {},
+        ) ?? {},
+      users:
+        query.data?.pages.reduce(
+          (acc, page) => ({ ...acc, ...page.includes.users }),
+          {},
+        ) ?? {},
+      userInteractions: {
+        likedPosts:
+          query.data?.pages.reduce(
+            (acc, page) => ({
+              ...acc,
+
+              ...page.includes.userInteractions.likedPosts,
+            }),
+            {},
+          ) ?? {},
+        bookmarkedPosts:
+          query.data?.pages.reduce(
+            (acc, page) => ({
+              ...acc,
+              ...page.includes.userInteractions.bookmarkedPosts,
+            }),
+            {},
+          ) ?? {},
       },
-    };
+    },
+  };
 
-    return {
-      data: processedData,
-      query: $query,
-    };
-  });
+  return {
+    data: processedData,
+    query: query,
+  };
 }
