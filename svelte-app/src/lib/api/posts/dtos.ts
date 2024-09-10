@@ -1,4 +1,4 @@
-import type { IncludesData } from "..";
+import type { IncludesData, UserPostInteraction } from "..";
 
 // Post DTOs
 export interface Post {

@@ -35,6 +35,16 @@ func (pdb *PostDB) CreatePost(p CreatePostParams) error {
 		return fmt.Errorf("failed to create post: %w", err)
 	}
 
+	// Insert into posts public metrics table
+	publicMetricsQuery := `
+		INSERT INTO post_public_metrics (post_id)
+		VALUES ($1)
+	`
+	_, err = tx.Exec(publicMetricsQuery, p.ID)
+	if err != nil {
+		return fmt.Errorf("failed to create post public metrics: %w", err)
+	}
+
 	// Increment post_count in user_profiles
 	updateProfileQuery := `
 		UPDATE user_profiles

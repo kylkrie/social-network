@@ -3,12 +3,12 @@
   import PostCard from "../post/PostCard.svelte";
   import type { ListPostsQueryResult } from "$lib/queries";
   import type { Readable } from "svelte/store";
-  import { getQuoteForPost, getReplyForPost } from "$lib/util";
+  import { buildPostData, getQuoteForPost, getReplyForPost } from "$lib/util";
 
   export let postData: Readable<ListPostsQueryResult>;
   $: includes = $postData.data.includes;
   $: allPosts = $postData.data.posts.map((p) => ({
-    post: { post: p, user: includes.users[p.author_id] },
+    post: buildPostData(p, includes),
     reply: getReplyForPost(p, includes),
     quote: getQuoteForPost(p, includes),
   }));

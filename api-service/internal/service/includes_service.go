@@ -19,32 +19,37 @@ func NewIncludeService(userDB *userdb.UserDB, postDB *postdb.PostDB) *IncludeSer
 	}
 }
 
-func (s *IncludeService) GetIncludesForPosts(posts []dto.Post) (*dto.IncludeData, error) {
+func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*dto.IncludeData, error) {
 	// Collect unique IDs for original post set
 	authorIDs := make(map[string]struct{})
-	postIDs := make(map[string]struct{})
+	allPostIDs := make(map[string]struct{})
+	otherPostIDs := make(map[string]struct{})
+
 	for _, post := range posts {
 		authorIDs[post.AuthorID] = struct{}{}
+		allPostIDs[post.ID] = struct{}{} // Add original post IDs
 		if post.ConversationID != nil {
-			postIDs[*post.ConversationID] = struct{}{}
+			otherPostIDs[*post.ConversationID] = struct{}{}
+			allPostIDs[*post.ConversationID] = struct{}{}
 		}
 		for _, ref := range post.References {
-			postIDs[ref.ReferencedPostID] = struct{}{}
+			otherPostIDs[ref.ReferencedPostID] = struct{}{}
+			allPostIDs[ref.ReferencedPostID] = struct{}{}
 		}
 	}
 
 	// Fetch include Posts
-	uniquePostIDs := make([]int64, 0, len(postIDs))
-	for id := range postIDs {
-		uniquePostIDs = append(uniquePostIDs, util.StringToInt64MustParse(id))
+	uniqueOtherPostIDs := make([]int64, 0, len(otherPostIDs))
+	for id := range otherPostIDs {
+		uniqueOtherPostIDs = append(uniqueOtherPostIDs, util.StringToInt64MustParse(id))
 	}
-	includePosts, err := s.postDB.GetMany(uniquePostIDs)
+	includePosts, err := s.postDB.GetMany(uniqueOtherPostIDs)
 	if err != nil {
 		return nil, err
 	}
 	dtoPosts := make([]dto.Post, len(includePosts))
 	for i, post := range includePosts {
-		dtoPost := *toPublicPost(postdb.PostData{Post: *post})
+		dtoPost := *toPublicPost(postdb.PostData{Post: post.Post, Metrics: &post.PublicMetrics})
 		dtoPosts[i] = dtoPost
 		// add include post author IDs
 		authorIDs[dtoPost.AuthorID] = struct{}{}
@@ -59,22 +64,37 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post) (*dto.IncludeData
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert db users to dto users
 	dtoUsers := make([]dto.User, len(includeUsers))
 	for i, user := range includeUsers {
 		dtoUsers[i] = toPublicUser(user, nil)
 	}
 
+	// Get user interactions for all unique post IDs
+	allUniquePostIDs := make([]int64, 0, len(allPostIDs))
+	for id := range allPostIDs {
+		allUniquePostIDs = append(allUniquePostIDs, util.StringToInt64MustParse(id))
+	}
+	interactions, err := s.postDB.GetUserPostInteractions(allUniquePostIDs, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert interactions to dtos
+	dtoInteractions := make([]dto.UserPostInteraction, len(interactions))
+	for i, interaction := range interactions {
+		dtoInteractions[i] = *toPublicUserPostInteractions(&interaction)
+	}
+
 	return &dto.IncludeData{
-		Users: &dtoUsers,
-		Posts: &dtoPosts,
+		Users:            &dtoUsers,
+		Posts:            &dtoPosts,
+		UserInteractions: &dtoInteractions,
 	}, nil
 }
 
 // Helper function to get includes for a single post
-func (s *IncludeService) GetIncludesForPost(post *dto.Post) (*dto.IncludeData, error) {
-	includes, err := s.GetIncludesForPosts([]dto.Post{*post})
+func (s *IncludeService) GetIncludesForPost(post *dto.Post, userID int64) (*dto.IncludeData, error) {
+	includes, err := s.GetIncludesForPosts([]dto.Post{*post}, userID)
 	if err != nil {
 		return nil, err
 	}

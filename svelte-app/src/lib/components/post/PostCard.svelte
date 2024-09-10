@@ -1,19 +1,22 @@
 <script lang="ts" module>
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
+  import type {ParsedUserInteractions, ParsedIncludesData} from "$lib/api"
 
   export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
   export type PostData = {
     user: User
     post: Post
+    is_liked?: boolean
+    is_bookmarked?: boolean
   }
+
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <script lang="ts">
   import { toPostDate } from "$lib/util/date";
   import { MoreHorizontal, Users } from "lucide-svelte";
-  import type { Post } from "$lib/api/posts/dtos";
-  import type { User } from "$lib/api/users/dtos";
+  import type { Post, User } from "$lib/api";
   import PostActionButtons from "./PostActionButtons.svelte";
 
   export let data: PostData;
@@ -135,7 +138,7 @@
       {/if}
 
       {#if showButtons}
-        <PostActionButtons post={data.post} user={data.user} />
+        <PostActionButtons data={data} />
       {/if}
     </div>
   </div>

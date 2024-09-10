@@ -34,6 +34,25 @@ export function useListFeed(
             (acc, page) => ({ ...acc, ...page.includes.users }),
             {},
           ) ?? {},
+
+        userInteractions: {
+          likedPosts:
+            $query.data?.pages.reduce(
+              (acc, page) => ({
+                ...acc,
+                ...page.includes.userInteractions.likedPosts,
+              }),
+              {},
+            ) ?? {},
+          bookmarkedPosts:
+            $query.data?.pages.reduce(
+              (acc, page) => ({
+                ...acc,
+                ...page.includes.userInteractions.bookmarkedPosts,
+              }),
+              {},
+            ) ?? {},
+        },
       },
     };
 

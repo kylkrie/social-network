@@ -1,9 +1,22 @@
-import type { ListPostsResponse, Post, User, IncludesData } from "$lib/api";
+import type {
+  ListPostsResponse,
+  Post,
+  User,
+  IncludesData,
+  UserPostInteraction,
+} from "$lib/api";
 
 export interface ParsedIncludesData {
   posts: Record<string, Post>;
   users: Record<string, User>;
+  userInteractions: ParsedUserInteractions;
 }
+
+export interface ParsedUserInteractions {
+  likedPosts: Record<string, boolean>;
+  bookmarkedPosts: Record<string, boolean>;
+}
+
 export interface ParsedListPostsResponse {
   posts: Post[];
   includes: ParsedIncludesData;
@@ -15,9 +28,13 @@ export function parseListPostsResponse(
 ): ParsedListPostsResponse {
   const includedPosts: Record<string, Post> = {};
   const users: Record<string, User> = {};
+  const userInteractions: ParsedUserInteractions = {
+    likedPosts: {},
+    bookmarkedPosts: {},
+  };
 
   if (response.includes) {
-    parseIncludes(response.includes, includedPosts, users);
+    parseIncludes(response.includes, includedPosts, users, userInteractions);
   }
 
   return {
@@ -25,6 +42,7 @@ export function parseListPostsResponse(
     includes: {
       posts: includedPosts,
       users,
+      userInteractions,
     },
     nextCursor: response.next_cursor,
   };
@@ -34,6 +52,7 @@ function parseIncludes(
   includes: IncludesData,
   posts: Record<string, Post>,
   users: Record<string, User>,
+  userInteractions: ParsedUserInteractions,
 ) {
   if (includes.posts) {
     includes.posts.forEach((post) => {
@@ -46,6 +65,14 @@ function parseIncludes(
       users[user.id] = user;
     });
   }
+
+  if (includes.user_interactions) {
+    includes.user_interactions.forEach((interaction) => {
+      userInteractions.likedPosts[interaction.post_id] = interaction.is_liked;
+      userInteractions.bookmarkedPosts[interaction.post_id] =
+        interaction.is_bookmarked;
+    });
+  }
 }
 
 export interface ParsedGetPostResponse {
@@ -56,9 +83,13 @@ export interface ParsedGetPostResponse {
 export function parseGetPostResponse(response: any): ParsedGetPostResponse {
   const users: Record<string, User> = {};
   const includedPosts: Record<string, Post> = {};
+  const userInteractions: ParsedUserInteractions = {
+    likedPosts: {},
+    bookmarkedPosts: {},
+  };
 
   if (response.includes) {
-    parseIncludes(response.includes, includedPosts, users);
+    parseIncludes(response.includes, includedPosts, users, userInteractions);
   }
 
   return {
@@ -66,6 +97,7 @@ export function parseGetPostResponse(response: any): ParsedGetPostResponse {
     includes: {
       posts: includedPosts,
       users,
+      userInteractions,
     },
   };
 }

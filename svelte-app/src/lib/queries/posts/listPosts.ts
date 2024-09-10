@@ -8,6 +8,7 @@ import type {
   ListPostsParams,
   ParsedIncludesData,
   ParsedListPostsResponse,
+  ParsedUserInteractions,
 } from "$lib/api/posts";
 import type { Post } from "$lib/api";
 import { QK_POSTS } from "./consts";
@@ -55,6 +56,25 @@ export function useListPosts(
             (acc, page) => ({ ...acc, ...page.includes.users }),
             {},
           ) ?? {},
+
+        userInteractions: {
+          likedPosts:
+            $query.data?.pages.reduce(
+              (acc, page) => ({
+                ...acc,
+                ...page.includes.userInteractions.likedPosts,
+              }),
+              {},
+            ) ?? {},
+          bookmarkedPosts:
+            $query.data?.pages.reduce(
+              (acc, page) => ({
+                ...acc,
+                ...page.includes.userInteractions.bookmarkedPosts,
+              }),
+              {},
+            ) ?? {},
+        },
       },
     };
 

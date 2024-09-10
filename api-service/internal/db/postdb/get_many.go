@@ -5,9 +5,14 @@ import (
 	"strings"
 )
 
-func (pdb *PostDB) GetMany(ids []int64) ([]*Post, error) {
+type PostWithMetrics struct {
+	Post
+	PublicMetrics PostPublicMetrics `db:"metrics"`
+}
+
+func (pdb *PostDB) GetMany(ids []int64) ([]*PostWithMetrics, error) {
 	if len(ids) == 0 {
-		return []*Post{}, nil
+		return []*PostWithMetrics{}, nil
 	}
 
 	// Create a string of placeholders for the SQL query
@@ -19,16 +24,22 @@ func (pdb *PostDB) GetMany(ids []int64) ([]*Post, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT *
-		FROM posts
-		WHERE id IN (%s) AND deleted_at IS NULL
+		SELECT 
+			p.*,
+			COALESCE(m.reposts, 0) AS "metrics.reposts",
+			COALESCE(m.replies, 0) AS "metrics.replies",
+			COALESCE(m.likes, 0) AS "metrics.likes",
+			COALESCE(m.views, 0) AS "metrics.views"
+		FROM posts p
+		LEFT JOIN post_public_metrics m ON p.id = m.post_id
+		WHERE p.id IN (%s) AND p.deleted_at IS NULL
 	`, strings.Join(placeholders, ","))
 
-	var posts []*Post
-	err := pdb.db.Select(&posts, query, args...)
+	var postsWithMetrics []*PostWithMetrics
+	err := pdb.db.Select(&postsWithMetrics, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get posts: %w", err)
+		return nil, fmt.Errorf("failed to get posts with metrics: %w", err)
 	}
 
-	return posts, nil
+	return postsWithMetrics, nil
 }

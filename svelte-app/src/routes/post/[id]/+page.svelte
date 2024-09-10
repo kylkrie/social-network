@@ -4,16 +4,14 @@
   import PostCard from "$lib/components/post/PostCard.svelte";
   import PostFeed from "$lib/components/post/PostFeed.svelte";
   import { useGetPost, useListPosts } from "$lib/queries";
-  import { getQuoteForPost, getReplyForPost } from "$lib/util";
+  import { buildPostData, getQuoteForPost, getReplyForPost } from "$lib/util";
   import { ArrowLeft } from "lucide-svelte";
 
   $: postId = $page.params.id;
   $: getPost = useGetPost(postId);
   $: post = $getPost.data.post;
   $: includes = $getPost.data.includes;
-  $: postData = post
-    ? { post: post, user: includes.users[post.author_id] }
-    : undefined;
+  $: postData = post ? buildPostData(post, includes) : undefined;
   $: replyPost = post ? getReplyForPost(post, includes) : undefined;
   $: quotePost = post ? getQuoteForPost(post, includes) : undefined;
   $: feed = post

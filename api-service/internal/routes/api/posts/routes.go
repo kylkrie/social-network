@@ -13,4 +13,8 @@ func SetupRoutes(router fiber.Router, appState *app.AppState) {
 	postsGroup.Get("/:id", GetPost(appState))
 	postsGroup.Put("/:id", UpdatePost(appState))
 	postsGroup.Delete("/:id", DeletePost(appState))
+	postsGroup.Post("/:id/likes", LikePost(appState))
+	postsGroup.Delete("/:id/likes", UnlikePost(appState))
+	postsGroup.Post("/:id/bookmarks", BookmarkPost(appState))
+	postsGroup.Delete("/:id/bookmarks", UnbookmarkPost(appState))
 }

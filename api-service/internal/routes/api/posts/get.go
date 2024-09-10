@@ -32,7 +32,8 @@ func GetPost(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		includes, err := appState.Services.IncludeService.GetIncludesForPost(post)
+		userID := auth.GetUserID(c)
+		includes, err := appState.Services.IncludeService.GetIncludesForPost(post, userID)
 		if err != nil {
 			return err
 		}
@@ -106,7 +107,8 @@ func ListPosts(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(posts)
+		myUserID := auth.GetUserID(c)
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(posts, myUserID)
 		if err != nil {
 			return err
 		}

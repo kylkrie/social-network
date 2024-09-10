@@ -4,6 +4,7 @@ import type {
   GetPostParams,
   ParsedGetPostResponse,
   ParsedIncludesData,
+  ParsedUserInteractions,
 } from "$lib/api/posts";
 import type { Post } from "$lib/api";
 import { QK_POST } from "./consts";
