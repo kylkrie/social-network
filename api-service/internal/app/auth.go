@@ -10,6 +10,7 @@ type AuthConfig struct {
 	OAuthConfig   *oauth2.Config
 	AllowedOrigin string
 	JWKS_URL      string
+	LogoutURL     string
 }
 
 func LoadConfig() (*AuthConfig, error) {
@@ -25,6 +26,7 @@ func LoadConfig() (*AuthConfig, error) {
 			Scopes: []string{"email", "profile"},
 		},
 		AllowedOrigin: os.Getenv("ALLOWED_ORIGIN"),
+		LogoutURL:     os.Getenv("OAUTH_LOGOUT_URL"),
 	}
 
 	// Add any necessary validation here

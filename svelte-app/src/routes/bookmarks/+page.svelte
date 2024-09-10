@@ -1,5 +1,4 @@
 <script>
-  import FeedHeader from "$lib/components/feed/FeedHeader.svelte";
   import PageContent from "$lib/components/layout/PageContent.svelte";
   import PostFeed from "$lib/components/post/PostFeed.svelte";
   import { useGetCurrentUser } from "$lib/queries";

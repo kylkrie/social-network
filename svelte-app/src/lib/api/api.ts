@@ -12,7 +12,7 @@ async function getValidToken(): Promise<string | null> {
   if (token.expiresAt - now <= REFRESH_THRESHOLD) {
     const refreshSuccess = await auth.refresh();
     if (!refreshSuccess) {
-      auth.logout();
+      await auth.logout();
       throw new Error("Session expired. Please log in again.");
     }
     return get(auth)?.accessToken ?? null;
@@ -46,7 +46,7 @@ async function request(endpoint: string, options: RequestInit): Promise<any> {
         config.headers = headers;
         response = await fetch(url, config);
       } else {
-        auth.logout();
+        await auth.logout();
         throw new Error("Session expired. Please log in again.");
       }
     }

@@ -23,6 +23,7 @@ services:
       - OAUTH_REDIRECT_URI=https://yabro.io/callback
       - OAUTH_AUTH_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/auth
       - OAUTH_TOKEN_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/token
+      - OAUTH_LOGOUT_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/logout
       - JWKS_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/certs
       - ALLOWED_ORIGIN=https://yabro.io
       - PORT=4000

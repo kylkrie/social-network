@@ -2,7 +2,7 @@
   export let title = "";
 </script>
 
-<div class="rounded-lg border bg-surface text-text shadow-sm">
+<div class="rounded-lg border bg-background text-text shadow-sm">
   {#if title}
     <div class="flex flex-col space-y-1.5 p-4">
       <h3

@@ -24,6 +24,7 @@ services:
       - OAUTH_REDIRECT_URI=http://localhost:3000/callback
       - OAUTH_AUTH_URL=http://localhost:8080/realms/social/protocol/openid-connect/auth
       - OAUTH_TOKEN_URL=http://localhost:8080/realms/social/protocol/openid-connect/token
+      - OAUTH_LOGOUT_URL=http://localhost:8080/realms/social/protocol/openid-connect/logout
       - JWKS_URL=http://localhost:8080/realms/social/protocol/openid-connect/certs
       - ALLOWED_ORIGIN=http://localhost:3000
       - PORT=4000
