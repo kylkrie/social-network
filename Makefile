@@ -55,7 +55,7 @@ clean-postgres-volume-dev: ## Stop and remove PostgreSQL volume (development)
 
 clean-postgres-volume-prod: ## Stop and remove PostgreSQL volume (production)
 	@echo "Removing PostgreSQL volume for production environment..."
-	docker volume rm $(PROJECT_PROD)_postgres_data || true
+	docker volume rm $(PROJECT_PROD)_postgres_social_data || true
 
 clean-minio-volume-dev: ## Stop and remove PostgreSQL volume (development)
 	@echo "Removing MinIO volume for development environment..."
