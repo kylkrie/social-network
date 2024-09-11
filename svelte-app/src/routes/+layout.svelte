@@ -63,7 +63,7 @@
           <main class="flex-1 overflow-y-auto w-full">
             <div class="flex justify-center max-w-screen-xl mx-auto">
               <!-- Center content on small to large screens, align left on xl -->
-              <div class="w-full max-w-[600px] px-4 xl:px-0">
+              <div class="w-full max-w-[600px] xl:px-0">
                 <slot />
               </div>
 
