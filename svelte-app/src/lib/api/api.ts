@@ -12,7 +12,7 @@ async function getValidToken(): Promise<string | null> {
   if (token.expiresAt - now <= REFRESH_THRESHOLD) {
     const refreshSuccess = await auth.refresh();
     if (!refreshSuccess) {
-      await auth.logout();
+      auth.logout();
       throw new Error("Session expired. Please log in again.");
     }
     return get(auth)?.accessToken ?? null;
@@ -20,19 +20,38 @@ async function getValidToken(): Promise<string | null> {
   return token.accessToken;
 }
 
-async function request(endpoint: string, options: RequestInit): Promise<any> {
+type RequestOptions = {
+  headers?: Record<string, string>;
+  body?: any;
+};
+
+async function request(
+  endpoint: string,
+  method: string,
+  options: RequestOptions = {},
+): Promise<any> {
   const url = `${API_BASE_URL}/api/v1${endpoint}`;
   const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
 
   const accessToken = await getValidToken();
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
+  let body: string | FormData | undefined;
+  if (options.body) {
+    if (options.body instanceof FormData) {
+      body = options.body;
+    } else if (typeof options.body === "object") {
+      headers.set("Content-Type", "application/json");
+      body = JSON.stringify(options.body);
+    }
+  }
+
   const config: RequestInit = {
-    ...options,
+    method,
     headers,
+    body,
   };
 
   try {
@@ -46,7 +65,7 @@ async function request(endpoint: string, options: RequestInit): Promise<any> {
         config.headers = headers;
         response = await fetch(url, config);
       } else {
-        await auth.logout();
+        auth.logout();
         throw new Error("Session expired. Please log in again.");
       }
     }
@@ -71,10 +90,9 @@ async function request(endpoint: string, options: RequestInit): Promise<any> {
 }
 
 export const api = {
-  get: (endpoint: string) => request(endpoint, { method: "GET" }),
-  post: (endpoint: string, body: any = {}) =>
-    request(endpoint, { method: "POST", body: JSON.stringify(body) }),
-  put: (endpoint: string, body: any = {}) =>
-    request(endpoint, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (endpoint: string) => request(endpoint, { method: "DELETE" }),
+  get: (endpoint: string) => request(endpoint, "GET"),
+  post: (endpoint: string, body?: any, options: RequestOptions = {}) =>
+    request(endpoint, "POST", { ...options, body }),
+  put: (endpoint: string, body?: any) => request(endpoint, "PUT", { body }),
+  delete: (endpoint: string) => request(endpoint, "DELETE"),
 };

@@ -70,3 +70,31 @@ func (udb *UserDB) UpdateUser(userID int64, user *UpdateUserParams, profile *Upd
 
 	return nil
 }
+
+func (udb *UserDB) UpdateProfilePictureURL(userID int64, url string) error {
+	query := `
+		UPDATE users
+		SET pfp_url = $1
+		WHERE id = $2
+	`
+	_, err := udb.db.Exec(query, url, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update profile picture URL: %w", err)
+	}
+
+	return nil
+}
+
+func (udb *UserDB) UpdateProfileBannerURL(userID int64, url string) error {
+	query := `
+		UPDATE user_profiles
+		SET banner_url = $1
+		WHERE user_id = $2
+	`
+	_, err := udb.db.Exec(query, url, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update profile banner URL: %w", err)
+	}
+
+	return nil
+}

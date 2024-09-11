@@ -8,7 +8,7 @@
 <button
   {type}
   {disabled}
-  class="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+  class={`inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ${$$restProps.class || ""}`}
   class:bg-primary={variant === "default"}
   class:text-white={variant === "default"}
   class:hover:bg-primary-dark={variant === "default"}

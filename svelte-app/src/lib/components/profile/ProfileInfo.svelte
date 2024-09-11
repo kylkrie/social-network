@@ -7,11 +7,11 @@
 
   export let profile: string = undefined;
 
-  $: getUser = profile
-    ? useGetUser(profile, { profile: true })
-    : useGetCurrentUser({ profile: true });
-
-  const getCurrentUser = useGetCurrentUser();
+  $: getCurrentUser = useGetCurrentUser({ profile: true });
+  $: getUser =
+    profile != $getCurrentUser.data.username
+      ? useGetUser(profile, { profile: true })
+      : getCurrentUser;
 
   $: user = $getUser.data as User;
   $: isCurrentUserProfile =

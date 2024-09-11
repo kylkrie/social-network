@@ -1,8 +1,12 @@
 package app
 
 import (
+	"os"
+
 	"github.com/bwmarrin/snowflake"
 	"github.com/jmoiron/sqlx"
+	"github.com/minio/minio-go/v7"
+	"yabro.io/social-api/internal/db"
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/db/userdb"
 	"yabro.io/social-api/internal/service"
@@ -14,14 +18,17 @@ type AppServices struct {
 	IncludeService *service.IncludeService
 }
 
-func NewAppServices(db *sqlx.DB, snowflakeNode *snowflake.Node) (*AppServices, error) {
-	userDb := userdb.NewUserDB(db)
-	userService, err := service.NewUserService(userDb, snowflakeNode)
+func NewAppServices(sqlxDB *sqlx.DB, snowflakeNode *snowflake.Node, minioClient *minio.Client) (*AppServices, error) {
+	userDb := userdb.NewUserDB(sqlxDB)
+	postDb := postdb.NewPostDB(sqlxDB)
+	cdnBaseUrl := os.Getenv("CDN_BASE_URL")
+	minioStorage := db.NewMinioStorage(minioClient, cdnBaseUrl)
+
+	userService, err := service.NewUserService(userDb, snowflakeNode, minioStorage)
 	if err != nil {
 		return nil, err
 	}
 
-	postDb := postdb.NewPostDB(db)
 	postService, err := service.NewPostService(postDb, snowflakeNode)
 	if err != nil {
 		return nil, err

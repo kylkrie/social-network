@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/snowflake"
 	"github.com/google/uuid"
+	"yabro.io/social-api/internal/db"
 	"yabro.io/social-api/internal/db/userdb"
 	"yabro.io/social-api/internal/dto"
 )
@@ -12,12 +13,14 @@ import (
 type UserService struct {
 	userDB        *userdb.UserDB
 	snowflakeNode *snowflake.Node
+	minioStorage  *db.MinioStorage
 }
 
-func NewUserService(userDB *userdb.UserDB, snowflakeNode *snowflake.Node) (*UserService, error) {
+func NewUserService(userDB *userdb.UserDB, snowflakeNode *snowflake.Node, minioStorage *db.MinioStorage) (*UserService, error) {
 	return &UserService{
 		userDB:        userDB,
 		snowflakeNode: snowflakeNode,
+		minioStorage:  minioStorage,
 	}, nil
 }
 

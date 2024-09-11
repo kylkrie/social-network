@@ -12,4 +12,6 @@ func SetupRoutes(router fiber.Router, appState *app.AppState) {
 	profilesGroup.Get("/:username", GetUser(appState))
 	profilesGroup.Get("/:username/likes", GetUserLikes(appState))
 	profilesGroup.Get("/:username/bookmarks", GetUserBookmarks(appState))
+	profilesGroup.Post("/pfp", UploadProfilePicture(appState))
+	profilesGroup.Post("/pfbanner", UploadProfileBanner(appState))
 }

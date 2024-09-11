@@ -56,13 +56,18 @@ func CreateAppState() (*AppState, error) {
 		return nil, fmt.Errorf("failed to create snowflake node: %v", err)
 	}
 
-	services, err := NewAppServices(dbpool, snowflakeNode)
+	minioClient, err := SetupMinioClient()
+	services, err := NewAppServices(dbpool, snowflakeNode, minioClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize AppServices: %v", err)
 	}
 
 	validator := validator.New()
 	apperror.SetupValidator(validator)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to setup Minio client: %v", err)
+	}
 
 	appState := &AppState{
 		AuthConfig: cfg,

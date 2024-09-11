@@ -20,10 +20,10 @@ func (udb *UserDB) GetUser(lookup UserLookup, includeProfile bool) (*User, *User
 	scanArgs = append(scanArgs, &user.ID, &user.Name, &user.Username, &user.PfpURL, &user.Protected, &user.CreatedAt)
 
 	if includeProfile {
-		query += ", p.bio, p.website, p.location, p.birthday, p.pinned_post_id, p.posts, p.followers, p.following"
+		query += ", p.banner_url, p.bio, p.website, p.location, p.birthday, p.pinned_post_id, p.posts, p.followers, p.following"
 		joins = append(joins, "LEFT JOIN user_profiles p ON u.id = p.user_id")
 		profile = &UserProfile{}
-		scanArgs = append(scanArgs, &profile.Bio, &profile.Website, &profile.Location, &profile.Birthday, &profile.PinnedPostID, &profile.Posts, &profile.Followers, &profile.Following)
+		scanArgs = append(scanArgs, &profile.BannerUrl, &profile.Bio, &profile.Website, &profile.Location, &profile.Birthday, &profile.PinnedPostID, &profile.Posts, &profile.Followers, &profile.Following)
 	}
 
 	query += " FROM users u " + strings.Join(joins, " ") + " WHERE "

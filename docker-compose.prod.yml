@@ -32,6 +32,7 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
+      - CDN_BASE_URL=https://cdn.yabro.io
     ports:
       - "4000:4000"
     depends_on:
@@ -130,6 +131,8 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
+    networks:
+      - app-network
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
@@ -145,7 +148,10 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-    profiles: ["setup"]
+    profiles:
+      - setup
+    networks:
+      - app-network
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set social http://minio:9000 minioadmin minioadmin;
