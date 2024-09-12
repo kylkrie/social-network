@@ -64,25 +64,21 @@ export function processListPostsQuery(
           (acc, page) => ({ ...acc, ...page.includes.users }),
           {},
         ) ?? {},
-      userInteractions: {
-        likedPosts:
-          query.data?.pages.reduce(
-            (acc, page) => ({
-              ...acc,
-
-              ...page.includes.userInteractions.likedPosts,
-            }),
-            {},
-          ) ?? {},
-        bookmarkedPosts:
-          query.data?.pages.reduce(
-            (acc, page) => ({
-              ...acc,
-              ...page.includes.userInteractions.bookmarkedPosts,
-            }),
-            {},
-          ) ?? {},
-      },
+      likedPosts:
+        query.data?.pages.reduce(
+          (acc, page) => ({ ...acc, ...page.includes.likedPosts }),
+          {},
+        ) ?? {},
+      bookmarkedPosts:
+        query.data?.pages.reduce(
+          (acc, page) => ({ ...acc, ...page.includes.bookmarkedPosts }),
+          {},
+        ) ?? {},
+      media:
+        query.data?.pages.reduce(
+          (acc, page) => ({ ...acc, ...page.includes.media }),
+          {},
+        ) ?? {},
     },
   };
 

@@ -5,18 +5,7 @@ export * from "./users";
 export * from "./posts";
 export * from "./feed";
 export * from "./api";
-
-export interface IncludesData {
-  users?: User[];
-  posts?: Post[];
-  user_interactions?: UserPostInteraction[];
-}
-
-export interface UserPostInteraction {
-  post_id: string;
-  is_liked: boolean;
-  is_bookmarked: boolean;
-}
+export * from "./includes";
 
 export function cleanUrlParams(params: Record<string, any>): string {
   const cleanParams = Object.fromEntries(

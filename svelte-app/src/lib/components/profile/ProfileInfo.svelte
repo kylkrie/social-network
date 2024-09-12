@@ -9,7 +9,7 @@
 
   $: getCurrentUser = useGetCurrentUser({ profile: true });
   $: getUser =
-    profile != $getCurrentUser.data.username
+    profile != $getCurrentUser.data?.username
       ? useGetUser(profile, { profile: true })
       : getCurrentUser;
 

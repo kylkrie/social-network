@@ -1,8 +1,4 @@
-import type {
-  ParsedIncludesData,
-  ParsedUserInteractions,
-  Post,
-} from "$lib/api";
+import type { ParsedIncludesData, Post } from "$lib/api";
 import type { PostData } from "$lib/components/post/PostCard.svelte";
 
 export function getReplyForPost(
@@ -42,7 +38,11 @@ export function buildPostData(
   return {
     post: post,
     user: includes.users[post.author_id],
-    is_liked: includes.userInteractions.likedPosts[post.id],
-    is_bookmarked: includes.userInteractions.bookmarkedPosts[post.id],
+    is_liked: includes.likedPosts[post.id],
+    is_bookmarked: includes.bookmarkedPosts[post.id],
+    media:
+      post.attachments?.media_keys
+        .map((key) => includes.media[key])
+        .filter(Boolean) || [],
   };
 }

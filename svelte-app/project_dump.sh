@@ -33,6 +33,9 @@ find_cmd+=" -print"
 # Execute the find command and process files
 eval "$find_cmd" | while read -r file; do
   echo "// $file" >>"$output_file"
-  cat "$file" >>"$output_file"
-  echo -e "\n" >>"$output_file"
+  cat "$file" | sed '/^\s*$/d' >>"$output_file"
+  echo >>"$output_file"
 done
+
+# Remove empty lines from the entire output file
+sed -i '/^\s*$/d' "$output_file"

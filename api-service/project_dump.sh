@@ -10,6 +10,6 @@ src_directory="."
 find "$src_directory" \( -name "*.go" -o -name "*.sql" \) -type f | while read file; do
   #find "$src_directory" \( -name "*.go" \) -type f | while read file; do
   echo "// $file" >>"$output_file"
-  cat "$file" >>"$output_file"
-  echo -e "\n" >>"$output_file"
+  cat "$file" | sed '/^\s*$/d' >>"$output_file"
+  echo >>"$output_file"
 done

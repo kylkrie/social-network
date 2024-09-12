@@ -17,7 +17,20 @@ const API_PATH = "/posts";
 
 export const postsApi = {
   createPost: async (postData: CreatePostRequest): Promise<GetPostResponse> => {
-    const response = await api.post(API_PATH, postData);
+    const formData = new FormData();
+    formData.append("content", postData.content);
+    if (postData.reply_to_post_id) {
+      formData.append("reply_to_post_id", postData.reply_to_post_id);
+    }
+    if (postData.quote_post_id) {
+      formData.append("quote_post_id", postData.quote_post_id);
+    }
+    if (postData.media) {
+      for (let i = 0; i < postData.media.length; i++) {
+        formData.append("media", postData.media[i]);
+      }
+    }
+    const response = await api.post(API_PATH, formData);
     return response;
   },
 

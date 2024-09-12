@@ -13,6 +13,11 @@ export interface Post {
   edits?: PostEdit[];
   tags?: PostTag[];
   references?: PostReference[];
+  attachments?: PostAttachments;
+}
+
+export interface PostAttachments {
+  media_keys?: string[];
 }
 
 export interface PostPublicMetrics {
@@ -56,6 +61,7 @@ export interface CreatePostRequest {
   content: string;
   reply_to_post_id?: string;
   quote_post_id?: string;
+  media?: File[];
 }
 
 export interface UpdatePostRequest {

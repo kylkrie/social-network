@@ -3,19 +3,18 @@ import type {
   Post,
   User,
   IncludesData,
-  UserPostInteraction,
+  Media,
 } from "$lib/api";
 
 export interface ParsedIncludesData {
   posts: Record<string, Post>;
   users: Record<string, User>;
-  userInteractions: ParsedUserInteractions;
-}
-
-export interface ParsedUserInteractions {
   likedPosts: Record<string, boolean>;
   bookmarkedPosts: Record<string, boolean>;
+  media: Record<string, Media>;
 }
+
+export interface ParsedUserInteractions {}
 
 export interface ParsedListPostsResponse {
   posts: Post[];
@@ -26,51 +25,52 @@ export interface ParsedListPostsResponse {
 export function parseListPostsResponse(
   response: ListPostsResponse,
 ): ParsedListPostsResponse {
-  const includedPosts: Record<string, Post> = {};
-  const users: Record<string, User> = {};
-  const userInteractions: ParsedUserInteractions = {
+  const parsedIncludes: ParsedIncludesData = {
+    posts: {},
+    users: {},
     likedPosts: {},
     bookmarkedPosts: {},
+    media: {},
   };
 
   if (response.includes) {
-    parseIncludes(response.includes, includedPosts, users, userInteractions);
+    parseIncludes(response.includes, parsedIncludes);
   }
 
   return {
     posts: response.data,
-    includes: {
-      posts: includedPosts,
-      users,
-      userInteractions,
-    },
+    includes: parsedIncludes,
     nextCursor: response.next_cursor,
   };
 }
 
 function parseIncludes(
   includes: IncludesData,
-  posts: Record<string, Post>,
-  users: Record<string, User>,
-  userInteractions: ParsedUserInteractions,
+  parsedIncludes: ParsedIncludesData,
 ) {
   if (includes.posts) {
     includes.posts.forEach((post) => {
-      posts[post.id] = post;
+      parsedIncludes.posts[post.id] = post;
     });
   }
 
   if (includes.users) {
     includes.users.forEach((user) => {
-      users[user.id] = user;
+      parsedIncludes.users[user.id] = user;
     });
   }
 
   if (includes.user_interactions) {
     includes.user_interactions.forEach((interaction) => {
-      userInteractions.likedPosts[interaction.post_id] = interaction.is_liked;
-      userInteractions.bookmarkedPosts[interaction.post_id] =
+      parsedIncludes.likedPosts[interaction.post_id] = interaction.is_liked;
+      parsedIncludes.bookmarkedPosts[interaction.post_id] =
         interaction.is_bookmarked;
+    });
+  }
+
+  if (includes.media) {
+    includes.media.forEach((mediaItem) => {
+      parsedIncludes.media[mediaItem.media_key] = mediaItem;
     });
   }
 }
@@ -81,23 +81,20 @@ export interface ParsedGetPostResponse {
 }
 
 export function parseGetPostResponse(response: any): ParsedGetPostResponse {
-  const users: Record<string, User> = {};
-  const includedPosts: Record<string, Post> = {};
-  const userInteractions: ParsedUserInteractions = {
+  const parsedIncludes: ParsedIncludesData = {
+    posts: {},
+    users: {},
     likedPosts: {},
     bookmarkedPosts: {},
+    media: {},
   };
 
   if (response.includes) {
-    parseIncludes(response.includes, includedPosts, users, userInteractions);
+    parseIncludes(response.includes, parsedIncludes);
   }
 
   return {
     post: response.data,
-    includes: {
-      posts: includedPosts,
-      users,
-      userInteractions,
-    },
+    includes: parsedIncludes,
   };
 }

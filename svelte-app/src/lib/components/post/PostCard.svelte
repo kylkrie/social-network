@@ -1,18 +1,16 @@
 <script lang="ts" module>
   import { goto } from "$app/navigation";
-  import type {ParsedUserInteractions, ParsedIncludesData} from "$lib/api"
-
+  import type { Media } from "$lib/api"
   export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
   export type PostData = {
     user: User
     post: Post
     is_liked?: boolean
     is_bookmarked?: boolean
+    media?: Media[] 
   }
-
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
 <script lang="ts">
   import { toPostDate } from "$lib/util/date";
   import { MoreHorizontal, Users } from "lucide-svelte";
@@ -27,24 +25,30 @@
 
   $: replySource = variant === "reply_source";
   $: replyDest = variant === "reply_dest";
-  $: postDate = toPostDate(new Date(data.post.created_at))
+  $: postDate = toPostDate(new Date(data.post.created_at));
+  $: mediaItems = data.media || [];
 
   function handlePostClick() {
     if (clickable) {
-      goto(`/post/${data.post.id}`)
+      goto(`/post/${data.post.id}`);
     }
   }
 
   function handleUserClick() {
-    goto(`/profile/${data.user.username}`)
+    goto(`/profile/${data.user.username}`);
   }
 
   function handleQuoteClick() {
-    goto(`/post/${quote.post.id}`)
+    goto(`/post/${quote.post.id}`);
   }
 
   function handleMoreClick() {
     console.log("more clicked");
+  }
+
+  function handleMediaClick(event: Event, mediaItem: Media) {
+    event.stopPropagation();
+    console.log("Media clicked:", mediaItem);
   }
 </script>
 
@@ -109,6 +113,27 @@
       <p class="mb-3 text-text whitespace-pre-wrap break-words">
         {data.post.content}
       </p>
+
+      <!-- Media Grid -->
+      {#if mediaItems.length > 0}
+        <div class="mt-2 mb-3 grid gap-2" class:grid-cols-2={mediaItems.length > 1}>
+          {#each mediaItems as media, index}
+
+            <div 
+              class="relative overflow-hidden rounded-lg cursor-pointer"
+              class:col-span-2={mediaItems.length === 3 && index === 0}
+              on:click={(e) => handleMediaClick(e, media)}
+            >
+              <img 
+                src={media.url} 
+                alt="Post media" 
+                class="w-full h-full object-cover"
+                style="aspect-ratio: {media.width} / {media.height};"
+              />
+            </div>
+          {/each}
+        </div>
+      {/if}
       
       <!-- Quote section -->
       {#if quote}
@@ -143,3 +168,12 @@
     </div>
   </div>
 </div>
+
+<style>
+  .grid-cols-2 > div:first-child:nth-last-child(3),
+
+  .grid-cols-2 > div:first-child:nth-last-child(3) ~ div {
+    aspect-ratio: 16 / 9;
+  }
+
+</style>
