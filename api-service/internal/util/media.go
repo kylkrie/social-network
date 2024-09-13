@@ -1,6 +1,28 @@
 package util
 
-import "io"
+import (
+	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
+	"path/filepath"
+)
+
+func GetContentType(filename string) string {
+	ext := filepath.Ext(filename)
+	switch ext {
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".png":
+		return "image/png"
+	case ".gif":
+		return "image/gif"
+	default:
+		return "application/octet-stream"
+	}
+}
 
 func GetMediaType(contentType string) string {
 	switch contentType {
@@ -15,10 +37,10 @@ func GetMediaType(contentType string) string {
 	}
 }
 
-// Implement getImageDimensions function to get image width and height
-func GetImageDimensions(file io.Reader) (int, int) {
-	// You can use an image processing library like github.com/nfnt/resize
-	// to get the dimensions of the image
-	// For now, we'll return placeholder values
-	return 800, 600
+func GetImageDimensions(file io.Reader) (int, int, error) {
+	img, _, err := image.DecodeConfig(file)
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to get image dimenstions: %v", err)
+	}
+	return img.Width, img.Height, nil
 }

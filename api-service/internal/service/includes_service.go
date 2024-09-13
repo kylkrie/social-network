@@ -116,6 +116,7 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*d
 		}
 	}
 
+	// TODO: this shouldn't be modifying the original posts data, will fix soon
 	// Add attachments to original posts
 	for i, post := range posts {
 		if mediaKeys, ok := postIDToMediaList[post.ID]; ok && len(mediaKeys) > 0 {
@@ -131,13 +132,4 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*d
 		UserInteractions: &dtoInteractions,
 		Media:            &dtoMedia,
 	}, nil
-}
-
-// Helper function to get includes for a single post
-func (s *IncludeService) GetIncludesForPost(post *dto.Post, userID int64) (*dto.IncludeData, error) {
-	includes, err := s.GetIncludesForPosts([]dto.Post{*post}, userID)
-	if err != nil {
-		return nil, err
-	}
-	return includes, nil
 }

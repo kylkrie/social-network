@@ -4,7 +4,6 @@ import (
 	"mime/multipart"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog/log"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/service"
@@ -45,8 +44,6 @@ func CreatePost(appState *app.AppState) fiber.Handler {
 		if mediaFiles := form.File["media"]; len(mediaFiles) > 0 {
 			media = mediaFiles
 		}
-
-		log.Info().Int("len", len(media))
 
 		post, err := appState.Services.PostService.CreatePost(service.CreatePostParams{
 			UserID:        userID,

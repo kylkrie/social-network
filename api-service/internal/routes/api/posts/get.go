@@ -5,6 +5,7 @@ import (
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/db/postdb"
+	"yabro.io/social-api/internal/dto"
 	"yabro.io/social-api/internal/util"
 )
 
@@ -33,12 +34,14 @@ func GetPost(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		includes, err := appState.Services.IncludeService.GetIncludesForPost(post, userID)
+		// TODO: GetIncludesForPosts is modifying posts, clean up once that's fixed
+		posts := []dto.Post{*post}
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(posts, userID)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(fiber.Map{"data": post, "includes": includes})
+		return c.JSON(fiber.Map{"data": posts[0], "includes": includes})
 	}
 }
 

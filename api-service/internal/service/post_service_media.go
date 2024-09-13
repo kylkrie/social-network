@@ -5,7 +5,6 @@ import (
 	"mime/multipart"
 	"path/filepath"
 
-	"github.com/rs/zerolog/log"
 	"yabro.io/social-api/internal/db"
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/util"
@@ -18,7 +17,6 @@ func (s *PostService) uploadMedia(postID int64, files []*multipart.FileHeader) (
 		mediaKey := s.snowflakeNode.Generate().Int64()
 		ext := filepath.Ext(file.Filename)
 		objectName := fmt.Sprintf("%d/%d%s", postID, mediaKey, ext)
-		log.Info().Str("obj", objectName).Msg("upload")
 
 		src, err := file.Open()
 		if err != nil {
@@ -38,7 +36,10 @@ func (s *PostService) uploadMedia(postID int64, files []*multipart.FileHeader) (
 
 		mediaType := util.GetMediaType(file.Header.Get("Content-Type"))
 
-		width, height := util.GetImageDimensions(src)
+		width, height, err := util.GetImageDimensions(src)
+		if err != nil {
+			return nil, err
+		}
 
 		media = append(media, postdb.PostMedia{
 			MediaKey: mediaKey,

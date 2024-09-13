@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"path/filepath"
 
 	"github.com/minio/minio-go/v7"
+	"yabro.io/social-api/internal/util"
 )
 
 const (
@@ -28,7 +28,7 @@ func (m *MinioStorage) UploadFile(bucketName, objectName string, reader io.Reade
 
 	// Upload the file
 	_, err := m.client.PutObject(ctx, bucketName, objectName, reader, size, minio.PutObjectOptions{
-		ContentType: getContentType(objectName),
+		ContentType: util.GetContentType(objectName),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to upload file: %w", err)
@@ -51,19 +51,4 @@ func (m *MinioStorage) DeleteFile(bucketName, objectName string) error {
 func (m *MinioStorage) GetFileURL(bucketName, objectName string) (string, error) {
 	// This is a simple implementation. You might want to use pre-signed URLs for more security
 	return fmt.Sprintf("%s/%s/%s", m.cdnBaseURL, bucketName, objectName), nil
-}
-
-func getContentType(filename string) string {
-	ext := filepath.Ext(filename)
-	switch ext {
-	case ".jpg", ".jpeg":
-		return "image/jpeg"
-	case ".png":
-
-		return "image/png"
-	case ".gif":
-		return "image/gif"
-	default:
-		return "application/octet-stream"
-	}
 }
