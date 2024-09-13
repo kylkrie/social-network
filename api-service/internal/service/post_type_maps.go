@@ -90,3 +90,13 @@ func toPublicPostTags(tags *[]postdb.PostTag) []dto.PostTag {
 	}
 	return publicTags
 }
+
+func toPublicMedia(media *postdb.PostMedia) *dto.Media {
+	return &dto.Media{
+		MediaKey: util.Int64ToString(media.MediaKey),
+		Type:     media.Type,
+		URL:      media.URL,
+		Width:    media.Width,
+		Height:   media.Height,
+	}
+}

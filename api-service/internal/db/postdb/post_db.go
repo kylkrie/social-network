@@ -20,6 +20,7 @@ type PostData struct {
 	Metrics    *PostPublicMetrics
 	References *[]PostReference
 	Tags       *[]PostTag
+	Media      *[]PostMedia
 }
 
 type Post struct {
@@ -30,6 +31,16 @@ type Post struct {
 	CreatedAt      time.Time  `db:"created_at"`
 	UpdatedAt      time.Time  `db:"updated_at"`
 	DeletedAt      *time.Time `db:"deleted_at"`
+}
+
+type PostMedia struct {
+	MediaKey  int64     `db:"media_key"`
+	PostID    int64     `db:"post_id"`
+	Type      string    `db:"type"`
+	URL       string    `db:"url"`
+	Width     int       `db:"width"`
+	Height    int       `db:"height"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 type PostEdit struct {

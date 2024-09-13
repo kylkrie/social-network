@@ -2,8 +2,10 @@ package service
 
 import (
 	"fmt"
+	"mime/multipart"
 
 	"github.com/bwmarrin/snowflake"
+	"yabro.io/social-api/internal/db"
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/dto"
 	"yabro.io/social-api/internal/util"
@@ -12,12 +14,14 @@ import (
 type PostService struct {
 	postDB        *postdb.PostDB
 	snowflakeNode *snowflake.Node
+	minioStorage  *db.MinioStorage
 }
 
-func NewPostService(postDB *postdb.PostDB, snowflakeNode *snowflake.Node) (*PostService, error) {
+func NewPostService(postDB *postdb.PostDB, snowflakeNode *snowflake.Node, minioStorage *db.MinioStorage) (*PostService, error) {
 	return &PostService{
 		postDB:        postDB,
 		snowflakeNode: snowflakeNode,
+		minioStorage:  minioStorage,
 	}, nil
 }
 
@@ -35,6 +39,7 @@ type CreatePostParams struct {
 	Content       string
 	ReplyToPostID *int64
 	QuotePostID   *int64
+	Media         []*multipart.FileHeader
 }
 
 func (s *PostService) CreatePost(p CreatePostParams) (*dto.Post, error) {
@@ -84,6 +89,18 @@ func (s *PostService) CreatePost(p CreatePostParams) (*dto.Post, error) {
 	err := s.postDB.CreatePost(createParams)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create post: %w", err)
+	}
+
+	if len(p.Media) > 0 {
+		media, err := s.uploadMedia(id, p.Media)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload media: %w", err)
+		}
+
+		err = s.postDB.AddMediaToPost(id, media)
+		if err != nil {
+			return nil, fmt.Errorf("failed to add media to post: %w", err)
+		}
 	}
 
 	postData, err := s.postDB.GetPostData(id, false)

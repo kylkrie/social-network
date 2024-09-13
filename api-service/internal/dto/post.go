@@ -15,6 +15,11 @@ type Post struct {
 	Edits          []PostEdit         `json:"edits,omitempty"`
 	Tags           []PostTag          `json:"tags,omitempty"`
 	References     []PostReference    `json:"references,omitempty"`
+	Attachments    *PostAttachments   `json:"attachments,omitempty"`
+}
+
+type PostAttachments struct {
+	MediaKeys *[]string `json:"media_keys,omitempty"`
 }
 
 type PostEdit struct {
@@ -39,4 +44,12 @@ type PostPublicMetrics struct {
 type PostReference struct {
 	ReferencedPostID string `json:"referenced_post_id"`
 	ReferenceType    string `json:"reference_type"`
+}
+
+type Media struct {
+	MediaKey string `json:"media_key"`
+	Type     string `json:"type"`
+	URL      string `json:"url"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
 }

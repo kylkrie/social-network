@@ -29,7 +29,7 @@ func NewAppServices(sqlxDB *sqlx.DB, snowflakeNode *snowflake.Node, minioClient 
 		return nil, err
 	}
 
-	postService, err := service.NewPostService(postDb, snowflakeNode)
+	postService, err := service.NewPostService(postDb, snowflakeNode, minioStorage)
 	if err != nil {
 		return nil, err
 	}

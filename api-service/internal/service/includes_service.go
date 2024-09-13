@@ -85,10 +85,51 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*d
 		dtoInteractions[i] = *toPublicUserPostInteractions(&interaction)
 	}
 
+	// Fetch media
+	mediaMap, err := s.postDB.GetMediaForPosts(allUniquePostIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoMedia []dto.Media
+	mediaKeyToMedia := make(map[string]dto.Media)
+	postIDToMediaList := make(map[string][]string)
+
+	for postID, mediaList := range mediaMap {
+		postIDStr := util.Int64ToString(postID)
+		for _, m := range mediaList {
+			dtoM := toPublicMedia(&m)
+			dtoMedia = append(dtoMedia, *dtoM)
+			mediaKeyToMedia[dtoM.MediaKey] = *dtoM
+
+			// Add media key to the post's list of media keys
+			postIDToMediaList[postIDStr] = append(postIDToMediaList[postIDStr], dtoM.MediaKey)
+		}
+	}
+
+	// Add attachments to dtoPosts
+	for i, post := range dtoPosts {
+		if mediaKeys, ok := postIDToMediaList[post.ID]; ok && len(mediaKeys) > 0 {
+			dtoPosts[i].Attachments = &dto.PostAttachments{
+				MediaKeys: &mediaKeys,
+			}
+		}
+	}
+
+	// Add attachments to original posts
+	for i, post := range posts {
+		if mediaKeys, ok := postIDToMediaList[post.ID]; ok && len(mediaKeys) > 0 {
+			posts[i].Attachments = &dto.PostAttachments{
+				MediaKeys: &mediaKeys,
+			}
+		}
+	}
+
 	return &dto.IncludeData{
 		Users:            &dtoUsers,
 		Posts:            &dtoPosts,
 		UserInteractions: &dtoInteractions,
+		Media:            &dtoMedia,
 	}, nil
 }
 

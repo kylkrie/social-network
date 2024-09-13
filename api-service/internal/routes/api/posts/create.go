@@ -1,45 +1,59 @@
 package posts
 
 import (
+	"mime/multipart"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/service"
 	"yabro.io/social-api/internal/util"
 )
 
-type CreatePostRequest struct {
-	Content       string  `json:"content" validate:"required"`
-	ReplyToPostID *string `json:"reply_to_post_id"`
-	QuotePostID   *string `json:"quote_post_id"`
-}
-
 func CreatePost(appState *app.AppState) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req CreatePostRequest
-		if err := c.BodyParser(&req); err != nil {
-			return err
-		}
-
-		if err := appState.Validator.Struct(req); err != nil {
-			return err
-		}
-
-		replyToPostID, err := util.NullableStringToInt64(req.ReplyToPostID)
-		if err != nil {
-			return err
-		}
-		quotePostID, err := util.NullableStringToInt64(req.QuotePostID)
-		if err != nil {
-			return err
-		}
-
 		userID := auth.GetUserID(c)
+
+		content := c.FormValue("content")
+		var replyToPostID *int64
+		replyToPostIDStr := c.FormValue("reply_to_post_id")
+		if replyToPostIDStr != "" {
+			var err error
+			replyToPostID, err = util.NullableStringToInt64(&replyToPostIDStr)
+			if err != nil {
+				return err
+			}
+		}
+
+		var quotePostID *int64
+		quotePostIDStr := c.FormValue("quote_post_id")
+		if quotePostIDStr != "" {
+			var err error
+			quotePostID, err = util.NullableStringToInt64(&quotePostIDStr)
+			if err != nil {
+				return err
+			}
+		}
+
+		form, err := c.MultipartForm()
+		if err != nil {
+			return err
+		}
+
+		var media []*multipart.FileHeader
+		if mediaFiles := form.File["media"]; len(mediaFiles) > 0 {
+			media = mediaFiles
+		}
+
+		log.Info().Int("len", len(media))
+
 		post, err := appState.Services.PostService.CreatePost(service.CreatePostParams{
 			UserID:        userID,
-			Content:       req.Content,
+			Content:       content,
 			ReplyToPostID: replyToPostID,
 			QuotePostID:   quotePostID,
+			Media:         media,
 		})
 		if err != nil {
 			return err

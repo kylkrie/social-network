@@ -4,6 +4,7 @@ type IncludeData struct {
 	Posts            *[]Post                `json:"posts,omitempty"`
 	Users            *[]User                `json:"users,omitempty"`
 	UserInteractions *[]UserPostInteraction `json:"user_interactions,omitempty"`
+	Media            *[]Media               `json:"media,omitempty"`
 }
 
 type UserPostInteraction struct {

@@ -16,6 +16,7 @@
   import { MoreHorizontal, Users } from "lucide-svelte";
   import type { Post, User } from "$lib/api";
   import PostActionButtons from "./PostActionButtons.svelte";
+  import Lightbox from "../layout/Lightbox.svelte"
 
   export let data: PostData;
   export let variant: PostCardVariant = "normal";
@@ -46,9 +47,18 @@
     console.log("more clicked");
   }
 
-  function handleMediaClick(event: Event, mediaItem: Media) {
+  let lightboxIndex = 0;
+  let lightboxIsOpen = false;
+
+  function handleMediaClick(event: Event, index: number) {
     event.stopPropagation();
-    console.log("Media clicked:", mediaItem);
+    lightboxIndex = index;
+    lightboxIsOpen = true;
+  }
+
+
+  function handleLightboxClose() {
+    lightboxIsOpen = false;
   }
 </script>
 
@@ -114,15 +124,15 @@
         {data.post.content}
       </p>
 
+
       <!-- Media Grid -->
       {#if mediaItems.length > 0}
         <div class="mt-2 mb-3 grid gap-2" class:grid-cols-2={mediaItems.length > 1}>
           {#each mediaItems as media, index}
-
             <div 
               class="relative overflow-hidden rounded-lg cursor-pointer"
               class:col-span-2={mediaItems.length === 3 && index === 0}
-              on:click={(e) => handleMediaClick(e, media)}
+              on:click={(e) => handleMediaClick(e, index)}
             >
               <img 
                 src={media.url} 
@@ -168,6 +178,14 @@
     </div>
   </div>
 </div>
+
+
+<Lightbox 
+  images={mediaItems} 
+  initialIndex={lightboxIndex} 
+  bind:isOpen={lightboxIsOpen} 
+  on:close={handleLightboxClose}
+/>
 
 <style>
   .grid-cols-2 > div:first-child:nth-last-child(3),

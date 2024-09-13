@@ -116,7 +116,7 @@ services:
       /usr/bin/mc mb social/profiles --ignore-existing;
       /usr/bin/mc mb social/media --ignore-existing;
       /usr/bin/mc anonymous set download social/profiles;
-      /usr/bin/mc anonymous set none social/media;
+      /usr/bin/mc anonymous set download social/media;
       exit 0;
       "
 
