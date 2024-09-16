@@ -1,3 +1,6 @@
+import type { IncludesData } from "../includes";
+import type { Post } from "../posts";
+
 // User DTOs
 export interface User {
   id: string;
@@ -48,4 +51,16 @@ export interface GetUserParams {
 
 export interface GetCurrentUserParams {
   profile?: boolean;
+}
+
+export interface ListPostsParams {
+  limit?: number;
+  cursor?: string;
+  replies?: boolean;
+  conversation_id?: string;
+}
+
+export interface ListFeedParams {
+  limit?: number;
+  cursor?: string;
 }

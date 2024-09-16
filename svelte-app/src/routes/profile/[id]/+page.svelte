@@ -13,11 +13,10 @@
 
   $: username = $page.params.id;
 
-  $: postsQuery =
-    activeTab === "Posts" ? useListPosts({ username }) : undefined;
+  $: postsQuery = activeTab === "Posts" ? useListPosts(username) : undefined;
   $: repliesQuery =
     activeTab === "Replies"
-      ? useListPosts({ username, replies: true })
+      ? useListPosts(username, { replies: true })
       : undefined;
   $: likesQuery = activeTab === "Likes" ? useUserLikes(username) : undefined;
 

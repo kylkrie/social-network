@@ -4,6 +4,7 @@
   import PostCard from "$lib/components/post/PostCard.svelte";
   import PostFeed from "$lib/components/post/PostFeed.svelte";
   import { useGetPost, useListPosts } from "$lib/queries";
+  import { useListReplies } from "$lib/queries/posts/listReplies";
   import { buildPostData, getQuoteForPost, getReplyForPost } from "$lib/util";
   import { ArrowLeft } from "lucide-svelte";
 
@@ -14,9 +15,7 @@
   $: postData = post ? buildPostData(post, includes) : undefined;
   $: replyPost = post ? getReplyForPost(post, includes) : undefined;
   $: quotePost = post ? getQuoteForPost(post, includes) : undefined;
-  $: feed = post
-    ? useListPosts({ conversation_id: post.conversation_id || post.id })
-    : undefined;
+  $: feed = useListReplies(postId);
 
   function goBack() {
     history.back();
@@ -32,13 +31,23 @@
   </div>
   {#if postData}
     {#if replyPost}
-      <PostCard data={replyPost} variant="reply_source" />
-      <PostCard data={postData} variant="reply_dest" clickable={false} />
+      <PostCard data={replyPost} variant="reply_start" />
+      <PostCard
+        data={postData}
+        variant="reply_end"
+        clickable={false}
+        showReplyInput={true}
+      />
     {:else}
-      <PostCard data={postData} quote={quotePost} clickable={false} />
+      <PostCard
+        data={postData}
+        quote={quotePost}
+        clickable={false}
+        showReplyInput={true}
+      />
     {/if}
   {/if}
   {#if feed && $feed.data.posts?.length > 0}
-    <PostFeed postData={feed} />
+    <PostFeed postData={feed} showReplySource={false} />
   {/if}
 </PageContent>

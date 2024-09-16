@@ -69,13 +69,9 @@ export interface UpdatePostRequest {
 }
 
 // Query Parameter DTOs
-export interface ListPostsParams {
-  user_id?: string;
-  username?: string;
+export interface GetPostParams {}
+
+export interface ListRepliesParams {
   limit?: number;
   cursor?: string;
-  replies?: boolean;
-  conversation_id?: string;
 }
-
-export interface GetPostParams {}

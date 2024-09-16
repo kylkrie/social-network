@@ -1,10 +1,10 @@
 package service
 
 import (
+	"context"
+
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/db/userdb"
-	"yabro.io/social-api/internal/dto"
-	"yabro.io/social-api/internal/util"
 )
 
 type IncludeService struct {
@@ -19,18 +19,26 @@ func NewIncludeService(userDB *userdb.UserDB, postDB *postdb.PostDB) *IncludeSer
 	}
 }
 
-func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*dto.IncludeData, error) {
+type IncludeData struct {
+	Posts        []postdb.Post
+	Users        []userdb.User
+	Metrics      map[int64]postdb.PostPublicMetrics
+	Media        map[int64][]postdb.PostMedia
+	Interactions map[int64]postdb.UserPostInteraction
+}
+
+func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostData, userID int64) (*IncludeData, error) {
 	// Collect unique IDs for original post set
-	authorIDs := make(map[string]struct{})
-	allPostIDs := make(map[string]struct{})
-	otherPostIDs := make(map[string]struct{})
+	authorIDs := make(map[int64]struct{})
+	allPostIDs := make(map[int64]struct{})
+	otherPostIDs := make(map[int64]struct{})
 
 	for _, post := range posts {
-		authorIDs[post.AuthorID] = struct{}{}
-		allPostIDs[post.ID] = struct{}{} // Add original post IDs
-		if post.ConversationID != nil {
-			otherPostIDs[*post.ConversationID] = struct{}{}
-			allPostIDs[*post.ConversationID] = struct{}{}
+		authorIDs[post.Post.AuthorID] = struct{}{}
+		allPostIDs[post.Post.ID] = struct{}{} // Add original post IDs
+		if post.Post.ConversationID != nil {
+			otherPostIDs[*post.Post.ConversationID] = struct{}{}
+			allPostIDs[*post.Post.ConversationID] = struct{}{}
 		}
 		for _, ref := range post.References {
 			otherPostIDs[ref.ReferencedPostID] = struct{}{}
@@ -38,98 +46,55 @@ func (s *IncludeService) GetIncludesForPosts(posts []dto.Post, userID int64) (*d
 		}
 	}
 
-	// Fetch include Posts
+	// get unique IDs
 	uniqueOtherPostIDs := make([]int64, 0, len(otherPostIDs))
 	for id := range otherPostIDs {
-		uniqueOtherPostIDs = append(uniqueOtherPostIDs, util.StringToInt64MustParse(id))
+		uniqueOtherPostIDs = append(uniqueOtherPostIDs, id)
 	}
-	includePosts, err := s.postDB.GetMany(uniqueOtherPostIDs)
+	allUniquePostIDs := make([]int64, 0, len(allPostIDs))
+	for id := range allPostIDs {
+		allUniquePostIDs = append(allUniquePostIDs, id)
+	}
+	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
+	for id := range authorIDs {
+		uniqueAuthorIDs = append(uniqueAuthorIDs, id)
+	}
+
+	// Fetch include Posts
+	includePosts, err := s.postDB.GetPosts(ctx, uniqueOtherPostIDs)
 	if err != nil {
 		return nil, err
 	}
-	dtoPosts := make([]dto.Post, len(includePosts))
-	for i, post := range includePosts {
-		dtoPost := *toPublicPost(postdb.PostData{Post: post.Post, Metrics: &post.PublicMetrics})
-		dtoPosts[i] = dtoPost
-		// add include post author IDs
-		authorIDs[dtoPost.AuthorID] = struct{}{}
+
+	// Fetch metrics
+	includePostMetrics, err := s.postDB.GetPublicMetricsForPosts(ctx, uniqueOtherPostIDs)
+	if err != nil {
+		return nil, err
 	}
 
 	// Fetch includeUsers
-	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
-	for id := range authorIDs {
-		uniqueAuthorIDs = append(uniqueAuthorIDs, util.StringToInt64MustParse(id))
-	}
-	includeUsers, err := s.userDB.GetMany(uniqueAuthorIDs)
+	includeUsers, err := s.userDB.GetMany(ctx, uniqueAuthorIDs)
 	if err != nil {
 		return nil, err
-	}
-	dtoUsers := make([]dto.User, len(includeUsers))
-	for i, user := range includeUsers {
-		dtoUsers[i] = toPublicUser(user, nil)
 	}
 
 	// Get user interactions for all unique post IDs
-	allUniquePostIDs := make([]int64, 0, len(allPostIDs))
-	for id := range allPostIDs {
-		allUniquePostIDs = append(allUniquePostIDs, util.StringToInt64MustParse(id))
-	}
-	interactions, err := s.postDB.GetUserPostInteractions(allUniquePostIDs, userID)
+	interactions, err := s.postDB.GetUserPostInteractions(ctx, allUniquePostIDs, userID)
 	if err != nil {
 		return nil, err
-	}
-
-	// Convert interactions to dtos
-	dtoInteractions := make([]dto.UserPostInteraction, len(interactions))
-	for i, interaction := range interactions {
-		dtoInteractions[i] = *toPublicUserPostInteractions(&interaction)
 	}
 
 	// Fetch media
-	mediaMap, err := s.postDB.GetMediaForPosts(allUniquePostIDs)
+	mediaMap, err := s.postDB.GetMediaForPosts(ctx, allUniquePostIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	var dtoMedia []dto.Media
-	mediaKeyToMedia := make(map[string]dto.Media)
-	postIDToMediaList := make(map[string][]string)
-
-	for postID, mediaList := range mediaMap {
-		postIDStr := util.Int64ToString(postID)
-		for _, m := range mediaList {
-			dtoM := toPublicMedia(&m)
-			dtoMedia = append(dtoMedia, *dtoM)
-			mediaKeyToMedia[dtoM.MediaKey] = *dtoM
-
-			// Add media key to the post's list of media keys
-			postIDToMediaList[postIDStr] = append(postIDToMediaList[postIDStr], dtoM.MediaKey)
-		}
-	}
-
-	// Add attachments to dtoPosts
-	for i, post := range dtoPosts {
-		if mediaKeys, ok := postIDToMediaList[post.ID]; ok && len(mediaKeys) > 0 {
-			dtoPosts[i].Attachments = &dto.PostAttachments{
-				MediaKeys: &mediaKeys,
-			}
-		}
-	}
-
-	// TODO: this shouldn't be modifying the original posts data, will fix soon
-	// Add attachments to original posts
-	for i, post := range posts {
-		if mediaKeys, ok := postIDToMediaList[post.ID]; ok && len(mediaKeys) > 0 {
-			posts[i].Attachments = &dto.PostAttachments{
-				MediaKeys: &mediaKeys,
-			}
-		}
-	}
-
-	return &dto.IncludeData{
-		Users:            &dtoUsers,
-		Posts:            &dtoPosts,
-		UserInteractions: &dtoInteractions,
-		Media:            &dtoMedia,
+	return &IncludeData{
+		Users:        includeUsers,
+		Posts:        includePosts,
+		Metrics:      includePostMetrics,
+		Interactions: interactions,
+		Media:        mediaMap,
 	}, nil
 }

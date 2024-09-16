@@ -16,7 +16,8 @@ func BookmarkPost(appState *app.AppState) fiber.Handler {
 
 		userID := auth.GetUserID(c)
 
-		err = appState.Services.PostService.BookmarkPost(postID, userID)
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.BookmarkPost(ctx, postID, userID)
 		if err != nil {
 			return err
 		}
@@ -34,7 +35,8 @@ func UnbookmarkPost(appState *app.AppState) fiber.Handler {
 
 		userID := auth.GetUserID(c)
 
-		err = appState.Services.PostService.UnbookmarkPost(postID, userID)
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.UnbookmarkPost(ctx, postID, userID)
 		if err != nil {
 			return err
 		}

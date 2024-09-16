@@ -32,12 +32,12 @@ func GetUser(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		user, err := appState.Services.UserService.GetUserByUsername(req.Username, req.Profile)
+		userData, err := appState.Services.UserService.GetUserByUsername(req.Username, req.Profile)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(GetUserResponse{Data: *user})
+		return c.JSON(GetUserResponse{Data: ToPublicUser(*userData)})
 	}
 }
 
@@ -53,11 +53,11 @@ func GetUserMe(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		user, err := appState.Services.UserService.GetUserByID(userID, req.Profile)
+		userData, err := appState.Services.UserService.GetUserByID(userID, req.Profile)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(GetUserResponse{Data: *user})
+		return c.JSON(GetUserResponse{Data: ToPublicUser(*userData)})
 	}
 }

@@ -1,38 +1,39 @@
 package service
 
 import (
+	"context"
 	"fmt"
-
-	"yabro.io/social-api/internal/dto"
-	"yabro.io/social-api/internal/util"
 )
 
-func (s *PostService) LikePost(postID, userID int64) error {
-	err := s.postDB.LikePost(postID, userID)
+func (s *PostService) LikePost(ctx context.Context, postID, userID int64) error {
+	err := s.postDB.LikePost(ctx, postID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to like post: %w", err)
 	}
 	return nil
 }
 
-func (s *PostService) UnlikePost(postID, userID int64) error {
-	err := s.postDB.UnlikePost(postID, userID)
+func (s *PostService) UnlikePost(ctx context.Context, postID, userID int64) error {
+	err := s.postDB.UnlikePost(ctx, postID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to unlike post: %w", err)
 	}
 	return nil
 }
 
-func (s *PostService) ListUserLikes(userID int64, limit int, cursor *int64) ([]dto.Post, *string, error) {
-	posts, nextCursor, err := s.postDB.ListUserLikes(userID, limit, cursor)
+func (s *PostService) ListUserLikes(ctx context.Context, userID int64, limit int, cursor *int64) ([]PostData, *int64, error) {
+	postsWithMetrics, nextCursor, err := s.postDB.ListUserLikes(ctx, userID, limit, cursor)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to list user likes: %w", err)
+		return nil, nil, err
 	}
 
-	publicPosts := make([]dto.Post, len(posts))
-	for i, post := range posts {
-		publicPosts[i] = *toPublicPost(post)
+	postDatas := make([]PostData, len(postsWithMetrics))
+	for i, post := range postsWithMetrics {
+		postDatas[i] = PostData{
+			Post:    post.Post,
+			Metrics: &post.Metrics,
+		}
 	}
 
-	return publicPosts, util.NullableInt64ToString(nextCursor), nil
+	return postDatas, nextCursor, nil
 }

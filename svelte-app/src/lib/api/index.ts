@@ -1,9 +1,5 @@
-import type { Post } from "./posts";
-import type { User } from "./users";
-
 export * from "./users";
 export * from "./posts";
-export * from "./feed";
 export * from "./api";
 export * from "./includes";
 

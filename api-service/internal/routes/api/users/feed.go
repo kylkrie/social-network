@@ -1,10 +1,11 @@
-package feed
+package users
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/db/postdb"
+	"yabro.io/social-api/internal/routes/api/posts"
 )
 
 type ListFeedQuery struct {
@@ -28,7 +29,8 @@ func ListFeed(appState *app.AppState) fiber.Handler {
 			limit = *query.Limit
 		}
 
-		posts, nextCursor, err := appState.Services.PostService.ListPosts(postdb.ListPostParams{
+		ctx := app.CreateContext(c)
+		postDatas, nextCursor, err := appState.Services.PostService.ListPosts(ctx, postdb.ListPostParams{
 			Limit:  limit,
 			Cursor: query.Cursor,
 		})
@@ -37,19 +39,12 @@ func ListFeed(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(posts, userID)
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postDatas, userID)
 		if err != nil {
 			return err
 		}
 
-		response := fiber.Map{
-			"data":     posts,
-			"includes": includes,
-		}
-		if nextCursor != nil {
-			response["next_cursor"] = *nextCursor
-		}
-
+		response := posts.ToPostListResponse(postDatas, *includes, nextCursor)
 		return c.JSON(response)
 	}
 }

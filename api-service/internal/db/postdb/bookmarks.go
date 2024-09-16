@@ -1,39 +1,54 @@
 package postdb
 
 import (
+	"context"
 	"fmt"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func (pdb *PostDB) BookmarkPost(postID, userID int64) error {
+func (pdb *PostDB) BookmarkPost(ctx context.Context, postID, userID int64, tx *sqlx.Tx) (bool, error) {
+	exec := pdb.GetExecer(tx)
 	query := `
-
         INSERT INTO post_bookmarks (post_id, user_id)
         VALUES ($1, $2)
         ON CONFLICT (post_id, user_id) DO NOTHING
     `
-	_, err := pdb.db.Exec(query, postID, userID)
+	result, err := exec.ExecContext(ctx, query, postID, userID)
 	if err != nil {
-		return fmt.Errorf("failed to bookmark post: %w", err)
+		return false, fmt.Errorf("failed to bookmark post: %w", err)
 	}
-	return nil
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return rowsAffected > 0, nil
 }
 
-func (pdb *PostDB) UnbookmarkPost(postID, userID int64) error {
+func (pdb *PostDB) UnbookmarkPost(ctx context.Context, postID, userID int64, tx *sqlx.Tx) (bool, error) {
+	exec := pdb.GetExecer(tx)
 	query := `
         DELETE FROM post_bookmarks
         WHERE post_id = $1 AND user_id = $2
-
     `
 
-	_, err := pdb.db.Exec(query, postID, userID)
+	result, err := exec.ExecContext(ctx, query, postID, userID)
 	if err != nil {
-		return fmt.Errorf("failed to unbookmark post: %w", err)
+		return false, fmt.Errorf("failed to unbookmark post: %w", err)
 	}
-	return nil
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return rowsAffected > 0, nil
 }
 
-func (pdb *PostDB) ListUserBookmarks(userID int64, limit int, cursor *int64) ([]PostData, *int64, error) {
+func (pdb *PostDB) ListUserBookmarks(ctx context.Context, userID int64, limit int, cursor *int64) ([]PostWithMetrics, *int64, error) {
 	query := strings.Builder{}
 	query.WriteString(`
         SELECT p.*, m.reposts, m.replies, m.likes, m.views
@@ -55,18 +70,17 @@ func (pdb *PostDB) ListUserBookmarks(userID int64, limit int, cursor *int64) ([]
 
 	args = append(args, limit+1)
 
-	rows, err := pdb.db.Queryx(query.String(), args...)
+	rows, err := pdb.db.QueryxContext(ctx, query.String(), args...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list user bookmarks: %w", err)
 	}
 	defer rows.Close()
 
-	var posts []PostData
+	var posts []PostWithMetrics
 	for rows.Next() {
 		var post Post
 		var metrics PostPublicMetrics
 		err := rows.Scan(
-
 			&post.ID, &post.Content, &post.AuthorID, &post.ConversationID,
 			&post.CreatedAt, &post.UpdatedAt, &post.DeletedAt,
 			&metrics.Reposts, &metrics.Replies, &metrics.Likes, &metrics.Views,
@@ -74,12 +88,11 @@ func (pdb *PostDB) ListUserBookmarks(userID int64, limit int, cursor *int64) ([]
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to scan post: %w", err)
 		}
-		posts = append(posts, PostData{Post: post, Metrics: &metrics})
+		posts = append(posts, PostWithMetrics{Post: post, Metrics: metrics})
 	}
 
 	var nextCursor *int64
 	if len(posts) > limit {
-
 		nextCursor = &posts[limit-1].Post.ID
 		posts = posts[:limit]
 	}

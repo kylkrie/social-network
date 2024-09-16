@@ -1,9 +1,9 @@
 -- +goose Up
 CREATE TABLE post_references (
-    id BIGINT PRIMARY KEY,
     source_post_id BIGINT NOT NULL,
     referenced_post_id BIGINT NOT NULL,
-    reference_type VARCHAR(50) NOT NULL
+    reference_type VARCHAR(50) NOT NULL,
+    PRIMARY KEY (source_post_id, referenced_post_id, reference_type)
     --FOREIGN KEY (source_post_id) REFERENCES posts(id) ON DELETE CASCADE,
     --FOREIGN KEY (referenced_post_id) REFERENCES posts(id) ON DELETE CASCADE
 );

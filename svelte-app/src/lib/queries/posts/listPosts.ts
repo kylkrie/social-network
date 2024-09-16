@@ -3,13 +3,11 @@ import {
   type InfiniteData,
   type InfiniteQueryObserverResult,
 } from "@tanstack/svelte-query";
-import { postsApi } from "$lib/api/posts";
 import type {
-  ListPostsParams,
   ParsedIncludesData,
   ParsedListPostsResponse,
 } from "$lib/api/posts";
-import type { Post } from "$lib/api";
+import { usersApi, type ListPostsParams, type Post } from "$lib/api";
 import { QK_POSTS } from "./consts";
 import { derived, type Readable } from "svelte/store";
 
@@ -27,12 +25,19 @@ export interface ListPostsQueryResult {
 }
 
 export function useListPosts(
+  username: string,
   params: ListPostsParams = {},
 ): Readable<ListPostsQueryResult> {
   const query = createInfiniteQuery<ParsedListPostsResponse, Error>({
-    queryKey: [QK_POSTS, "post", params.conversation_id, params.replies],
+    queryKey: [
+      QK_POSTS,
+      "post",
+      username,
+      params.conversation_id,
+      params.replies,
+    ],
     queryFn: ({ pageParam = undefined }) => {
-      return postsApi.listPosts({
+      return usersApi.listPosts(username, {
         ...params,
         cursor: pageParam as string | undefined,
       });

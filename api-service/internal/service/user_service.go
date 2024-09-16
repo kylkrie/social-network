@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"yabro.io/social-api/internal/db"
 	"yabro.io/social-api/internal/db/userdb"
-	"yabro.io/social-api/internal/dto"
 )
 
 type UserService struct {
@@ -28,7 +27,12 @@ func (s *UserService) GetUserID(authUUID uuid.UUID) (int64, error) {
 	return s.userDB.GetUserID(authUUID)
 }
 
-func (s *UserService) GetUserByID(id int64, includeProfile bool) (*dto.User, error) {
+type UserData struct {
+	User    userdb.User
+	Profile *userdb.UserProfile
+}
+
+func (s *UserService) GetUserByID(id int64, includeProfile bool) (*UserData, error) {
 	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{ID: &id},
 		includeProfile,
@@ -37,11 +41,13 @@ func (s *UserService) GetUserByID(id int64, includeProfile bool) (*dto.User, err
 		return nil, err
 	}
 
-	publicUser := toPublicUser(user, profile)
-	return &publicUser, nil
+	return &UserData{
+		User:    *user,
+		Profile: profile,
+	}, nil
 }
 
-func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*dto.User, error) {
+func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*UserData, error) {
 	user, profile, err := s.userDB.GetUser(
 		userdb.UserLookup{Username: &username},
 		includeProfile,
@@ -50,11 +56,13 @@ func (s *UserService) GetUserByUsername(username string, includeProfile bool) (*
 		return nil, err
 	}
 
-	publicUser := toPublicUser(user, profile)
-	return &publicUser, nil
+	return &UserData{
+		User:    *user,
+		Profile: profile,
+	}, nil
 }
 
-func (s *UserService) CreateUser(authUUID uuid.UUID, name string, username string) (*userdb.User, error) {
+func (s *UserService) CreateUser(authUUID uuid.UUID, name string, username string) (*UserData, error) {
 	// Generate a new snowflake ID
 	id := s.snowflakeNode.Generate().Int64()
 
@@ -70,5 +78,5 @@ func (s *UserService) CreateUser(authUUID uuid.UUID, name string, username strin
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return user, nil
+	return &UserData{User: *user}, nil
 }

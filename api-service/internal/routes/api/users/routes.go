@@ -7,11 +7,13 @@ import (
 
 func SetupRoutes(router fiber.Router, appState *app.AppState) {
 	profilesGroup := router.Group("/users")
-	profilesGroup.Get("", GetUserMe(appState))
-	profilesGroup.Put("", UpdateUserMe(appState))
+	profilesGroup.Get("/me", GetUserMe(appState))
+	profilesGroup.Put("/me", UpdateUserMe(appState))
+	profilesGroup.Post("/me/pfp", UploadProfilePicture(appState))
+	profilesGroup.Post("/me/pfbanner", UploadProfileBanner(appState))
+	profilesGroup.Get("/me/feed", ListFeed(appState))
 	profilesGroup.Get("/:username", GetUser(appState))
 	profilesGroup.Get("/:username/likes", GetUserLikes(appState))
 	profilesGroup.Get("/:username/bookmarks", GetUserBookmarks(appState))
-	profilesGroup.Post("/pfp", UploadProfilePicture(appState))
-	profilesGroup.Post("/pfbanner", UploadProfileBanner(appState))
+	profilesGroup.Get("/:username/posts", ListPosts(appState))
 }

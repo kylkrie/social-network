@@ -1,13 +1,14 @@
 package userdb
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
 
-func (udb *UserDB) GetMany(ids []int64) ([]*User, error) {
+func (udb *UserDB) GetMany(ctx context.Context, ids []int64) ([]User, error) {
 	if len(ids) == 0 {
-		return []*User{}, nil
+		return []User{}, nil
 	}
 
 	// Create a string of placeholders for the SQL query
@@ -24,8 +25,8 @@ func (udb *UserDB) GetMany(ids []int64) ([]*User, error) {
 		WHERE id IN (%s)
 	`, strings.Join(placeholders, ","))
 
-	var users []*User
-	err := udb.db.Select(&users, query, args...)
+	var users []User
+	err := udb.db.SelectContext(ctx, &users, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list users: %w", err)
 	}

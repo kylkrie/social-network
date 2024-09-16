@@ -1,16 +1,8 @@
 <script lang="ts">
   import { theme, toggleTheme } from "$lib/theme";
   import { Sun, Moon } from "lucide-svelte";
-  import { onMount } from "svelte";
 
-  let currentTheme: "light" | "dark";
-
-  onMount(() => {
-    // Ensure the initial theme is applied
-    theme.subscribe((value) => {
-      currentTheme = value;
-    });
-  });
+  $: currentTheme = $theme;
 
   function handleToggle() {
     toggleTheme();

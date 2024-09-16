@@ -45,7 +45,8 @@ func CreatePost(appState *app.AppState) fiber.Handler {
 			media = mediaFiles
 		}
 
-		post, err := appState.Services.PostService.CreatePost(service.CreatePostParams{
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.CreatePost(ctx, service.CreatePostParams{
 			UserID:        userID,
 			Content:       content,
 			ReplyToPostID: replyToPostID,
@@ -56,6 +57,6 @@ func CreatePost(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": post})
+		return c.SendStatus(fiber.StatusCreated)
 	}
 }

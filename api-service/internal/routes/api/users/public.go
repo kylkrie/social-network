@@ -1,12 +1,14 @@
-package service
+package users
 
 import (
 	"yabro.io/social-api/internal/db/userdb"
 	"yabro.io/social-api/internal/dto"
+	"yabro.io/social-api/internal/service"
 	"yabro.io/social-api/internal/util"
 )
 
-func toPublicUser(user *userdb.User, profile *userdb.UserProfile) dto.User {
+func ToPublicUser(userData service.UserData) dto.User {
+	user := userData.User
 	return dto.User{
 		ID:   util.Int64ToString(user.ID),
 		Name: user.Name,
@@ -16,7 +18,7 @@ func toPublicUser(user *userdb.User, profile *userdb.UserProfile) dto.User {
 		Protected: user.Protected,
 		CreatedAt: user.CreatedAt,
 
-		Profile: toPublicProfile(profile),
+		Profile: toPublicProfile(userData.Profile),
 	}
 }
 

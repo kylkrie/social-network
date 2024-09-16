@@ -1,5 +1,5 @@
 <script>
-  import { useListFeed } from "$lib/queries/posts/feed";
+  import { useListFeed } from "$lib/queries";
   import PageContent from "../layout/PageContent.svelte";
   import PostFeed from "../post/PostFeed.svelte";
   import FeedHeader from "./FeedHeader.svelte";

@@ -10,8 +10,8 @@ import (
 	"yabro.io/social-api/internal/util"
 )
 
-func (s *PostService) uploadMedia(postID int64, files []*multipart.FileHeader) ([]postdb.PostMedia, error) {
-	var media []postdb.PostMedia
+func (s *PostService) uploadMedia(postID int64, userID int64, files []*multipart.FileHeader) ([]postdb.CreatePostMediaParams, error) {
+	var media []postdb.CreatePostMediaParams
 
 	for _, file := range files {
 		mediaKey := s.snowflakeNode.Generate().Int64()
@@ -41,16 +41,14 @@ func (s *PostService) uploadMedia(postID int64, files []*multipart.FileHeader) (
 			return nil, err
 		}
 
-		media = append(media, postdb.PostMedia{
+		media = append(media, postdb.CreatePostMediaParams{
 			MediaKey: mediaKey,
 			PostID:   postID,
+			UserID:   userID,
 			Type:     mediaType,
-
-			URL: url,
-
-			Width: width,
-
-			Height: height,
+			URL:      url,
+			Width:    width,
+			Height:   height,
 		})
 	}
 

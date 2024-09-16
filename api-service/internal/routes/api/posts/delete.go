@@ -14,7 +14,8 @@ func DeletePost(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-		err = appState.Services.PostService.DeletePost(int64(id), userID)
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.DeletePost(ctx, int64(id), userID)
 		if err != nil {
 			return err
 		}

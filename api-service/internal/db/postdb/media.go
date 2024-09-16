@@ -1,60 +1,36 @@
 package postdb
 
 import (
-	"fmt"
+	"context"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+	"yabro.io/social-api/internal/db/entity"
 )
 
-func (pdb *PostDB) AddMediaToPost(postID int64, media []PostMedia) error {
-	query := `
-		INSERT INTO post_media (media_key, post_id, type, url, width, height)
-		VALUES (:media_key, :post_id, :type, :url, :width, :height)
-	`
-
-	for i := range media {
-		media[i].PostID = postID
-	}
-
-	_, err := pdb.db.NamedExec(query, media)
-	if err != nil {
-		return fmt.Errorf("failed to add media to post: %w", err)
-	}
-
-	return nil
+type CreatePostMediaParams struct {
+	MediaKey int64  `db:"media_key"`
+	PostID   int64  `db:"post_id"`
+	UserID   int64  `db:"user_id"`
+	Type     string `db:"type"`
+	URL      string `db:"url"`
+	Width    int    `db:"width"`
+	Height   int    `db:"height"`
 }
 
-func (pdb *PostDB) GetMediaForPost(postID int64) ([]PostMedia, error) {
-	var media []PostMedia
-	query := `
-		SELECT * FROM post_media
-		WHERE post_id = $1
-		ORDER BY media_key
-	`
-
-	err := pdb.db.Select(&media, query, postID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get media for post: %w", err)
-	}
-
-	return media, nil
+type PostMedia struct {
+	CreatePostMediaParams
+	CreatedAt time.Time `db:"created_at"`
 }
 
-func (pdb *PostDB) GetMediaForPosts(postIDs []int64) (map[int64][]PostMedia, error) {
-	var media []PostMedia
-	query := `
-		SELECT * FROM post_media
-		WHERE post_id = ANY($1)
-		ORDER BY post_id, media_key
-	`
+func (pm PostMedia) GetReferenceID() int64 { return pm.PostID }
 
-	err := pdb.db.Select(&media, query, postIDs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get media for posts: %w", err)
-	}
+func (pdb *PostDB) CreateMedia(ctx context.Context, media []CreatePostMediaParams, tx *sqlx.Tx) error {
+	exec := pdb.GetExecer(tx)
+	return entity.CreateEntities(ctx, exec, "post_media", media)
+}
 
-	mediaMap := make(map[int64][]PostMedia)
-	for _, m := range media {
-		mediaMap[m.PostID] = append(mediaMap[m.PostID], m)
-	}
-
-	return mediaMap, nil
+func (pdb *PostDB) GetMediaForPosts(ctx context.Context, postIDs []int64) (map[int64][]PostMedia, error) {
+	idColName := "media_key"
+	return entity.GetEntitiesForIDs[PostMedia](ctx, pdb.db, postIDs, "post_media", "post_id", &idColName)
 }

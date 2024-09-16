@@ -49,19 +49,19 @@ prod-logs: ## Show logs from all containers (production environment)
 	@echo "Showing logs for production environment..."
 	COMPOSE_PROJECT_NAME=$(PROJECT_PROD) docker compose -f docker-compose.prod.yml logs -f
 
-clean-postgres-volume-dev: ## Stop and remove PostgreSQL volume (development)
+clean-postgres-volume: ## Stop and remove PostgreSQL volume (development)
 	@echo "Removing PostgreSQL volume for development environment..."
 	docker volume rm $(PROJECT_LOCAL)_postgres_data || true
 
-clean-postgres-volume-prod: ## Stop and remove PostgreSQL volume (production)
+prod-clean-postgres-volume: ## Stop and remove PostgreSQL volume (production)
 	@echo "Removing PostgreSQL volume for production environment..."
 	docker volume rm $(PROJECT_PROD)_postgres_social_data || true
 
-clean-minio-volume-dev: ## Stop and remove PostgreSQL volume (development)
+clean-minio-volume: ## Stop and remove PostgreSQL volume (development)
 	@echo "Removing MinIO volume for development environment..."
 	docker volume rm $(PROJECT_LOCAL)_minio_data || true
 
-clean-minio-volume-prod: ## Stop and remove PostgreSQL volume (production)
+prod-clean-minio-volume: ## Stop and remove PostgreSQL volume (production)
 	@echo "Removing MinIO volume for production environment..."
 	docker volume rm $(PROJECT_PROD)_minio_data || true
 

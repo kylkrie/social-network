@@ -1,6 +1,11 @@
 package postdb
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+
+	"yabro.io/social-api/internal/util"
+)
 
 type UserPostInteraction struct {
 	PostID       int64
@@ -8,7 +13,7 @@ type UserPostInteraction struct {
 	IsBookmarked bool
 }
 
-func (pdb *PostDB) GetUserPostInteractions(postIDs []int64, userID int64) ([]UserPostInteraction, error) {
+func (pdb *PostDB) GetUserPostInteractions(ctx context.Context, postIDs []int64, userID int64) (map[int64]UserPostInteraction, error) {
 	query := `
         SELECT 
             p.id AS post_id,
@@ -22,7 +27,7 @@ func (pdb *PostDB) GetUserPostInteractions(postIDs []int64, userID int64) ([]Use
         ORDER BY p.id
     `
 
-	rows, err := pdb.db.Query(query, postIDs, userID)
+	rows, err := pdb.db.QueryContext(ctx, query, postIDs, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user post interactions: %w", err)
 	}
@@ -43,5 +48,5 @@ func (pdb *PostDB) GetUserPostInteractions(postIDs []int64, userID int64) ([]Use
 		return nil, fmt.Errorf("error iterating user post interactions: %w", err)
 	}
 
-	return interactions, nil
+	return util.ArrToMap(interactions, func(i UserPostInteraction) int64 { return i.PostID }), nil
 }

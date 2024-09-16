@@ -15,8 +15,8 @@ func LikePost(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-
-		err = appState.Services.PostService.LikePost(postID, userID)
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.LikePost(ctx, postID, userID)
 		if err != nil {
 			return err
 		}
@@ -33,8 +33,8 @@ func UnlikePost(appState *app.AppState) fiber.Handler {
 		}
 
 		userID := auth.GetUserID(c)
-
-		err = appState.Services.PostService.UnlikePost(postID, userID)
+		ctx := app.CreateContext(c)
+		err = appState.Services.PostService.UnlikePost(ctx, postID, userID)
 		if err != nil {
 			return err
 		}

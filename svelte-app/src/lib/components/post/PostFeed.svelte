@@ -6,6 +6,7 @@
   import { buildPostData, getQuoteForPost, getReplyForPost } from "$lib/util";
 
   export let postData: Readable<ListPostsQueryResult>;
+  export let showReplySource = true;
   $: includes = $postData.data.includes;
   $: allPosts = $postData.data.posts.map((p) => ({
     post: buildPostData(p, includes),
@@ -35,9 +36,9 @@
   </Card>
 {:else}
   {#each allPosts as post}
-    {#if post.reply}
-      <PostCard data={post.reply} variant="reply_source" />
-      <PostCard data={post.post} variant="reply_dest" />
+    {#if showReplySource && post.reply}
+      <PostCard data={post.reply} variant="reply_start" />
+      <PostCard data={post.post} variant="reply_end" />
     {:else}
       <PostCard data={post.post} quote={post.quote} />
     {/if}

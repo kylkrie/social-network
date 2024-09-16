@@ -47,7 +47,7 @@ func ValidateAuthToken(appState *app.AppState) fiber.Handler {
 				// user not found, new user
 				if errors.Is(err, sql.ErrNoRows) {
 					log.Info().Msg("User not found, creating")
-					user, err := appState.Services.UserService.CreateUser(
+					userData, err := appState.Services.UserService.CreateUser(
 						authUUID,
 						claims["name"].(string),
 						claims["preferred_username"].(string),
@@ -56,7 +56,7 @@ func ValidateAuthToken(appState *app.AppState) fiber.Handler {
 						log.Error().Err(err).Msg("Error creating User")
 						return err
 					}
-					userID = user.ID
+					userID = userData.User.ID
 					log.Info().Int64("userID", userID).Msg("User created")
 				} else {
 					return err

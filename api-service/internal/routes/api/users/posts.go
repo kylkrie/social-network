@@ -4,18 +4,20 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
 	"yabro.io/social-api/internal/auth"
+	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/routes/api/posts"
 	"yabro.io/social-api/internal/util"
 )
 
-type GetUserLikesQuery struct {
-	Limit  *int    `query:"limit" validate:"omitempty,min=1,max=100"`
-	Cursor *string `query:"cursor" validate:"omitempty"`
+type ListPostsQuery struct {
+	Limit   *int    `query:"limit" validate:"omitempty,min=1,max=100"`
+	Cursor  *string `query:"cursor" validate:"omitempty"`
+	Replies *bool   `query:"replies" validate:"omitempty"`
 }
 
-func GetUserLikes(appState *app.AppState) fiber.Handler {
+func ListPosts(appState *app.AppState) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var query GetUserLikesQuery
+		var query ListPostsQuery
 		if err := c.QueryParser(&query); err != nil {
 			return err
 		}
@@ -25,7 +27,7 @@ func GetUserLikes(appState *app.AppState) fiber.Handler {
 		}
 
 		username := c.Params("username")
-		user, err := appState.Services.UserService.GetUserByUsername(username, false)
+		userData, err := appState.Services.UserService.GetUserByUsername(username, false)
 		if err != nil {
 			return err
 		}
@@ -40,8 +42,18 @@ func GetUserLikes(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
+		isReply := false
+		if query.Replies != nil {
+			isReply = *query.Replies
+		}
+
 		ctx := app.CreateContext(c)
-		postDatas, nextCursor, err := appState.Services.PostService.ListUserLikes(ctx, user.User.ID, limit, cursor)
+		postDatas, nextCursor, err := appState.Services.PostService.ListPosts(ctx, postdb.ListPostParams{
+			UserID:  &userData.User.ID,
+			Limit:   limit,
+			Cursor:  cursor,
+			IsReply: isReply,
+		})
 		if err != nil {
 			return err
 		}

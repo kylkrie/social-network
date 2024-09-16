@@ -9,6 +9,8 @@ import type {
   GetUserParams,
   GetCurrentUserParams,
   UpdateUserRequest,
+  ListFeedParams,
+  ListPostsParams,
 } from "./dtos";
 
 const API_PATH = "/users";
@@ -25,12 +27,32 @@ export const usersApi = {
 
   getCurrentUser: async (params: GetCurrentUserParams = {}): Promise<User> => {
     const queryString = cleanUrlParams(params);
-    const response = await api.get(`${API_PATH}?${queryString}`);
+    const response = await api.get(`${API_PATH}/me?${queryString}`);
     return response.data;
   },
 
   updateCurrentUser: async (userData: UpdateUserRequest): Promise<void> => {
-    await api.put(API_PATH, userData);
+    await api.put(`${API_PATH}/me`, userData);
+  },
+
+  listFeedPosts: async (
+    params: ListFeedParams = {},
+  ): Promise<ParsedListPostsResponse> => {
+    const queryString = cleanUrlParams(params);
+
+    const response = await api.get(`${API_PATH}/me/feed?${queryString}`);
+    return parseListPostsResponse(response);
+  },
+
+  listPosts: async (
+    username: string,
+    params: ListPostsParams = {},
+  ): Promise<ParsedListPostsResponse> => {
+    const queryString = cleanUrlParams(params);
+    const response = await api.get(
+      `${API_PATH}/${username}/posts?${queryString}`,
+    );
+    return parseListPostsResponse(response);
   },
 
   getUserLikes: async (
@@ -70,7 +92,7 @@ export const usersApi = {
 
     formData.append("pfp", file);
 
-    await api.post(`${API_PATH}/pfp`, formData);
+    await api.post(`${API_PATH}/me/pfp`, formData);
   },
 
   uploadProfileBanner: async (file: File): Promise<void> => {
@@ -86,6 +108,6 @@ export const usersApi = {
 
     formData.append("banner", file);
 
-    await api.post(`${API_PATH}/pfbanner`, formData);
+    await api.post(`${API_PATH}/me/pfbanner`, formData);
   },
 };

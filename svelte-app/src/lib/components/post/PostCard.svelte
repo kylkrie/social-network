@@ -1,7 +1,9 @@
 <script lang="ts" module>
+    import ReplyInput from "./ReplyInput.svelte";
+
   import { goto } from "$app/navigation";
   import type { Media } from "$lib/api"
-  export type PostCardVariant = "normal" | "reply_source" | "reply_dest";
+  export type PostCardVariant = "normal" | "reply_start" | "reply_mid" | "reply_end"
   export type PostData = {
     user: User
     post: Post
@@ -23,9 +25,11 @@
   export let quote: PostData = undefined;
   export let showButtons: boolean = true;
   export let clickable: boolean = true;
+  export let showReplyInput = false;
 
-  $: replySource = variant === "reply_source";
-  $: replyDest = variant === "reply_dest";
+  $: replyStart = variant === "reply_start";
+  $: replyMid = variant === "reply_mid";
+  $: replyEnd = variant === "reply_end";
   $: postDate = toPostDate(new Date(data.post.created_at));
   $: mediaItems = data.media || [];
 
@@ -66,15 +70,18 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="p-3 relative border-t-0
-  {replySource ? 'border-b-0' : ''} border-y border-border"
+  {replyStart ? 'border-b-0' : ''} border-y border-border"
   class:cursor-pointer={clickable}
   on:click={handlePostClick}
 >
-  {#if replyDest}
-    <div class="absolute top-0 left-8 w-0.5 h-2 bg-border"></div>
+  {#if replyStart}
+    <div class="absolute top-4 left-8 w-0.5 h-full bg-border"></div>
   {/if}
-  {#if replySource}
-    <div class="absolute top-2 bottom-0 left-8 w-0.5 h-full bg-border"></div>
+  {#if replyMid}
+    <div class="absolute left-8 w-0.5 h-full bg-border"></div>
+  {/if}
+  {#if replyEnd}
+    <div class="absolute left-8 w-0.5 h-4 bg-border"></div>
   {/if}
   <div class="flex relative">
     <!-- Profile picture -->
@@ -177,6 +184,12 @@
       {/if}
     </div>
   </div>
+  {#if showReplyInput}
+    <div class="mx-2 mt-4 px-2 py-4 border-t border-border">
+      <ReplyInput postId={data.post.id} />
+    </div>
+  {/if}
+
 </div>
 
 

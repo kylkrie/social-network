@@ -1,27 +1,38 @@
 package logger
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-func addRequestID(c *fiber.Ctx, e *zerolog.Event) *zerolog.Event {
-	return e.Str("request_id", c.Locals("requestid").(string))
+func addContext(ctx context.Context, e *zerolog.Event) *zerolog.Event {
+	fiberCtx, ok := ctx.Value("fiber_req").(*fiber.Ctx)
+	if ok {
+		e = e.Str("request_id", fiberCtx.Locals("requestid").(string))
+	}
+
+	return e
 }
 
-func Info(c *fiber.Ctx) *zerolog.Event {
-	return addRequestID(c, log.Info())
+func Info(ctx context.Context) *zerolog.Event {
+	return addContext(ctx, log.Info())
 }
 
-func Warn(c *fiber.Ctx) *zerolog.Event {
-	return addRequestID(c, log.Warn())
+func Warn(ctx context.Context) *zerolog.Event {
+	return addContext(ctx, log.Warn())
 }
 
-func Debug(c *fiber.Ctx) *zerolog.Event {
-	return addRequestID(c, log.Debug())
+func Debug(ctx context.Context) *zerolog.Event {
+	return addContext(ctx, log.Debug())
 }
 
-func Error(c *fiber.Ctx) *zerolog.Event {
-	return addRequestID(c, log.Error())
+func Error(ctx context.Context) *zerolog.Event {
+	return addContext(ctx, log.Error())
+}
+
+func Err(ctx context.Context, err error) *zerolog.Event {
+	return addContext(ctx, log.Error()).Err(err)
 }

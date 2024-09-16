@@ -1,17 +1,23 @@
+import {
+  type ListRepliesParams,
+  type ParsedListPostsResponse,
+  postsApi,
+  usersApi,
+} from "$lib/api";
 import { createInfiniteQuery } from "@tanstack/svelte-query";
-import type { ParsedListPostsResponse } from "$lib/api/posts";
+import type { Readable } from "svelte/motion";
+import { derived } from "svelte/store";
 import { QK_POSTS } from "./consts";
-import { derived, type Readable } from "svelte/store";
-import { processListPostsQuery, type ListPostsQueryResult } from "./listPosts";
-import { feedsApi, type ListFeedParams } from "$lib/api";
+import { type ListPostsQueryResult, processListPostsQuery } from "./listPosts";
 
-export function useListFeed(
-  params: ListFeedParams = {},
+export function useListReplies(
+  postId: string,
+  params: ListRepliesParams = {},
 ): Readable<ListPostsQueryResult> {
   const query = createInfiniteQuery<ParsedListPostsResponse, Error>({
-    queryKey: [QK_POSTS, "feed"],
+    queryKey: [QK_POSTS, "replies", postId],
     queryFn: ({ pageParam = undefined }) => {
-      return feedsApi.listFeedPosts({
+      return postsApi.listReplies(postId, {
         ...params,
         cursor: pageParam as string | undefined,
       });

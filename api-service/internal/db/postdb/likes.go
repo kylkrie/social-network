@@ -1,11 +1,12 @@
 package postdb
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
 
-func (pdb *PostDB) LikePost(postID, userID int64) error {
+func (pdb *PostDB) LikePost(ctx context.Context, postID, userID int64) error {
 	tx, err := pdb.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -17,7 +18,7 @@ func (pdb *PostDB) LikePost(postID, userID int64) error {
         VALUES ($1, $2)
         ON CONFLICT (post_id, user_id) DO NOTHING
     `
-	result, err := tx.Exec(query, postID, userID)
+	result, err := tx.ExecContext(ctx, query, postID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to like post: %w", err)
 	}
@@ -35,7 +36,7 @@ func (pdb *PostDB) LikePost(postID, userID int64) error {
             ON CONFLICT (post_id)
             DO UPDATE SET likes = post_public_metrics.likes + 1
         `
-		_, err = tx.Exec(updateQuery, postID)
+		_, err = tx.ExecContext(ctx, updateQuery, postID)
 		if err != nil {
 			return fmt.Errorf("failed to update post metrics: %w", err)
 		}
@@ -48,7 +49,7 @@ func (pdb *PostDB) LikePost(postID, userID int64) error {
 	return nil
 }
 
-func (pdb *PostDB) UnlikePost(postID, userID int64) error {
+func (pdb *PostDB) UnlikePost(ctx context.Context, postID, userID int64) error {
 	tx, err := pdb.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -59,7 +60,7 @@ func (pdb *PostDB) UnlikePost(postID, userID int64) error {
         DELETE FROM post_likes
         WHERE post_id = $1 AND user_id = $2
     `
-	result, err := tx.Exec(query, postID, userID)
+	result, err := tx.ExecContext(ctx, query, postID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to unlike post: %w", err)
 	}
@@ -76,7 +77,7 @@ func (pdb *PostDB) UnlikePost(postID, userID int64) error {
             SET likes = GREATEST(likes - 1, 0)
             WHERE post_id = $1
         `
-		_, err = tx.Exec(updateQuery, postID)
+		_, err = tx.ExecContext(ctx, updateQuery, postID)
 		if err != nil {
 			return fmt.Errorf("failed to update post metrics: %w", err)
 		}
@@ -89,7 +90,7 @@ func (pdb *PostDB) UnlikePost(postID, userID int64) error {
 	return nil
 }
 
-func (pdb *PostDB) ListUserLikes(userID int64, limit int, cursor *int64) ([]PostData, *int64, error) {
+func (pdb *PostDB) ListUserLikes(ctx context.Context, userID int64, limit int, cursor *int64) ([]PostWithMetrics, *int64, error) {
 	query := strings.Builder{}
 	query.WriteString(`
         SELECT p.*, m.reposts, m.replies, m.likes, m.views
@@ -111,13 +112,13 @@ func (pdb *PostDB) ListUserLikes(userID int64, limit int, cursor *int64) ([]Post
 
 	args = append(args, limit+1)
 
-	rows, err := pdb.db.Queryx(query.String(), args...)
+	rows, err := pdb.db.QueryxContext(ctx, query.String(), args...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list user likes: %w", err)
 	}
 	defer rows.Close()
 
-	var posts []PostData
+	var posts []PostWithMetrics
 	for rows.Next() {
 		var post Post
 		var metrics PostPublicMetrics
@@ -130,7 +131,7 @@ func (pdb *PostDB) ListUserLikes(userID int64, limit int, cursor *int64) ([]Post
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to scan post: %w", err)
 		}
-		posts = append(posts, PostData{Post: post, Metrics: &metrics})
+		posts = append(posts, PostWithMetrics{Post: post, Metrics: metrics})
 	}
 
 	var nextCursor *int64

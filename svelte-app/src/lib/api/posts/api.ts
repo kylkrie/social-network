@@ -3,8 +3,8 @@ import type {
   CreatePostRequest,
   UpdatePostRequest,
   GetPostParams,
-  ListPostsParams,
   GetPostResponse,
+  ListRepliesParams,
 } from "./dtos";
 import {
   parseGetPostResponse,
@@ -54,14 +54,6 @@ export const postsApi = {
     await api.delete(`${API_PATH}/${id}`);
   },
 
-  listPosts: async (
-    params: ListPostsParams = {},
-  ): Promise<ParsedListPostsResponse> => {
-    const queryString = cleanUrlParams(params);
-    const response = await api.get(`${API_PATH}?${queryString}`);
-    return parseListPostsResponse(response);
-  },
-
   likePost: async (id: string): Promise<void> => {
     await api.post(`${API_PATH}/${id}/likes`);
   },
@@ -76,5 +68,16 @@ export const postsApi = {
 
   unbookmarkPost: async (id: string): Promise<void> => {
     await api.delete(`${API_PATH}/${id}/bookmarks`);
+  },
+
+  listReplies: async (
+    postId: string,
+    params: ListRepliesParams = {},
+  ): Promise<ParsedListPostsResponse> => {
+    const queryString = cleanUrlParams(params);
+    const response = await api.get(
+      `${API_PATH}/${postId}/replies?${queryString}`,
+    );
+    return parseListPostsResponse(response);
   },
 };

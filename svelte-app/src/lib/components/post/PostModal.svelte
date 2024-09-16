@@ -126,7 +126,7 @@
       <div class="mb-4">
         <PostCard
           data={{ post, user }}
-          variant="reply_source"
+          variant="reply_start"
           showButtons={false}
         />
       </div>

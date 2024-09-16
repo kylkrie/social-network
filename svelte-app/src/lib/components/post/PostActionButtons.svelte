@@ -82,13 +82,14 @@
     <Heart size={18} fill={data.is_liked ? "currentColor" : "none"} />
     <span class="ml-2">{data.post.public_metrics?.likes || 0}</span>
   </button>
-  <button
-    class="flex items-center hover:text-primary"
-    on:click|stopPropagation={() => console.log("View clicked")}
-  >
-    <Eye size={18} />
-    <span class="ml-2">{data.post.public_metrics?.views || 0}</span>
-  </button>
+  <div></div>
+  <!-- <button -->
+  <!--   class="flex items-center hover:text-primary" -->
+  <!--   on:click|stopPropagation={() => console.log("View clicked")} -->
+  <!-- > -->
+  <!--   <Eye size={18} /> -->
+  <!--   <span class="ml-2">{data.post.public_metrics?.views || 0}</span> -->
+  <!-- </button> -->
   <div class="flex flex-row space-x-2">
     <button
       class="hover:text-blue-500"
