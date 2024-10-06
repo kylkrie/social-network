@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/svelte-query";
 import { writable, get } from "svelte/store";
 
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;

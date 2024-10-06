@@ -51,7 +51,7 @@ func ListRepliesForPost(appState *app.AppState) fiber.Handler {
 		userID := auth.GetUserID(c)
 
 		// Fetch additional data for includes
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, replies, userID)
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, replies, &userID)
 		if err != nil {
 			return err
 		}

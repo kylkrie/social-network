@@ -8,6 +8,7 @@ import (
 	"yabro.io/social-api/internal/routes/api"
 	"yabro.io/social-api/internal/routes/auth"
 	"yabro.io/social-api/internal/routes/health"
+	"yabro.io/social-api/internal/routes/public"
 )
 
 func SetupRoutes(app *fiber.App, appState *app.AppState) {
@@ -18,4 +19,5 @@ func SetupRoutes(app *fiber.App, appState *app.AppState) {
 	health.SetupRoutes(app, appState)
 	api.SetupRoutes(app, appState)
 	auth.SetupRoutes(app, appState)
+	public.SetupRoutes(app, appState)
 }

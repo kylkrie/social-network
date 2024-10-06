@@ -1,9 +1,9 @@
-package posts
+package public
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
-	"yabro.io/social-api/internal/auth"
+	"yabro.io/social-api/internal/routes/api/posts"
 	"yabro.io/social-api/internal/service"
 	"yabro.io/social-api/internal/util"
 )
@@ -33,13 +33,12 @@ func GetPost(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		userID := auth.GetUserID(c)
-		posts := []service.PostData{*post}
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, posts, &userID)
+		postArr := []service.PostData{*post}
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postArr, nil)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(ToPostResponse(*post, *includes))
+		return c.JSON(posts.ToPostResponse(*post, *includes))
 	}
 }

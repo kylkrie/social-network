@@ -2,6 +2,7 @@ import {
   api,
   cleanUrlParams,
   parseListPostsResponse,
+  publicApi,
   type ParsedListPostsResponse,
 } from "$lib/api";
 import type {
@@ -41,6 +42,15 @@ export const usersApi = {
     const queryString = cleanUrlParams(params);
 
     const response = await api.get(`${API_PATH}/me/feed?${queryString}`);
+    return parseListPostsResponse(response);
+  },
+
+  listPublicFeedPosts: async (
+    params: ListFeedParams = {},
+  ): Promise<ParsedListPostsResponse> => {
+    const queryString = cleanUrlParams(params);
+
+    const response = await publicApi.get(`/feed?${queryString}`);
     return parseListPostsResponse(response);
   },
 

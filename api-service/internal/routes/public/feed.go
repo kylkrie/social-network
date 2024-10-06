@@ -1,9 +1,8 @@
-package users
+package public
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"yabro.io/social-api/internal/app"
-	"yabro.io/social-api/internal/auth"
 	"yabro.io/social-api/internal/db/postdb"
 	"yabro.io/social-api/internal/routes/api/posts"
 )
@@ -38,8 +37,7 @@ func ListFeed(appState *app.AppState) fiber.Handler {
 			return err
 		}
 
-		userID := auth.GetUserID(c)
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postDatas, &userID)
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postDatas, nil)
 		if err != nil {
 			return err
 		}

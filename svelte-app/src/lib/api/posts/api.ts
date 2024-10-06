@@ -1,4 +1,4 @@
-import { api, cleanUrlParams } from "$lib/api";
+import { api, cleanUrlParams, publicApi } from "$lib/api";
 import type {
   CreatePostRequest,
   UpdatePostRequest,
@@ -40,6 +40,15 @@ export const postsApi = {
   ): Promise<ParsedGetPostResponse> => {
     const queryString = cleanUrlParams(params);
     const response = await api.get(`${API_PATH}/${id}?${queryString}`);
+    return parseGetPostResponse(response);
+  },
+
+  getPublicPost: async (
+    id: string,
+    params: GetPostParams = {},
+  ): Promise<ParsedGetPostResponse> => {
+    const queryString = cleanUrlParams(params);
+    const response = await publicApi.get(`/posts/${id}?${queryString}`);
     return parseGetPostResponse(response);
   },
 

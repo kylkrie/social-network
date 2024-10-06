@@ -3,25 +3,37 @@
     MessageCircle,
     Repeat2,
     Heart,
-    Eye,
     Bookmark,
     Share,
   } from "lucide-svelte";
-  import { postModalStore } from "$lib/stores";
+  import { auth, authModalStore, postModalStore } from "$lib/stores";
   import type { PostData } from "./PostCard.svelte";
   import { postsApi } from "$lib/api/posts";
 
   export let data: PostData;
+  $: isAuthenticated = !!$auth?.accessToken;
 
   function handleReply() {
-    postModalStore.openModal("reply", data.post, data.user);
+    if (isAuthenticated) {
+      postModalStore.openModal("reply", data.post, data.user);
+    } else {
+      authModalStore.openModal("post");
+    }
   }
 
   function handleQuote() {
-    postModalStore.openModal("quote", data.post, data.user);
+    if (isAuthenticated) {
+      postModalStore.openModal("quote", data.post, data.user);
+    } else {
+      authModalStore.openModal("post");
+    }
   }
 
   async function handleLike() {
+    if (!isAuthenticated) {
+      authModalStore.openModal("like posts");
+      return;
+    }
     try {
       if (data.is_liked) {
         await postsApi.unlikePost(data.post.id);
@@ -39,6 +51,10 @@
   }
 
   async function handleBookmark() {
+    if (!isAuthenticated) {
+      authModalStore.openModal("bookmark posts");
+      return;
+    }
     try {
       if (data.is_bookmarked) {
         await postsApi.unbookmarkPost(data.post.id);

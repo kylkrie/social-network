@@ -3,6 +3,7 @@
 
   import { type ComponentType } from 'svelte';
   import { type Icon } from 'lucide-svelte';
+    import { auth, authModalStore } from '$lib/stores';
   export interface SidebarItem {
     icon: ComponentType<Icon>;
     label: string;
@@ -19,6 +20,16 @@
   export let sidebarItems: SidebarItem[];
   export let isSidebarOpen = false;
   export let onCloseSidebar: () => void;
+
+  $: isAuthenticated = !!$auth?.accessToken;
+
+  function handlePostClick() {
+    if (isAuthenticated) {
+      postModalStore.openModal("normal")
+    } else {
+      authModalStore.openModal("post")
+    }
+  }
 </script>
 
 <nav
@@ -48,7 +59,7 @@
           </a>
         {/each}
         <div class="mx-auto max-w-full p-4">
-          <Button on:click={() => postModalStore.openModal("normal")}>
+          <Button on:click={handlePostClick}>
             Post
           </Button>
         </div>

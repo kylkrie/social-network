@@ -27,7 +27,7 @@ type IncludeData struct {
 	Interactions map[int64]postdb.UserPostInteraction
 }
 
-func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostData, userID int64) (*IncludeData, error) {
+func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostData, userID *int64) (*IncludeData, error) {
 	// Collect unique IDs for original post set
 	authorIDs := make(map[int64]struct{})
 	allPostIDs := make(map[int64]struct{})
@@ -79,9 +79,12 @@ func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostDa
 	}
 
 	// Get user interactions for all unique post IDs
-	interactions, err := s.postDB.GetUserPostInteractions(ctx, allUniquePostIDs, userID)
-	if err != nil {
-		return nil, err
+	var interactions map[int64]postdb.UserPostInteraction
+	if userID != nil {
+		interactions, err = s.postDB.GetUserPostInteractions(ctx, allUniquePostIDs, *userID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Fetch media

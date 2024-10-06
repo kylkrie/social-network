@@ -1,2 +1,3 @@
-export * from './auth'
-export * from './postModal.ts'
+export * from "./auth";
+export * from "./postModal";
+export * from "./authModal";

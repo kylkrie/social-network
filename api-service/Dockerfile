@@ -1,5 +1,5 @@
 # Start from the official Golang image for a specific version
-FROM golang:1.22 as local
+FROM golang:1.23 as local
 WORKDIR /app
 # Install air for hot reloading
 RUN go install github.com/air-verse/air@latest
@@ -15,7 +15,7 @@ COPY . .
 CMD ["air"]
 
 # Build stage
-FROM golang:1.22 as build
+FROM golang:1.23 as build
 WORKDIR /app
 # Copy go.mod and go.sum files
 COPY go.mod go.sum ./

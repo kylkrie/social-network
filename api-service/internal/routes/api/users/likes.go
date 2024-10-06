@@ -47,7 +47,7 @@ func GetUserLikes(appState *app.AppState) fiber.Handler {
 		}
 
 		myUserID := auth.GetUserID(c)
-		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postDatas, myUserID)
+		includes, err := appState.Services.IncludeService.GetIncludesForPosts(ctx, postDatas, &myUserID)
 		if err != nil {
 			return err
 		}

@@ -3,19 +3,21 @@
   import PageContent from "$lib/components/layout/PageContent.svelte";
   import PostCard from "$lib/components/post/PostCard.svelte";
   import PostFeed from "$lib/components/post/PostFeed.svelte";
-  import { useGetPost, useListPosts } from "$lib/queries";
+  import { useGetPost, useGetPublicPost } from "$lib/queries";
   import { useListReplies } from "$lib/queries/posts/listReplies";
+  import { auth } from "$lib/stores";
   import { buildPostData, getQuoteForPost, getReplyForPost } from "$lib/util";
   import { ArrowLeft } from "lucide-svelte";
 
+  $: isAuthenticated = !!$auth?.accessToken;
   $: postId = $page.params.id;
-  $: getPost = useGetPost(postId);
+  $: getPost = isAuthenticated ? useGetPost(postId) : useGetPublicPost(postId);
   $: post = $getPost.data.post;
   $: includes = $getPost.data.includes;
   $: postData = post ? buildPostData(post, includes) : undefined;
   $: replyPost = post ? getReplyForPost(post, includes) : undefined;
   $: quotePost = post ? getQuoteForPost(post, includes) : undefined;
-  $: feed = useListReplies(postId);
+  $: feed = isAuthenticated ? useListReplies(postId) : null;
 
   function goBack() {
     history.back();

@@ -25,3 +25,21 @@ export function useListFeed(
 
   return derived(query, processListPostsQuery);
 }
+
+export function usePublicListFeed(
+  params: ListFeedParams = {},
+): Readable<ListPostsQueryResult> {
+  const query = createInfiniteQuery<ParsedListPostsResponse, Error>({
+    queryKey: [QK_POSTS, "feed"],
+    queryFn: ({ pageParam = undefined }) => {
+      return usersApi.listPublicFeedPosts({
+        ...params,
+        cursor: pageParam as string | undefined,
+      });
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
+    initialPageParam: undefined,
+  });
+
+  return derived(query, processListPostsQuery);
+}

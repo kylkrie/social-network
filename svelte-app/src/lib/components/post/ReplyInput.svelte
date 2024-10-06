@@ -4,12 +4,14 @@
   import { Users, Loader } from "lucide-svelte";
   import type { CreatePostRequest } from "$lib/api/posts";
   import { onMount } from "svelte";
+  import { auth, authModalStore } from "$lib/stores";
 
   export let postId: string;
 
   let content = "";
   let textareaElement: HTMLTextAreaElement;
   const createPostMutation = useCreatePost();
+  $: isAuthenticated = !!$auth?.accessToken;
 
   $: isSubmitting = $createPostMutation.isPending;
   $: isDisabled = !content.trim() || isSubmitting;
@@ -31,6 +33,10 @@
   });
 
   async function handleSubmit() {
+    if (!isAuthenticated) {
+      authModalStore.openModal("post");
+      return;
+    }
     if (content.trim()) {
       const postData: CreatePostRequest = {
         content,

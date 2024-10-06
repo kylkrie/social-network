@@ -1,22 +1,25 @@
 <!-- src/lib/components/layout/UserProfileMenu.svelte -->
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { auth } from "$lib/stores";
-  import { User, LogOut, Users } from "lucide-svelte";
+  import { auth, startAuthLogin } from "$lib/stores";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import { LogOut, Users } from "lucide-svelte";
   import { onMount } from "svelte";
 
   let isOpen = false;
   let menuRef: HTMLDivElement;
 
-  function handleMyAccount() {
-    isOpen = false;
-    goto("/account");
-  }
+  $: queryClient = useQueryClient();
 
   function handleLogout() {
     isOpen = false;
+    queryClient.clear();
     auth.logout();
     goto("/");
+  }
+
+  function handleLogin() {
+    startAuthLogin();
   }
 
   function toggleMenu() {
@@ -50,6 +53,8 @@
       });
     }
   });
+
+  $: isAuthenticated = !!$auth?.accessToken;
 </script>
 
 <div class="relative user-profile-menu" bind:this={menuRef} use:clickOutside>
@@ -73,14 +78,25 @@
       aria-orientation="vertical"
       aria-labelledby="user-menu"
     >
-      <button
-        on:click={handleLogout}
-        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        role="menuitem"
-      >
-        <LogOut class="inline-block mr-2 h-4 w-4" />
-        Logout
-      </button>
+      {#if isAuthenticated}
+        <button
+          on:click={handleLogout}
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+        >
+          <LogOut class="inline-block mr-2 h-4 w-4" />
+          Logout
+        </button>
+      {:else}
+        <button
+          on:click={handleLogin}
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+        >
+          <LogOut class="inline-block mr-2 h-4 w-4" />
+          Login
+        </button>
+      {/if}
     </div>
   {/if}
 </div>

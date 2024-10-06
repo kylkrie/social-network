@@ -1,11 +1,15 @@
 <script lang="ts">
   import { useGetCurrentUser } from "$lib/queries/users";
   import type { User } from "$lib/api/users/dtos";
+  import { auth } from "$lib/stores";
 
-  const getCurrentUser = useGetCurrentUser({ profile: true });
+  $: isAuthenticated = !!$auth?.accessToken;
+  $: getCurrentUser = isAuthenticated
+    ? useGetCurrentUser({ profile: true })
+    : null;
 
-  $: user = $getCurrentUser.data as User;
-  $: name = user?.name ?? "";
+  $: user = $getCurrentUser?.data as User;
+  $: name = user?.name ?? "Guest";
   $: username = user?.username ? `@${user.username}` : "";
 </script>
 
