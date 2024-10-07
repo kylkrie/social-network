@@ -55,10 +55,6 @@ func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostDa
 	for id := range allPostIDs {
 		allUniquePostIDs = append(allUniquePostIDs, id)
 	}
-	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
-	for id := range authorIDs {
-		uniqueAuthorIDs = append(uniqueAuthorIDs, id)
-	}
 
 	// Fetch include Posts
 	includePosts, err := s.postDB.GetPosts(ctx, uniqueOtherPostIDs)
@@ -70,6 +66,16 @@ func (s *IncludeService) GetIncludesForPosts(ctx context.Context, posts []PostDa
 	includePostMetrics, err := s.postDB.GetPublicMetricsForPosts(ctx, uniqueOtherPostIDs)
 	if err != nil {
 		return nil, err
+	}
+
+	// add author IDs for include posts
+	for _, post := range includePosts {
+		authorIDs[post.AuthorID] = struct{}{}
+	}
+	// get unique author IDs
+	uniqueAuthorIDs := make([]int64, 0, len(authorIDs))
+	for id := range authorIDs {
+		uniqueAuthorIDs = append(uniqueAuthorIDs, id)
 	}
 
 	// Fetch includeUsers
