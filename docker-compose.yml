@@ -20,20 +20,20 @@ services:
       target: local
     environment:
       - OAUTH_CLIENT_ID=social-client
-      - OAUTH_CLIENT_SECRET=social_secret
-      - OAUTH_REDIRECT_URI=http://localhost:3000/callback
-      - OAUTH_AUTH_URL=http://localhost:8080/realms/social/protocol/openid-connect/auth
-      - OAUTH_TOKEN_URL=http://localhost:8080/realms/social/protocol/openid-connect/token
-      - OAUTH_LOGOUT_URL=http://localhost:8080/realms/social/protocol/openid-connect/logout
-      - JWKS_URL=http://localhost:8080/realms/social/protocol/openid-connect/certs
-      - ALLOWED_ORIGIN=http://localhost:3000
+      - OAUTH_CLIENT_SECRET=${OAUTH_SOCIAL_SECRET}
+      - OAUTH_REDIRECT_URI=${ORIGIN_WEB}/callback
+      - OAUTH_AUTH_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/auth
+      - OAUTH_TOKEN_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/token
+      - OAUTH_LOGOUT_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/logout
+      - JWKS_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/certs
+      - ALLOWED_ORIGIN=${ORIGIN_WEB}
       - PORT=4000
-      - DATABASE_URL=postgresql://user:password@postgres:5432/social
+      - DATABASE_URL=postgresql://${PG_USER}:${PG_PASS}@postgres:5432/social
       - NODE_ID=100
       - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - CDN_BASE_URL=http://localhost:9000
+      - MINIO_ACCESS_KEY=${MINIO_USER}
+      - MINIO_SECRET_KEY=${MINIO_PASS}
+      - CDN_BASE_URL=${ORIGIN_MINIO}
     ports:
       - "4000:4000"
     volumes:
@@ -49,8 +49,8 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN=${KC_ADMIN_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${KC_ADMIN_PASS}
       - KC_HEALTH_ENABLED=true
     ports:
       - "8080:8080"
@@ -67,21 +67,14 @@ services:
     image: postgres:13
     environment:
       POSTGRES_DB: social
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
       - "5432:5432"
-
-  redis:
-    image: redis:7.2
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
 
   minio:
     image: minio/minio
@@ -93,8 +86,8 @@ services:
     networks:
       - app-network
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASS}
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -107,12 +100,13 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-    profiles: ["setup"]
+    profiles:
+      - setup
     networks:
       - app-network
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set social http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc alias set social http://minio:9000 ${MINIO_USER} ${MINIO_PASS};
       /usr/bin/mc mb social/profiles --ignore-existing;
       /usr/bin/mc mb social/media --ignore-existing;
       /usr/bin/mc anonymous set download social/profiles;
@@ -127,5 +121,4 @@ networks:
 volumes:
   keycloak_data:
   postgres_data:
-  redis_data:
   minio_data:

@@ -19,20 +19,20 @@ services:
       target: prod
     environment:
       - OAUTH_CLIENT_ID=social-client
-      - OAUTH_CLIENT_SECRET=social_secret
-      - OAUTH_REDIRECT_URI=https://yabro.io/callback
-      - OAUTH_AUTH_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/auth
-      - OAUTH_TOKEN_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/token
-      - OAUTH_LOGOUT_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/logout
-      - JWKS_URL=https://auth.yabro.io/realms/social/protocol/openid-connect/certs
-      - ALLOWED_ORIGIN=https://yabro.io
+      - OAUTH_CLIENT_SECRET=${OAUTH_SOCIAL_SECRET}
+      - OAUTH_REDIRECT_URI=${ORIGIN_WEB}/callback
+      - OAUTH_AUTH_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/auth
+      - OAUTH_TOKEN_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/token
+      - OAUTH_LOGOUT_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/logout
+      - JWKS_URL=${ORIGIN_AUTH}/realms/social/protocol/openid-connect/certs
+      - ALLOWED_ORIGIN=${ORIGIN_WEB}
       - PORT=4000
-      - DATABASE_URL=postgresql://social:password@postgres-social:5432/social
+      - DATABASE_URL=postgresql://${PG_USER}:${PG_PASS}@postgres-social:5432/social
       - NODE_ID=100
       - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - CDN_BASE_URL=https://cdn.yabro.io
+      - MINIO_ACCESS_KEY=${MINIO_USER}
+      - MINIO_SECRET_KEY=${MINIO_PASS}
+      - CDN_BASE_URL=${ORIGIN_MINIO}
     ports:
       - "4000:4000"
     depends_on:
@@ -48,12 +48,12 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN=${KC_ADMIN_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${KC_ADMIN_PASS}
       - KC_DB_URL=jdbc:postgresql://postgres-keycloak:5432/keycloak
-      - KC_DB_USERNAME=keycloak
-      - KC_DB_PASSWORD=keycloak_password
-      - KC_HOSTNAME=auth.yabro.io
+      - KC_DB_USERNAME=${PG_KC_USER}
+      - KC_DB_PASSWORD=${PG_KC_PASS}
+      - KC_HOSTNAME=${KC_HOSTNAME}
       - KC_PROXY=edge
       - KC_HTTP_ENABLED=true
       - KC_HTTP_PORT=8080
@@ -79,8 +79,8 @@ services:
     image: postgres:13
     environment:
       POSTGRES_DB: social
-      POSTGRES_USER: social
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
     volumes:
       - postgres_social_data:/var/lib/postgresql/data
     networks:
@@ -98,8 +98,8 @@ services:
     image: postgres:13
     environment:
       POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak_password
+      POSTGRES_USER: ${PG_KC_USER}
+      POSTGRES_PASSWORD: ${PG_KC_PASS}
     volumes:
       - postgres_keycloak_data:/var/lib/postgresql/data
     networks:
@@ -113,17 +113,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7.2
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-
   minio:
     image: minio/minio
     ports:
@@ -134,8 +123,8 @@ services:
     networks:
       - app-network
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASS}
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -154,8 +143,8 @@ services:
       - app-network
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set social http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb social/profiles --ignore-existing;
+      /usr/bin/mc alias set social http://minio:9000 ${MINIO_USER} ${MINIO_PASS};
+      /usr/bin/mc mb social/profiles --ignore-existing; 
       /usr/bin/mc mb social/media --ignore-existing;
       /usr/bin/mc anonymous set download social/profiles;
       /usr/bin/mc anonymous set download social/media;
@@ -169,5 +158,4 @@ networks:
 volumes:
   postgres_social_data:
   postgres_keycloak_data:
-  redis_data:
   minio_data:
