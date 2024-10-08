@@ -42,6 +42,10 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: apperror.ErrorHandler,
+		ReadTimeout:  2 * time.Minute,
+		WriteTimeout: 2 * time.Minute,
+		IdleTimeout:  2 * time.Minute,
+		BodyLimit:    20 * 1024 * 1024,
 	})
 
 	// Setup routes
