@@ -89,7 +89,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U social"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d social"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -108,7 +108,7 @@ services:
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_KC_USER} -d keycloak"]
       interval: 10s
       timeout: 5s
       retries: 5
